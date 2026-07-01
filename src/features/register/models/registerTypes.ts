@@ -7,9 +7,11 @@ export type RegistrationStep = 1 | 2 | 3 | 4 | 5 | 6 | 7;
 // ── Gender ───────────────────────────────────────────────────
 export type GenderOption = 'male' | 'female' | 'nonbinary' | null;
 
-// ── Location (text-only for now) ─────────────────────────────
+// ── Location ─────────────────────────────────────────────────
 export interface LocationData {
   address: string;
+  lat: number;
+  lng: number;
 }
 
 // ── Cumulative form data collected across all steps ──────────
@@ -32,7 +34,7 @@ export interface RegistrationFormData {
   gender: GenderOption;
   username: string;
 
-  // Step 5 (location — text only, map deferred)
+  // Step 5 (location — interactive Leaflet map)
   location: LocationData | null;
 
   // Step 6
