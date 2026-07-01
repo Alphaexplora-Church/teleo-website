@@ -1,0 +1,62 @@
+// App.tsx — Router shell + lazy-loaded page routes
+// All page-level views are lazy-loaded per MVVM convention
+
+import { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+// ── Lazy-loaded page views ─────────────────────────────────
+const SplashScreen = lazy(
+  () => import('./features/splash/views/SplashScreen')
+);
+const WelcomePage = lazy(
+  () => import('./features/welcome/views/WelcomePage')
+);
+const LoginPage = lazy(
+  () => import('./features/auth/views/LoginPage')
+);
+const GuestDashboard = lazy(
+  () => import('./features/dashboard/views/GuestDashboard')
+);
+const RegisterPage = lazy(
+  () => import('./features/register/views/RegisterPage')
+);
+
+// ── Minimal loading fallback ───────────────────────────────
+const PageLoader: React.FC = () => (
+  <div className="teleo-shell">
+    <div className="splash-container">
+      <div className="spinner-lg" aria-label="Loading" />
+    </div>
+  </div>
+);
+
+// ── App ────────────────────────────────────────────────────
+function App() {
+  return (
+    <BrowserRouter>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          {/* Step 1: Splash — auto-routes to /welcome */}
+          <Route path="/" element={<SplashScreen />} />
+
+          {/* Step 2: Welcome / Landing */}
+          <Route path="/welcome" element={<WelcomePage />} />
+
+          {/* Step 3a: Login via Email */}
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* Step 3b: Registration */}
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Step 4: Dashboard (post-auth / guest) */}
+          <Route path="/dashboard" element={<GuestDashboard />} />
+
+          {/* Fallback — redirect any unknown route to splash */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  );
+}
+
+export default App;
