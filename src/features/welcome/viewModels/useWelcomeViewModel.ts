@@ -9,7 +9,6 @@ interface WelcomeViewModel {
   handleLogin: () => void;
   handleGoogleOAuth: () => Promise<void>;
   handleGuestLogin: () => Promise<void>;
-  handleChurchSignUp: () => void;
 }
 
 export const useWelcomeViewModel = (): WelcomeViewModel => {
@@ -49,15 +48,12 @@ export const useWelcomeViewModel = (): WelcomeViewModel => {
     }
   };
 
-  const handleChurchSignUp = () => {
-    navigate('/register?type=church');
-  };
 
   return {
     handleCreateAccount,
     handleLogin,
     handleGoogleOAuth,
     handleGuestLogin,
-    handleChurchSignUp,
+
   };
 };

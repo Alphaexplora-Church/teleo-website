@@ -14,8 +14,8 @@ const WelcomePage = lazy(
 const LoginPage = lazy(
   () => import('./features/auth/views/LoginPage')
 );
-const GuestDashboard = lazy(
-  () => import('./features/dashboard/views/GuestDashboard')
+const HomePage = lazy(
+  () => import('./features/home/views/HomePage')
 );
 const RegisterPage = lazy(
   () => import('./features/register/views/RegisterPage')
@@ -49,7 +49,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
 
           {/* Step 4: Dashboard (post-auth / guest) */}
-          <Route path="/dashboard" element={<GuestDashboard />} />
+          <Route path="/dashboard" element={<HomePage />} />
 
           {/* Fallback — redirect any unknown route to splash */}
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -11,12 +11,12 @@ interface TeleoLogoProps {
 
 const TeleoLogo: React.FC<TeleoLogoProps> = ({ size = 120, className = '' }) => {
   return (
-    <img 
-      src={teleoLogo} 
-      alt="Teleo Logo" 
-      width={size} 
-      height={size} 
-      className={className} 
+    <img
+      src={teleoLogo}
+      alt="Teleo Logo"
+      width={size}
+      height={size}
+      className={className}
     />
   );
 };
