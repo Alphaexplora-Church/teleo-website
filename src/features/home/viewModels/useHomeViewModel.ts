@@ -3,7 +3,7 @@
 // Views never manage navigation state directly — they call this hook only.
 
 import { useState, useCallback } from 'react';
-import type { DashboardTab } from '../models/homeTypes';
+import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
 export interface DashboardViewModelReturn {
   activeTab: DashboardTab;

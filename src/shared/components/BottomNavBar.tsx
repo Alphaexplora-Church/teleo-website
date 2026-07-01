@@ -1,10 +1,10 @@
-// features/home/views/BottomNavBar.tsx
+// shared/components/BottomNavBar.tsx
 // View: Sticky 5-tab bottom navigation bar
 // Receives activeTab + setActiveTab from parent — zero business logic inside.
 
 import React from 'react';
-import type { DashboardTab } from '../models/homeTypes';
-import { NAV_TABS } from '../models/homeTypes';
+import type { DashboardTab } from '../models/navigationTypes';
+import { NAV_TABS } from '../models/navigationTypes';
 
 // ── SVG icon set ──────────────────────────────────────────────
 const HomeIcon: React.FC<{ active: boolean }> = ({ active }) => (

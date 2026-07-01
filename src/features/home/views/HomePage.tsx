@@ -5,9 +5,9 @@
 
 import React from 'react';
 import TeleoLogo from '../../../shared/components/TeleoLogo';
-import BottomNavBar from './BottomNavBar';
+import BottomNavBar from '../../../shared/components/BottomNavBar';
 import { useDashboardViewModel } from '../viewModels/useHomeViewModel';
-import type { DashboardTab } from '../models/homeTypes';
+import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
 // ── Tab page views ────────────────────────────────────────────
 import HomeTab from './HomeTab';

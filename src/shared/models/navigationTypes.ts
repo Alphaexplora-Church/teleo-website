@@ -1,4 +1,4 @@
-// features/dashboard/models/dashboardTypes.ts
+// shared/models/navigationTypes.ts
 // Pure TypeScript types and constants for the dashboard navigation shell.
 // Imported by BottomNavBar and useDashboardViewModel — NO React, hooks, or JSX.
 
