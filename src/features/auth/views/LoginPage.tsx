@@ -46,12 +46,12 @@ const EyeClosedIcon: React.FC = () => (
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const {
-    emailOrPhone,
+    email,
     password,
     showPassword,
     isLoading,
     error,
-    setEmailOrPhone,
+    setEmail,
     setPassword,
     togglePasswordVisibility,
     handleSubmit,
@@ -93,18 +93,18 @@ const LoginPage: React.FC = () => {
             </div>
           )}
 
-          {/* Email / Phone field */}
+          {/* Email field */}
           <div className="flex flex-col gap-1.5">
             <label htmlFor="input-email" className="text-sm font-medium text-gray-label tracking-[0.05px]">
-              Email Address or Phone Number
+              Email Address
             </label>
             <input
               id="input-email"
               type="text"
               className="w-full min-h-[52px] px-3.5 rounded-[10px] border-[1.5px] border-gray-border bg-white font-sans text-[15px] text-gray-label outline-none transition-all focus:border-navy focus:shadow-[0_0_0_3px_rgba(27,50,82,0.10)]"
-              placeholder="Email or Phone Number"
-              value={emailOrPhone}
-              onChange={(e) => setEmailOrPhone(e.target.value)}
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               onKeyDown={handleKeyDown}
               autoComplete="username"
               autoCapitalize="none"

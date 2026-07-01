@@ -7,12 +7,12 @@ import { loginWithEmail } from '../../../shared/models/authService';
 import type { LoginCredentials } from '../../../shared/models/types';
 
 interface LoginViewModel {
-  emailOrPhone: string;
+  email: string;
   password: string;
   showPassword: boolean;
   isLoading: boolean;
   error: string | null;
-  setEmailOrPhone: (value: string) => void;
+  setEmail: (value: string) => void;
   setPassword: (value: string) => void;
   togglePasswordVisibility: () => void;
   handleSubmit: () => Promise<void>;
@@ -25,7 +25,7 @@ export const useLoginViewModel = (): LoginViewModel => {
   const navigate = useNavigate();
 
   // Form state
-  const [emailOrPhone, setEmailOrPhone] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -40,10 +40,18 @@ export const useLoginViewModel = (): LoginViewModel => {
 
   /** Validate fields and submit credentials */
   const handleSubmit = async () => {
-    if (!emailOrPhone.trim()) {
-      setError('Please enter your email address or phone number.');
+    if (!email.trim()) {
+      setError('Please enter your email address.');
       return;
     }
+    
+    // Simple email validation to match Zod requirements
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
     if (!password.trim()) {
       setError('Please enter your password.');
       return;
@@ -53,7 +61,7 @@ export const useLoginViewModel = (): LoginViewModel => {
     setIsLoading(true);
 
     try {
-      const credentials: LoginCredentials = { emailOrPhone, password };
+      const credentials: LoginCredentials = { emailOrPhone: email, password };
       const result = await loginWithEmail(credentials);
 
       if (result.success) {
@@ -82,12 +90,12 @@ export const useLoginViewModel = (): LoginViewModel => {
   };
 
   return {
-    emailOrPhone,
+    email,
     password,
     showPassword,
     isLoading,
     error,
-    setEmailOrPhone,
+    setEmail,
     setPassword,
     togglePasswordVisibility,
     handleSubmit,
