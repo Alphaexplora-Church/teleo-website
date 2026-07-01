@@ -15,23 +15,23 @@ const WelcomePage: React.FC = () => {
   } = useWelcomeViewModel();
 
   return (
-    <div className="teleo-shell">
-      <div className="welcome-container">
+    <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
+      <div className="flex-1 flex flex-col items-center pt-14 px-7 pb-[calc(2rem+env(safe-area-inset-bottom))] gap-0 animate-page-fade-in">
 
         {/* ── Hero Section ── */}
-        <div className="welcome-hero">
+        <div className="flex flex-col items-center gap-5 mb-10">
           <TeleoLogo size={150} />
-          <h1 className="welcome-title">Welcome to Teleo!</h1>
+          <h1 className="text-[26px] font-bold text-navy text-center tracking-[-0.3px] leading-[1.2]">Welcome to Teleo!</h1>
         </div>
 
         {/* ── Action Column ── */}
-        <div className="action-column">
+        <div className="w-full flex flex-col gap-3 flex-1">
 
           {/* Primary: Create Account */}
           <button
             id="btn-create-account"
             type="button"
-            className="btn-primary"
+            className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-none bg-navy text-white font-sans text-[15px] font-semibold tracking-[0.1px] cursor-pointer px-6 transition-all shadow-btn hover:bg-navy-hover hover:shadow-[0_4px_16px_rgba(27,50,82,0.28)] active:bg-navy-active active:scale-95 active:shadow-none disabled:opacity-65 disabled:cursor-not-allowed select-none"
             onClick={handleCreateAccount}
           >
             Create a new account
@@ -41,24 +41,24 @@ const WelcomePage: React.FC = () => {
           <button
             id="btn-login"
             type="button"
-            className="btn-outline"
+            className="w-full min-h-[52px] flex items-center justify-center rounded-full border-[1.5px] border-navy bg-transparent text-navy font-sans text-[15px] font-medium tracking-[0.1px] cursor-pointer px-6 transition-all hover:bg-navy/5 active:scale-95 active:bg-navy/10 select-none"
             onClick={handleLogin}
           >
             Log in
           </button>
 
           {/* Divider */}
-          <div className="divider-or">
-            <span className="divider-line" />
-            <span className="divider-text">or</span>
-            <span className="divider-line" />
+          <div className="flex items-center gap-2.5 py-0.5">
+            <span className="flex-1 h-px bg-gray-border" />
+            <span className="text-[13px] text-gray-placeholder font-normal whitespace-nowrap">or</span>
+            <span className="flex-1 h-px bg-gray-border" />
           </div>
 
           {/* Google OAuth */}
           <button
             id="btn-google-oauth"
             type="button"
-            className="btn-google"
+            className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-[1.5px] border-gray-border bg-white text-gray-label font-sans text-[15px] font-medium cursor-pointer px-6 transition-all shadow-[0_1px_4px_rgba(0,0,0,0.08)] hover:bg-[#f9fafb] hover:shadow-[0_2px_8px_rgba(0,0,0,0.12)] active:scale-95 active:bg-[#f3f4f6] select-none"
             onClick={handleGoogleOAuth}
           >
             <svg
@@ -66,7 +66,7 @@ const WelcomePage: React.FC = () => {
               height="20"
               viewBox="0 0 48 48"
               aria-hidden="true"
-              className="google-icon"
+              className="shrink-0"
             >
               <path
                 fill="#4285F4"
@@ -92,26 +92,13 @@ const WelcomePage: React.FC = () => {
           <button
             id="btn-guest"
             type="button"
-            className="btn-primary"
-            onClick={handleGuestLogin}
+            className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-none bg-navy text-white font-sans text-[15px] font-semibold tracking-[0.1px] cursor-pointer px-6 transition-all shadow-btn hover:bg-navy-hover hover:shadow-[0_4px_16px_rgba(27,50,82,0.28)] active:bg-navy-active active:scale-95 active:shadow-none disabled:opacity-65 disabled:cursor-not-allowed select-none"
+
           >
             Continue as Guest
           </button>
         </div>
 
-        {/* ── Footer ── */}
-        <footer className="welcome-footer">
-          <p className="footer-text">
-            Registered Church?{' '}
-            <button
-              type="button"
-              className="link-btn"
-              onClick={handleChurchSignUp}
-            >
-              Sign Up
-            </button>
-          </p>
-        </footer>
 
       </div>
     </div>

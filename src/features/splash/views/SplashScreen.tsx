@@ -18,9 +18,9 @@ const SplashScreen: React.FC = () => {
   }, [isReady, navigate]);
 
   return (
-    <div className="teleo-shell">
-      <div className="splash-container">
-        <div className="splash-logo-wrapper">
+    <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
+      <div className="flex-1 flex flex-col items-center justify-center py-12 px-6 pb-[calc(3rem+env(safe-area-inset-bottom))] bg-white">
+        <div className="animate-splash-pop">
           <TeleoLogo size={140} />
         </div>
       </div>
