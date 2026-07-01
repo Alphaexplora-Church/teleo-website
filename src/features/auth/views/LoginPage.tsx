@@ -56,8 +56,6 @@ const LoginPage: React.FC = () => {
     togglePasswordVisibility,
     handleSubmit,
     handleForgotPassword,
-    handleChurchSignUp,
-    handleApprovalStatus,
   } = useLoginViewModel();
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
