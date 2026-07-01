@@ -57,7 +57,8 @@ const WelcomePage: React.FC = () => {
           <button
             id="btn-google-oauth"
             type="button"
-            className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-[1.5px] border-gray-border bg-white text-gray-label font-sans text-[15px] font-medium cursor-pointer px-6 transition-all shadow-[0_1px_4px_rgba(0,0,0,0.08)] hover:bg-[#f9fafb] hover:shadow-[0_2px_8px_rgba(0,0,0,0.12)] active:scale-95 active:bg-[#f3f4f6] select-none"
+            disabled
+            className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-[1.5px] border-gray-border bg-white text-gray-label font-sans text-[15px] font-medium px-6 shadow-[0_1px_4px_rgba(0,0,0,0.08)] opacity-50 cursor-not-allowed select-none"
             onClick={handleGoogleOAuth}
           >
             <svg
