@@ -109,9 +109,8 @@ const Step6ProfilePic: React.FC<Step6Props> = ({ profilePictureUrl, onFileSelect
           <button
             id="btn-reg-step6-continue"
             type="button"
-            onClick={() => {/* already selected, parent will proceed on file selection */}}
-            className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-none bg-navy text-white font-sans text-[15px] font-semibold tracking-[0.1px] cursor-pointer px-6 transition-all shadow-btn hover:bg-navy-hover hover:shadow-[0_4px_16px_rgba(27,50,82,0.28)] active:bg-navy-active active:scale-95 active:shadow-none select-none"
             onClick={onSkip}
+            className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-none bg-navy text-white font-sans text-[15px] font-semibold tracking-[0.1px] cursor-pointer px-6 transition-all shadow-btn hover:bg-navy-hover hover:shadow-[0_4px_16px_rgba(27,50,82,0.28)] active:bg-navy-active active:scale-95 active:shadow-none select-none"
           >
             Continue
           </button>
