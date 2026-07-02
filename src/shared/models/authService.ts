@@ -100,3 +100,30 @@ export const continueAsGuest = async (): Promise<AuthResult> => {
     }, 200);
   });
 };
+
+/**
+ * Logout user.
+ * Clears local tokens and invalidates session on server.
+ */
+export const logout = async (): Promise<void> => {
+  const token = localStorage.getItem('access_token');
+  
+  // Regardless of API success, we clear the local state
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+
+  if (token) {
+    try {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      console.error('Logout API failed:', error);
+      // We still clear local state even if the network fails
+    }
+  }
+};

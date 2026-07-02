@@ -6,23 +6,23 @@
 import React from 'react';
 import TeleoLogo from '../../../shared/components/TeleoLogo';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
-import { useDashboardViewModel } from '../viewModels/useHomeViewModel';
+import { useShellViewModel } from '../viewModels/useShellViewModel';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
 // ── Tab page views ────────────────────────────────────────────
-import HomeTab from './HomeTab';
-import ServicesTab from './ServicesTab';
-import PrayerWallTab from './PrayerWallTab';
-import ContentTab from './ContentTab';
-import ProfileTab from './ProfileTab';
+import HomeFeedView from '../../home/views/HomeFeedView';
+import ServicesView from '../../services/views/ServicesView';
+import PrayerWallView from '../../prayer-wall/views/PrayerWallView';
+import ContentView from '../../content/views/ContentView';
+import ProfileView from '../../profile/views/ProfileView';
 
 // ── Tab page registry ─────────────────────────────────────────
 const TAB_PAGES: Record<DashboardTab, React.FC> = {
-  'home': HomeTab,
-  'services': ServicesTab,
-  'prayer-wall': PrayerWallTab,
-  'content': ContentTab,
-  'profile': ProfileTab,
+  'home': HomeFeedView,
+  'services': ServicesView,
+  'prayer-wall': PrayerWallView,
+  'content': ContentView,
+  'profile': ProfileView,
 };
 
 // ── Notification bell icon ────────────────────────────────────
@@ -44,8 +44,8 @@ const BellIcon: React.FC = () => (
 );
 
 // ── GuestDashboard (App Shell) ────────────────────────────────
-const GuestDashboard: React.FC = () => {
-  const { activeTab, setActiveTab } = useDashboardViewModel();
+const AppShell: React.FC = () => {
+  const { activeTab, setActiveTab } = useShellViewModel();
 
   // Resolve the active page component
   const ActivePage = TAB_PAGES[activeTab];
@@ -99,4 +99,4 @@ const GuestDashboard: React.FC = () => {
   );
 };
 
-export default GuestDashboard;
+export default AppShell;

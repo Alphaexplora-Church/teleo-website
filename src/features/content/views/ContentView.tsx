@@ -84,7 +84,7 @@ const ContentCard: React.FC<ContentCardProps> = ({ tag, tagColor, title, blurb, 
 );
 
 // ── Component ─────────────────────────────────────────────────
-const ContentTab: React.FC = () => {
+const ContentView: React.FC = () => {
   return (
     <div className="flex flex-col gap-5 px-5 pt-5 pb-6">
       {/* Header */}
@@ -121,4 +121,4 @@ const ContentTab: React.FC = () => {
   );
 };
 
-export default ContentTab;
+export default ContentView;

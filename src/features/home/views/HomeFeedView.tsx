@@ -40,7 +40,7 @@ const SectionHeader: React.FC<{ title: string; action?: string }> = ({ title, ac
 );
 
 // ── Component ─────────────────────────────────────────────────
-const HomeTab: React.FC = () => {
+const HomeFeedView: React.FC = () => {
   return (
     <div className="flex flex-col gap-5 px-5 pt-5 pb-6">
       {/* Greeting */}
@@ -74,4 +74,4 @@ const HomeTab: React.FC = () => {
   );
 };
 
-export default HomeTab;
+export default HomeFeedView;

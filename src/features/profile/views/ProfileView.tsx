@@ -2,6 +2,7 @@
 // View: Profile tab — avatar block + account setting rows
 
 import React from 'react';
+import { useProfileViewModel } from '../viewModels/useProfileViewModel';
 
 // ── Chevron right ─────────────────────────────────────────────
 const ChevronRight: React.FC = () => (
@@ -24,12 +25,16 @@ interface SettingRowProps {
   label: string;
   value?: string;
   danger?: boolean;
+  onClick?: () => void;
+  disabled?: boolean;
 }
 
-const SettingRow: React.FC<SettingRowProps> = ({ icon, label, value, danger }) => (
+const SettingRow: React.FC<SettingRowProps> = ({ icon, label, value, danger, onClick, disabled }) => (
   <button
     type="button"
-    className="w-full flex items-center gap-4 px-4 py-3.5 text-left cursor-pointer transition-colors hover:bg-gray-50 active:bg-navy/5 active:scale-[0.99] border-none bg-transparent"
+    onClick={onClick}
+    disabled={disabled}
+    className={`w-full flex items-center gap-4 px-4 py-3.5 text-left transition-colors border-none bg-transparent ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50 active:bg-navy/5 active:scale-[0.99]'}`}
   >
     <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${danger ? 'bg-red-50 text-error' : 'bg-off-white text-navy'}`}>
       {icon}
@@ -66,7 +71,9 @@ const HelpIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="non
 const LogOutIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>;
 
 // ── Component ─────────────────────────────────────────────────
-const ProfileTab: React.FC = () => {
+const ProfileView: React.FC = () => {
+  const { isLoggingOut, handleLogout } = useProfileViewModel();
+
   return (
     <div className="flex flex-col gap-5 px-5 pt-5 pb-6">
       {/* Avatar + identity block */}
@@ -105,7 +112,13 @@ const ProfileTab: React.FC = () => {
 
       {/* Danger zone */}
       <SettingSection title="Session">
-        <SettingRow icon={<LogOutIcon />} label="Sign Out" danger />
+        <SettingRow 
+          icon={<LogOutIcon />} 
+          label={isLoggingOut ? 'Signing out...' : 'Sign Out'} 
+          danger 
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+        />
       </SettingSection>
 
       {/* App version */}
@@ -114,4 +127,4 @@ const ProfileTab: React.FC = () => {
   );
 };
 
-export default ProfileTab;
+export default ProfileView;

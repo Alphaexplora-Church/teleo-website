@@ -1,4 +1,4 @@
-// features/dashboard/viewModels/useDashboardViewModel.ts
+// features/shell/viewModels/useShellViewModel.ts
 // ViewModel: manages active tab state for the dashboard shell.
 // Views never manage navigation state directly — they call this hook only.
 
@@ -10,7 +10,7 @@ export interface DashboardViewModelReturn {
   setActiveTab: (tab: DashboardTab) => void;
 }
 
-export const useDashboardViewModel = (): DashboardViewModelReturn => {
+export const useShellViewModel = (): DashboardViewModelReturn => {
   const [activeTab, setActiveTabState] = useState<DashboardTab>('home');
 
   const setActiveTab = useCallback((tab: DashboardTab) => {

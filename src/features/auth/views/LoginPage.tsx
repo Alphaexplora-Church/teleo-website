@@ -66,7 +66,7 @@ const LoginPage: React.FC = () => {
     <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
       <button
         className="absolute top-6 left-4 bg-transparent border-none cursor-pointer text-navy flex items-center justify-center p-2 rounded-full transition-colors hover:bg-navy/5 z-10"
-        onClick={() => navigate(-1)}
+        onClick={() => navigate('/welcome')}
         aria-label="Go back"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

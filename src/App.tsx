@@ -5,6 +5,9 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // ── Lazy-loaded page views ─────────────────────────────────
+const AppShell = lazy(
+  () => import('./features/shell/views/AppShell')
+);
 const SplashScreen = lazy(
   () => import('./features/splash/views/SplashScreen')
 );
@@ -14,9 +17,7 @@ const WelcomePage = lazy(
 const LoginPage = lazy(
   () => import('./features/auth/views/LoginPage')
 );
-const HomePage = lazy(
-  () => import('./features/home/views/HomePage')
-);
+
 const RegisterPage = lazy(
   () => import('./features/register/views/RegisterPage')
 );
@@ -49,7 +50,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
 
           {/* Step 4: Dashboard (post-auth / guest) */}
-          <Route path="/dashboard" element={<HomePage />} />
+          <Route path="/dashboard" element={<AppShell />} />
 
           {/* Fallback — redirect any unknown route to splash */}
           <Route path="*" element={<Navigate to="/" replace />} />

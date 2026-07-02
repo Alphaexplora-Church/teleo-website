@@ -75,7 +75,7 @@ const MissionsIcon = () => (
 );
 
 // ── Component ─────────────────────────────────────────────────
-const ServicesTab: React.FC = () => {
+const ServicesView: React.FC = () => {
   return (
     <div className="flex flex-col gap-5 px-5 pt-5 pb-6">
       {/* Header */}
@@ -110,4 +110,4 @@ const ServicesTab: React.FC = () => {
   );
 };
 
-export default ServicesTab;
+export default ServicesView;

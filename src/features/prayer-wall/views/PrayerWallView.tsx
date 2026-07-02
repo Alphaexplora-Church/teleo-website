@@ -101,7 +101,7 @@ const PrayerCard: React.FC<PrayerCardProps> = ({ initials, name, time, text, pra
 };
 
 // ── Component ─────────────────────────────────────────────────
-const PrayerWallTab: React.FC = () => {
+const PrayerWallView: React.FC = () => {
   return (
     <div className="flex flex-col gap-5 px-5 pt-5 pb-6">
       {/* Header */}
@@ -136,4 +136,4 @@ const PrayerWallTab: React.FC = () => {
   );
 };
 
-export default PrayerWallTab;
+export default PrayerWallView;
