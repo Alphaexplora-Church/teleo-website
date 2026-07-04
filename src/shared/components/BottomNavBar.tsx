@@ -5,6 +5,7 @@
 import React from 'react';
 import type { DashboardTab } from '../models/navigationTypes';
 import { NAV_TABS } from '../models/navigationTypes';
+import type { ShellDestination } from '../../features/shell/viewModels/useShellViewModel';
 
 // ── SVG icon set ──────────────────────────────────────────────
 const HomeIcon: React.FC<{ active: boolean }> = ({ active }) => (
@@ -42,11 +43,10 @@ const ContentIcon: React.FC<{ active: boolean }> = ({ active }) => (
   </svg>
 );
 
-const ProfileIcon: React.FC<{ active: boolean }> = ({ active }) => (
+const ChatIcon: React.FC<{ active: boolean }> = ({ active }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true"
     stroke={active ? '#1B3252' : '#9ca3af'} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
   </svg>
 );
 
@@ -65,13 +65,13 @@ const ICON_MAP: Record<DashboardTab, React.FC<{ active: boolean }>> = {
   'services': ServicesIcon,
   'prayer-wall': PrayerWallIcon,
   'content': ContentIcon,
-  'profile': ProfileIcon,
   'giving': GivingIcon,
+  'chat': ChatIcon,
 };
 
 // ── Props ─────────────────────────────────────────────────────
 interface BottomNavBarProps {
-  activeTab: DashboardTab;
+  activeTab: ShellDestination;
   onTabChange: (tab: DashboardTab) => void;
 }
 

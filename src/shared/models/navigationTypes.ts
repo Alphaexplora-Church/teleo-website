@@ -3,7 +3,7 @@
 // Imported by BottomNavBar and useDashboardViewModel — NO React, hooks, or JSX.
 
 // ── Tab identifier union ──────────────────────────────────────
-export type DashboardTab = 'home' | 'services' | 'prayer-wall' | 'content' | 'profile' | 'giving';
+export type DashboardTab = 'home' | 'services' | 'prayer-wall' | 'content' | 'giving' | 'chat';
 
 // ── Navigation tab config (id + display label) ────────────────
 export interface NavTabConfig {
@@ -17,6 +17,5 @@ export const NAV_TABS: NavTabConfig[] = [
   { id: 'prayer-wall', label: 'Prayer Wall' },
   { id: 'content', label: 'Content' },
   { id: 'giving', label: 'Giving' },
-  { id: 'profile', label: 'Profile' },
-
+  { id: 'chat', label: 'Chat' },
 ];
