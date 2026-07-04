@@ -70,21 +70,71 @@ const ChurchIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="n
 const HelpIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>;
 const LogOutIcon = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>;
 
+// ── Profile avatar ────────────────────────────────────────────
+interface ProfileAvatarProps {
+  url: string | null;
+}
+
+const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ url }) => {
+  const [imgError, setImgError] = React.useState(false);
+
+  if (url && !imgError) {
+    return (
+      <img
+        src={url}
+        alt="Profile picture"
+        onError={() => setImgError(true)}
+        className="w-[84px] h-[84px] rounded-full object-cover border-4 border-white shadow-md"
+      />
+    );
+  }
+
+  return (
+    <div className="w-[84px] h-[84px] rounded-full bg-[#e8ecef] border-4 border-white shadow-md flex items-center justify-center text-gray-border">
+      <UserIcon />
+    </div>
+  );
+};
+
 // ── Component ─────────────────────────────────────────────────
 const ProfileView: React.FC = () => {
-  const { isLoggingOut, handleLogout } = useProfileViewModel();
+  const { isLoggingOut, handleLogout, profileView, isLoadingProfile, profileError } = useProfileViewModel();
 
   return (
     <div className="flex flex-col gap-5 px-5 pt-5 pb-6">
       {/* Avatar + identity block */}
       <div className="flex flex-col items-center gap-3 pt-2 pb-4">
-        <div className="w-[84px] h-[84px] rounded-full bg-[#e8ecef] border-4 border-white shadow-md flex items-center justify-center text-gray-border">
-          <UserIcon />
-        </div>
-        <div className="flex flex-col items-center gap-0.5">
-          <h1 className="text-[20px] font-bold text-navy">Teleo Member</h1>
-          <p className="text-[13px] text-gray-placeholder">@member · Joined 2026</p>
-        </div>
+        {isLoadingProfile ? (
+          // Skeleton shimmer while loading
+          <>
+            <div className="w-[84px] h-[84px] rounded-full bg-gray-200 animate-pulse" />
+            <div className="flex flex-col items-center gap-2">
+              <div className="h-5 w-36 rounded-full bg-gray-200 animate-pulse" />
+              <div className="h-3.5 w-28 rounded-full bg-gray-200 animate-pulse" />
+            </div>
+          </>
+        ) : profileError ? (
+          // Error fallback — still show avatar placeholder
+          <>
+            <div className="w-[84px] h-[84px] rounded-full bg-[#e8ecef] border-4 border-white shadow-md flex items-center justify-center text-gray-border">
+              <UserIcon />
+            </div>
+            <p className="text-[12px] text-error text-center">{profileError}</p>
+          </>
+        ) : (
+          // Real data
+          <>
+            <ProfileAvatar url={profileView?.profile_picture_url ?? null} />
+            <div className="flex flex-col items-center gap-0.5">
+              <h1 className="text-[20px] font-bold text-navy">
+                {profileView?.username ?? 'Teleo Member'}
+              </h1>
+              <p className="text-[13px] text-gray-placeholder">
+                @{profileView?.home_church_short_name ?? 'member'} · {profileView?.joined_date ?? ''}
+              </p>
+            </div>
+          </>
+        )}
         <button
           type="button"
           className="px-5 py-2 rounded-full border-[1.5px] border-navy bg-transparent text-navy text-[13px] font-semibold cursor-pointer transition-all hover:bg-navy/5 active:scale-95"
