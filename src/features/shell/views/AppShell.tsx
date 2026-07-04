@@ -15,6 +15,7 @@ import ServicesView from '../../services/views/ServicesView';
 import PrayerWallView from '../../prayer-wall/views/PrayerWallView';
 import ContentView from '../../content/views/ContentView';
 import ProfileView from '../../profile/views/ProfileView';
+import GivingView from '../../giving/views/GivingView';
 
 // ── Tab page registry ─────────────────────────────────────────
 const TAB_PAGES: Record<DashboardTab, React.FC> = {
@@ -23,6 +24,7 @@ const TAB_PAGES: Record<DashboardTab, React.FC> = {
   'prayer-wall': PrayerWallView,
   'content': ContentView,
   'profile': ProfileView,
+  'giving': GivingView,
 };
 
 // ── Notification bell icon ────────────────────────────────────
