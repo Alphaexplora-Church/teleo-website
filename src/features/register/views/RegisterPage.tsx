@@ -15,7 +15,7 @@ import Step6ProfilePic from './Step6ProfilePic';
 import Step7Summary from './Step7Summary';
 
 // ── Progress bar ─────────────────────────────────────────────
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 6;
 
 interface StepProgressProps {
   current: number;
@@ -92,13 +92,13 @@ const RegisterPage: React.FC = () => {
 
           {/* Step counter (right-aligned) */}
           <span className="ml-auto shrink-0 text-[12px] font-semibold text-gray-placeholder tabular-nums">
-            {currentStep}/{TOTAL_STEPS}
+            {currentStep > 1 ? currentStep - 1 : currentStep}/{TOTAL_STEPS}
           </span>
         </div>
 
         {/* Progress bar */}
         <div className="pb-3">
-          <StepProgress current={currentStep} total={TOTAL_STEPS} />
+          <StepProgress current={currentStep > 1 ? currentStep - 1 : currentStep} total={TOTAL_STEPS} />
         </div>
       </div>
 

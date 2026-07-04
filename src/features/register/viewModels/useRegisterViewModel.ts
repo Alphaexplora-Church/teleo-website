@@ -86,6 +86,8 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
   const goBack = useCallback(() => {
     if (currentStep === 1) {
       navigate(-1);
+    } else if (currentStep === 3) {
+      setCurrentStep(1);
     } else {
       setCurrentStep((prev) => (prev - 1) as RegistrationStep);
     }
@@ -119,15 +121,7 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
     }
 
     setErrors({});
-    setIsLoading(true);
-    try {
-      await sendOtpEmail(formData.email.trim());
-      setCurrentStep(2);
-    } catch {
-      setErrors({ general: 'Failed to send verification code. Please try again.' });
-    } finally {
-      setIsLoading(false);
-    }
+    setCurrentStep(3);
   }, [formData.email, formData.password, formData.confirmPassword]);
 
   // ── Step 2: OTP Verification ──────────────────────────────
