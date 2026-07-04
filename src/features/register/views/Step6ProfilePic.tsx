@@ -60,8 +60,9 @@ const Step6ProfilePic: React.FC<Step6Props> = ({ profilePictureUrl, onFileSelect
         id="btn-reg-avatar-picker"
         type="button"
         onClick={triggerFilePicker}
+        disabled={true}
         aria-label="Upload profile picture"
-        className="relative w-[140px] h-[140px] rounded-full border-[2px] border-dashed border-gray-border bg-white flex items-center justify-center cursor-pointer transition-all hover:border-navy hover:bg-navy/5 active:scale-95 mb-10 group shadow-sm"
+        className="relative w-[140px] h-[140px] rounded-full border-[2px] border-dashed border-gray-border bg-white flex items-center justify-center cursor-pointer transition-all hover:border-navy hover:bg-navy/5 active:scale-95 mb-10 group shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
       >
         {profilePictureUrl ? (
           <>
@@ -100,7 +101,8 @@ const Step6ProfilePic: React.FC<Step6Props> = ({ profilePictureUrl, onFileSelect
           id="btn-reg-step6-upload"
           type="button"
           onClick={triggerFilePicker}
-          className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-none bg-navy text-white font-sans text-[15px] font-semibold tracking-[0.1px] cursor-pointer px-6 transition-all shadow-btn hover:bg-navy-hover hover:shadow-[0_4px_16px_rgba(27,50,82,0.28)] active:bg-navy-active active:scale-95 active:shadow-none select-none"
+          disabled={true}
+          className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-none bg-navy text-white font-sans text-[15px] font-semibold tracking-[0.1px] cursor-pointer px-6 transition-all shadow-btn hover:bg-navy-hover hover:shadow-[0_4px_16px_rgba(27,50,82,0.28)] active:bg-navy-active active:scale-95 active:shadow-none select-none disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
         >
           {profilePictureUrl ? 'Change Photo' : 'Upload Photo'}
         </button>
@@ -110,7 +112,8 @@ const Step6ProfilePic: React.FC<Step6Props> = ({ profilePictureUrl, onFileSelect
             id="btn-reg-step6-continue"
             type="button"
             onClick={onSkip}
-            className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-none bg-navy text-white font-sans text-[15px] font-semibold tracking-[0.1px] cursor-pointer px-6 transition-all shadow-btn hover:bg-navy-hover hover:shadow-[0_4px_16px_rgba(27,50,82,0.28)] active:bg-navy-active active:scale-95 active:shadow-none select-none"
+            disabled={true}
+            className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-none bg-navy text-white font-sans text-[15px] font-semibold tracking-[0.1px] cursor-pointer px-6 transition-all shadow-btn hover:bg-navy-hover hover:shadow-[0_4px_16px_rgba(27,50,82,0.28)] active:bg-navy-active active:scale-95 active:shadow-none select-none disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
           >
             Continue
           </button>
