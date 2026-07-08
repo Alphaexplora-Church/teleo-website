@@ -45,7 +45,28 @@ export interface RegistrationFormData {
 // ── Validation error map ─────────────────────────────────────
 export type RegistrationErrors = Partial<Record<keyof RegistrationFormData | 'otp' | 'general', string>>;
 
-// ── API result shape ──────────────────────────────────────────
+// ── API result shapes ─────────────────────────────────────────
+
+/**
+ * Result from POST /api/auth/register.
+ * When OTP is bypassed on the backend, `accessToken` will be populated
+ * from data.session.access_token in the response.
+ */
+export interface RegisterApiResult {
+  success: boolean;
+  accessToken?: string | null;
+  error?: string;
+}
+
+/**
+ * Result from POST /api/profiles/me.
+ */
+export interface ProfileApiResult {
+  success: boolean;
+  error?: string;
+}
+
+/** @deprecated Use RegisterApiResult or ProfileApiResult instead */
 export interface RegisterResult {
   success: boolean;
   error?: string;

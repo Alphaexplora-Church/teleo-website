@@ -4,7 +4,7 @@
 
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sendOtpEmail, verifyOtp, submitRegistration } from '../models/registerApi';
+import { registerAccount, createProfile } from '../models/registerApi';
 import type {
   RegistrationStep,
   RegistrationFormData,
@@ -65,6 +65,10 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [otpCode, setOtpCode] = useState('');
 
+  // Stores the JWT obtained from the register response (data.session.access_token).
+  // Kept separate from formData — it is transient auth state, not form input.
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+
   // ── Generic field updater ─────────────────────────────────
   const updateField = useCallback(
     <K extends keyof RegistrationFormData>(key: K, value: RegistrationFormData[K]) => {
@@ -87,13 +91,14 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
     if (currentStep === 1) {
       navigate(-1);
     } else if (currentStep === 3) {
+      // Step 2 (OTP) is bypassed — go back to step 1 directly
       setCurrentStep(1);
     } else {
       setCurrentStep((prev) => (prev - 1) as RegistrationStep);
     }
   }, [currentStep, navigate]);
 
-  // ── Step 1: Credentials ───────────────────────────────────
+  // ── Step 1: Credentials → POST /api/auth/register ────────
   const handleStep1Submit = useCallback(async () => {
     const newErrors: RegistrationErrors = {};
 
@@ -121,10 +126,31 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
     }
 
     setErrors({});
-    setCurrentStep(3);
+    setIsLoading(true);
+
+    try {
+      const result = await registerAccount(formData.email.trim(), formData.password);
+
+      if (!result.success) {
+        setErrors({ general: result.error ?? 'Registration failed. Please try again.' });
+        return;
+      }
+
+      // Capture the JWT from the session so it can be used for POST /api/profiles/me
+      if (result.accessToken) {
+        setAccessToken(result.accessToken);
+        localStorage.setItem('access_token', result.accessToken);
+      }
+
+      setCurrentStep(3);
+    } catch {
+      setErrors({ general: 'An unexpected error occurred. Please try again.' });
+    } finally {
+      setIsLoading(false);
+    }
   }, [formData.email, formData.password, formData.confirmPassword]);
 
-  // ── Step 2: OTP Verification ──────────────────────────────
+  // ── Step 2: OTP Verification (reserved — bypassed for now) ─
   const handleOtpVerify = useCallback(async () => {
     if (otpCode.length < 6) {
       setErrors({ otp: 'Please enter the complete 6-digit code.' });
@@ -134,12 +160,9 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
     setErrors({});
     setIsLoading(true);
     try {
-      const result = await verifyOtp(otpCode);
-      if (result.success) {
-        setCurrentStep(3);
-      } else {
-        setErrors({ otp: result.error ?? 'Invalid code. Please try again.' });
-      }
+      // TODO: Wire to POST /api/auth/verify-otp when OTP is re-enabled.
+      // On success, extract data.session.access_token and call setAccessToken().
+      setCurrentStep(3);
     } catch {
       setErrors({ otp: 'Verification failed. Please try again.' });
     } finally {
@@ -209,23 +232,31 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
     setCurrentStep(7);
   }, []);
 
-  // ── Step 7: Final Submit ──────────────────────────────────
+  // ── Step 7: Final Submit → POST /api/profiles/me ─────────
   const handleFinalSubmit = useCallback(async () => {
+    if (!accessToken) {
+      setErrors({ general: 'Session expired. Please restart registration.' });
+      return;
+    }
+
     setErrors({});
     setIsLoading(true);
+
     try {
-      const result = await submitRegistration(formData);
-      if (result.success) {
-        navigate('/dashboard', { replace: true });
-      } else {
-        setErrors({ general: result.error ?? 'Registration failed. Please try again.' });
+      const result = await createProfile(formData, accessToken);
+
+      if (!result.success) {
+        setErrors({ general: result.error ?? 'Profile creation failed. Please try again.' });
+        return;
       }
+
+      navigate('/dashboard', { replace: true });
     } catch {
       setErrors({ general: 'An unexpected error occurred. Please try again.' });
     } finally {
       setIsLoading(false);
     }
-  }, [formData, navigate]);
+  }, [formData, accessToken, navigate]);
 
   return {
     currentStep,

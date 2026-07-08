@@ -1,37 +1,92 @@
 // features/register/models/registerApi.ts
-// Stub API functions — pure TypeScript, no React
-// These will be replaced with real endpoint calls in a future iteration.
+// Real API calls — pure TypeScript, no React, no hooks, no JSX
 
-import type { RegistrationFormData, RegisterResult } from './registerTypes';
+import type { RegistrationFormData, RegisterApiResult, ProfileApiResult } from './registerTypes';
 
-/** Simulates sending an OTP to the user's email address. */
-export const sendOtpEmail = async (email: string): Promise<{ success: boolean }> => {
-  // TODO: Replace with real API call — e.g. POST /api/auth/send-otp
-  console.log(`[mock] Sending OTP to: ${email}`);
-  await new Promise((res) => setTimeout(res, 900));
-  return { success: true };
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+
+/**
+ * POST /api/auth/register
+ *
+ * Creates the auth account. When OTP email confirmation is bypassed on the
+ * backend (Supabase setting), the response includes a live session with an
+ * access_token — we capture it here so the caller can immediately use it for
+ * authenticated requests (e.g. POST /api/profiles/me).
+ */
+export const registerAccount = async (
+  email: string,
+  password: string
+): Promise<RegisterApiResult> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return { success: false, error: 'Too many requests. Please wait a moment and try again.' };
+      }
+      return {
+        success: false,
+        error: data?.message || `Registration failed (${response.status}).`,
+      };
+    }
+
+    // When OTP bypass is active, data.data.session holds the access token.
+    const accessToken = data?.data?.session?.access_token ?? null;
+
+    return { success: true, accessToken };
+  } catch {
+    return { success: false, error: 'Network error. Please check your connection.' };
+  }
 };
 
 /**
- * Simulates verifying the OTP code.
- * Mock: accepts any 4–6-digit numeric string as valid.
- * TODO: Replace with real API call — e.g. POST /api/auth/verify-otp
+ * POST /api/profiles/me
+ *
+ * Creates or updates the user's personal profile. Requires a valid Bearer JWT
+ * obtained from the register (or verify-otp) response.
+ *
+ * Only the fields supported by the current API spec are sent:
+ * first_name, last_name, username, gender, has_accepted_terms.
+ * Additional wizard fields (birthday, location, profile picture) are collected
+ * locally and will be sent when the API supports them.
  */
-export const verifyOtp = async (code: string): Promise<{ success: boolean; error?: string }> => {
-  console.log(`[mock] Verifying OTP: ${code}`);
-  await new Promise((res) => setTimeout(res, 700));
-  // Mock validation: any numeric string of length 4–6 is "valid"
-  const isValid = /^\d{4,6}$/.test(code);
-  if (isValid) return { success: true };
-  return { success: false, error: 'Invalid verification code. Please try again.' };
-};
+export const createProfile = async (
+  formData: RegistrationFormData,
+  accessToken: string
+): Promise<ProfileApiResult> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/profiles/me`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        username: formData.username,
+        gender: formData.gender,
+        has_accepted_terms: true,
+      }),
+    });
 
-/**
- * Simulates the final registration submission.
- * TODO: Replace with real API call — e.g. POST /api/auth/register
- */
-export const submitRegistration = async (data: RegistrationFormData): Promise<RegisterResult> => {
-  console.log('[mock] Submitting registration:', { email: data.email, username: data.username });
-  await new Promise((res) => setTimeout(res, 1200));
-  return { success: true };
+    const data = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data?.message || `Profile creation failed (${response.status}).`,
+      };
+    }
+
+    return { success: true };
+  } catch {
+    return { success: false, error: 'Network error. Please check your connection.' };
+  }
 };
