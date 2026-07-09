@@ -6,6 +6,7 @@
 // It is an extended shell destination reachable only via the header avatar button.
 
 import { useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
 // Shell destinations extend the nav tabs with the profile page (header-only access)
@@ -18,7 +19,13 @@ export interface DashboardViewModelReturn {
 }
 
 export const useShellViewModel = (): DashboardViewModelReturn => {
-  const [activeTab, setActiveTabState] = useState<ShellDestination>('home');
+  const location = useLocation();
+  const requestedTab = (
+    location.state as { activeTab?: DashboardTab } | null
+  )?.activeTab;
+  const [activeTab, setActiveTabState] = useState<ShellDestination>(
+    requestedTab ?? 'home',
+  );
 
   const setActiveTab = useCallback((tab: DashboardTab) => {
     setActiveTabState(tab);

@@ -21,6 +21,12 @@ const LoginPage = lazy(
 const RegisterPage = lazy(
   () => import('./features/register/views/RegisterPage')
 );
+const CreatePrayerView = lazy(
+  () => import('./features/prayer-wall/views/CreatePrayerView')
+);
+const PrayerDetailsView = lazy(
+  () => import('./features/prayer-wall/views/PrayerDetailsView')
+);
 
 // ── Minimal loading fallback ───────────────────────────────
 const PageLoader: React.FC = () => (
@@ -51,6 +57,10 @@ function App() {
 
           {/* Step 4: Dashboard (post-auth / guest) */}
           <Route path="/dashboard" element={<AppShell />} />
+
+          {/* Prayer request composer */}
+          <Route path="/prayer-request" element={<CreatePrayerView />} />
+          <Route path="/prayer/:prayerId" element={<PrayerDetailsView />} />
 
           {/* Fallback — redirect any unknown route to splash */}
           <Route path="*" element={<Navigate to="/" replace />} />
