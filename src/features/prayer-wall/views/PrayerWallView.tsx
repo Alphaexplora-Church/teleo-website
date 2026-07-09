@@ -59,6 +59,23 @@ const PlusIcon = () => (
   </svg>
 );
 
+const HistoryIcon = () => (
+  <svg
+    width="23"
+    height="23"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+    <path d="M3 3v5h5M12 7v5l3 2" />
+  </svg>
+);
+
 const RefreshIcon = ({ size = 18 }: { size?: number }) => (
   <svg
     width={size}
@@ -254,7 +271,7 @@ const PrayerWallView: React.FC = () => {
       className="fixed inset-0 z-10 min-h-dvh w-full overflow-hidden bg-[radial-gradient(circle_at_50%_42%,#ffffff_0%,#faf8f6_55%,#f2eeea_100%)]"
     >
       <div className="relative mx-auto h-dvh min-h-[540px] w-full max-w-[448px] overflow-hidden border-x border-black/10 shadow-[0_0_24px_rgba(27,50,82,0.1)]">
-        <div className="pointer-events-none absolute left-1/2 top-[47%] h-[clamp(390px,60vh,456px)] w-[clamp(276px,78vw,326px)] -translate-x-1/2 -translate-y-1/2">
+        <div className="pointer-events-none absolute left-1/2 top-[47%] h-[clamp(420px,64vh,500px)] w-[clamp(288px,86vw,360px)] -translate-x-1/2 -translate-y-1/2">
           {cardsBehind.map((card, index) => {
             const stackStyle = PRAYER_STACK_STYLES[index];
 
@@ -276,7 +293,7 @@ const PrayerWallView: React.FC = () => {
           role="button"
           tabIndex={0}
           aria-label={`${topCard.author}'s prayer request. Click to flip, or swipe left or right for the next request.`}
-          className={`absolute left-1/2 top-[47%] z-10 h-[clamp(390px,60vh,456px)] w-[clamp(276px,78vw,326px)] -translate-x-1/2 -translate-y-1/2 touch-none select-none outline-none [perspective:1300px] focus-visible:ring-4 focus-visible:ring-[#2e69ff]/30 ${
+          className={`absolute left-1/2 top-[47%] z-10 h-[clamp(420px,64vh,500px)] w-[clamp(288px,86vw,360px)] -translate-x-1/2 -translate-y-1/2 touch-none select-none outline-none [perspective:1300px] focus-visible:ring-4 focus-visible:ring-[#2e69ff]/30 ${
             isDragging ? 'cursor-grabbing' : 'cursor-grab'
           }`}
           onKeyDown={handleCardKeyDown}
@@ -360,6 +377,14 @@ const PrayerWallView: React.FC = () => {
             </div>
           </div>
         </div>
+
+        <Link
+          to="/prayer-history"
+          aria-label="View prayer post history"
+          className="absolute bottom-20 right-[88px] z-20 flex size-14 items-center justify-center rounded-full border border-[#171f5e]/15 bg-white text-[#171f5e] shadow-[0_14px_28px_rgba(23,31,94,0.2)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#f5f6ff] active:scale-95"
+        >
+          <HistoryIcon />
+        </Link>
 
         <Link
           to="/prayer-request"
