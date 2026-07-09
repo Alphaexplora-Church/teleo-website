@@ -13,6 +13,7 @@ export const useCreatePrayerViewModel = () => {
     audiences: PRAYER_AUDIENCES,
     hashtags: PRAYER_HASHTAGS,
     themes: PRAYER_THEMES,
+    isThemeSelectionEnabled: false,
     navigateToTab: (tab: DashboardTab) =>
       navigate('/dashboard', { state: { activeTab: tab } }),
   };
