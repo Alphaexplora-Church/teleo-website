@@ -27,9 +27,6 @@ const CreatePrayerView = lazy(
 const PrayerDetailsView = lazy(
   () => import('./features/prayer-wall/views/PrayerDetailsView')
 );
-const PrayerHistoryView = lazy(
-  () => import('./features/prayer-wall/views/PrayerHistoryView')
-);
 
 // ── Minimal loading fallback ───────────────────────────────
 const PageLoader: React.FC = () => (
@@ -64,7 +61,6 @@ function App() {
           {/* Prayer request composer */}
           <Route path="/prayer-request" element={<CreatePrayerView />} />
           <Route path="/prayer/:prayerId" element={<PrayerDetailsView />} />
-          <Route path="/prayer-history" element={<PrayerHistoryView />} />
 
           {/* Fallback — redirect any unknown route to splash */}
           <Route path="*" element={<Navigate to="/" replace />} />

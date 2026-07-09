@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { useCreatePrayerViewModel } from '../viewModels/useCreatePrayerViewModel';
+import { useCreatePrayerViewModel } from '../viewmodels/CreatePrayerViewModel';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
 
 const BackIcon = () => (
@@ -19,43 +19,9 @@ const BackIcon = () => (
   </svg>
 );
 
-const ChevronDownIcon = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="m6 9 6 6 6-6" />
-  </svg>
-);
-
 const CreatePrayerView: React.FC = () => {
-  const {
-    audiences,
-    hashtags,
-    themes,
-    isThemeSelectionEnabled,
-    isSubmitting,
-    errorMessage,
-    submitPrayer,
-    navigateToTab,
-  } = useCreatePrayerViewModel();
-  const [isHashtagDropdownOpen, setIsHashtagDropdownOpen] = useState(false);
-  const [selectedHashtags, setSelectedHashtags] = useState<string[]>([]);
-
-  const toggleHashtag = (hashtag: string) => {
-    setSelectedHashtags((current) =>
-      current.includes(hashtag)
-        ? current.filter((selectedHashtag) => selectedHashtag !== hashtag)
-        : [...current, hashtag],
-    );
-  };
+  const { audiences, hashtags, themes, navigateToTab } =
+    useCreatePrayerViewModel();
 
   return (
     <main className="min-h-dvh w-full bg-off-white">
@@ -75,17 +41,7 @@ const CreatePrayerView: React.FC = () => {
         </div>
       </header>
 
-      <form
-        className="flex flex-1 flex-col px-5 pb-8 pt-7 sm:px-7"
-        onSubmit={async (event) => {
-          event.preventDefault();
-          await submitPrayer(new FormData(event.currentTarget));
-        }}
-        onReset={() => {
-          setSelectedHashtags([]);
-          setIsHashtagDropdownOpen(false);
-        }}
-      >
+      <form className="flex flex-1 flex-col px-5 pb-8 pt-7 sm:px-7">
         <div className="mb-7">
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#129e9a]">
             Prayer Wall
@@ -125,89 +81,31 @@ const CreatePrayerView: React.FC = () => {
             />
           </label>
 
-          <fieldset className="relative">
-            <legend className="mb-2 block text-[12px] font-bold text-navy">
-              Hashtags
-            </legend>
-            <button
-              type="button"
-              aria-haspopup="listbox"
-              aria-expanded={isHashtagDropdownOpen}
-              className="flex h-12 w-full items-center justify-between gap-3 rounded-xl border border-gray-border bg-white px-4 text-left text-[13px] font-semibold text-gray-label outline-none transition hover:border-navy focus:border-navy focus:ring-4 focus:ring-navy/8"
-              onClick={() => setIsHashtagDropdownOpen((isOpen) => !isOpen)}
+          <label className="block">
+            <span className="mb-2 block text-[12px] font-bold text-navy">Hashtag</span>
+            <select
+              name="hashtag"
+              defaultValue=""
+              className="h-12 w-full appearance-none rounded-xl border border-gray-border bg-white px-4 text-[13px] text-gray-label outline-none transition focus:border-navy focus:ring-4 focus:ring-navy/8"
             >
-              <span className="min-w-0 flex-1 truncate">
-                {selectedHashtags.length > 0
-                  ? selectedHashtags.join(', ')
-                  : 'Select hashtags'}
-              </span>
-              <ChevronDownIcon />
-            </button>
-            {isHashtagDropdownOpen && (
-              <div
-                role="listbox"
-                aria-label="Choose hashtags"
-                className="absolute left-0 right-0 top-[calc(100%+6px)] z-20 overflow-hidden rounded-xl border border-gray-border bg-white py-1 shadow-[0_14px_30px_rgba(27,50,82,0.16)]"
-              >
-                {hashtags.map((hashtag) => (
-                  <label
-                    key={hashtag}
-                    className="flex min-h-11 cursor-pointer items-center gap-3 px-4 py-2 text-[13px] font-semibold text-gray-label transition hover:bg-off-white"
-                  >
-                    <input
-                      type="checkbox"
-                      name="hashtags"
-                      value={hashtag}
-                      checked={selectedHashtags.includes(hashtag)}
-                      onChange={() => toggleHashtag(hashtag)}
-                      className="peer sr-only"
-                    />
-                    <span
-                      aria-hidden="true"
-                      className="flex size-4 shrink-0 items-center justify-center rounded border border-gray-placeholder bg-white text-white transition peer-checked:border-navy peer-checked:bg-navy peer-focus-visible:ring-2 peer-focus-visible:ring-link peer-focus-visible:ring-offset-2"
-                    >
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="m5 12 4 4L19 6" />
-                      </svg>
-                    </span>
-                    <span>{hashtag}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-          </fieldset>
+              <option value="" disabled>
+                Choose a category
+              </option>
+              {hashtags.map((hashtag) => (
+                <option key={hashtag} value={hashtag.toLowerCase()}>
+                  {hashtag}
+                </option>
+              ))}
+            </select>
+          </label>
 
-          <fieldset disabled={!isThemeSelectionEnabled}>
-            <legend className="mb-3 flex items-center gap-2 text-[12px] font-bold text-navy">
-              Theme
-              {!isThemeSelectionEnabled && (
-                <span className="rounded-full bg-navy/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-navy">
-                  Ongoing
-                </span>
-              )}
-            </legend>
-            <div
-              className={`grid grid-cols-3 gap-3 ${
-                isThemeSelectionEnabled
-                  ? ''
-                  : 'cursor-not-allowed opacity-45 grayscale-[25%]'
-              }`}
-            >
+          <fieldset>
+            <legend className="mb-3 text-[12px] font-bold text-navy">Theme</legend>
+            <div className="grid grid-cols-3 gap-3">
               {themes.map((theme, index) => (
                 <label
                   key={theme.id}
-                  className={`group relative ${
-                    isThemeSelectionEnabled ? 'cursor-pointer' : 'cursor-not-allowed'
-                  }`}
+                  className="group relative cursor-pointer"
                   title={theme.label}
                 >
                   <input
@@ -235,34 +133,18 @@ const CreatePrayerView: React.FC = () => {
               {audiences.map((audience, index) => (
                 <label
                   key={audience.id}
-                  className={`flex items-start gap-3 rounded-xl border border-transparent px-3 py-2.5 transition ${
-                    audience.disabled
-                      ? 'cursor-not-allowed bg-gray-50 opacity-50'
-                      : 'cursor-pointer hover:border-gray-border hover:bg-off-white'
-                  }`}
+                  className="flex cursor-pointer items-start gap-3 rounded-xl border border-transparent px-3 py-2.5 transition hover:border-gray-border hover:bg-off-white"
                 >
                   <input
                     type="radio"
                     name="audience"
                     value={audience.id}
                     defaultChecked={index === 0}
-                    disabled={audience.disabled}
-                    className="peer sr-only"
+                    className="mt-0.5 size-4 accent-[#1e3a5f]"
                   />
-                  <span
-                    aria-hidden="true"
-                    className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border border-gray-placeholder bg-white transition peer-checked:border-navy peer-focus-visible:ring-2 peer-focus-visible:ring-link peer-focus-visible:ring-offset-2 peer-checked:[&>span]:opacity-100"
-                  >
-                    <span className="size-2 rounded-full bg-navy opacity-0 transition" />
-                  </span>
                   <span>
-                    <span className="flex items-center gap-2 text-[13px] font-semibold text-navy">
+                    <span className="block text-[13px] font-semibold text-navy">
                       {audience.label}
-                      {audience.disabled && (
-                        <span className="rounded-full bg-navy/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-navy">
-                          Ongoing
-                        </span>
-                      )}
                     </span>
                     <span className="mt-0.5 block text-[10px] text-gray-placeholder">
                       {audience.description}
@@ -274,12 +156,6 @@ const CreatePrayerView: React.FC = () => {
           </fieldset>
         </div>
 
-        {errorMessage && (
-          <p className="mt-5 rounded-xl bg-[#fff3f2] px-4 py-3 text-[12px] font-medium text-[#8b2d23]">
-            {errorMessage}
-          </p>
-        )}
-
         <div className="mt-auto flex items-center justify-between gap-4 pt-10">
           <button
             type="reset"
@@ -288,11 +164,10 @@ const CreatePrayerView: React.FC = () => {
             Clear
           </button>
           <button
-            type="submit"
-            disabled={isSubmitting}
+            type="button"
             className="min-w-32 rounded-full bg-navy px-7 py-2.5 text-[13px] font-bold text-white shadow-btn transition hover:bg-navy-hover active:scale-95 active:bg-navy-active"
           >
-            {isSubmitting ? 'Posting...' : 'Post'}
+            Post
           </button>
         </div>
       </form>
