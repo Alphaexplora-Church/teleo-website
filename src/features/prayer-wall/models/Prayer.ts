@@ -125,16 +125,19 @@ export const PRAYER_AUDIENCES = [
     id: 'public',
     label: 'Public',
     description: 'Visible to everyone',
+    disabled: false,
   },
   {
     id: 'community',
     label: 'Church Community',
-    description: 'Visible to pastors and leaders',
+    description: 'Currently ongoing',
+    disabled: true,
   },
   {
     id: 'private',
     label: 'Only Me',
     description: 'Visible only to you',
+    disabled: false,
   },
 ] as const;
 
