@@ -79,6 +79,9 @@ export interface ProfileViewModelReturn {
   // Read-only email
   email: string;
 
+  // Guest mode
+  isGuest: boolean;
+
   // Static design data
   recentActivities: RecentActivityItem[];
   generalSettings: SettingsItem[];
@@ -89,6 +92,8 @@ export interface ProfileViewModelReturn {
   logoutError: string | null;
   handleLogout: () => Promise<void>;
   handleSettingsItemPress: (item: SettingsItem) => Promise<void>;
+  /** Called when a guest taps "Find My Church" — redirects to login. */
+  handleFindMyChurchGuestPress: () => void;
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
@@ -102,6 +107,10 @@ export const useProfileViewModel = (): ProfileViewModelReturn => {
   // ── Session state ──────────────────────────────────────────────
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
+
+  // ── Guest detection ────────────────────────────────────────
+  // Guests bypass auth — continueAsGuest() never writes an access_token.
+  const isGuest = localStorage.getItem('access_token') === null;
 
   const navigate = useNavigate();
 
@@ -124,6 +133,11 @@ export const useProfileViewModel = (): ProfileViewModelReturn => {
 
   // Derived read-only email with fallback
   const email = profileView?.email || 'email@gmail.com';
+
+  // ── Guest Find My Church → navigate to login ──────────────
+  const handleFindMyChurchGuestPress = useCallback(() => {
+    navigate('/login');
+  }, [navigate]);
 
   // ── Logout ────────────────────────────────────────────────────
   const handleLogout = useCallback(async () => {
@@ -159,6 +173,9 @@ export const useProfileViewModel = (): ProfileViewModelReturn => {
     profileError,
     email,
 
+    // Guest mode
+    isGuest,
+
     // Static design data
     recentActivities: RECENT_ACTIVITIES,
     generalSettings: GENERAL_SETTINGS,
@@ -169,5 +186,6 @@ export const useProfileViewModel = (): ProfileViewModelReturn => {
     logoutError,
     handleLogout,
     handleSettingsItemPress,
+    handleFindMyChurchGuestPress,
   };
 };
