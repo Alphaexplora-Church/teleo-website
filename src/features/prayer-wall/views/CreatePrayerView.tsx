@@ -20,8 +20,16 @@ const BackIcon = () => (
 );
 
 const CreatePrayerView: React.FC = () => {
-  const { audiences, hashtags, themes, navigateToTab } =
-    useCreatePrayerViewModel();
+  const {
+    audiences,
+    hashtags,
+    themes,
+    isThemeSelectionEnabled,
+    isSubmitting,
+    errorMessage,
+    submitPrayer,
+    navigateToTab,
+  } = useCreatePrayerViewModel();
 
   return (
     <main className="min-h-dvh w-full bg-off-white">
@@ -41,7 +49,13 @@ const CreatePrayerView: React.FC = () => {
         </div>
       </header>
 
-      <form className="flex flex-1 flex-col px-5 pb-8 pt-7 sm:px-7">
+      <form
+        className="flex flex-1 flex-col px-5 pb-8 pt-7 sm:px-7"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          await submitPrayer(new FormData(event.currentTarget));
+        }}
+      >
         <div className="mb-7">
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#129e9a]">
             Prayer Wall
@@ -92,20 +106,35 @@ const CreatePrayerView: React.FC = () => {
                 Choose a category
               </option>
               {hashtags.map((hashtag) => (
-                <option key={hashtag} value={hashtag.toLowerCase()}>
+                <option key={hashtag} value={hashtag}>
                   {hashtag}
                 </option>
               ))}
             </select>
           </label>
 
-          <fieldset>
-            <legend className="mb-3 text-[12px] font-bold text-navy">Theme</legend>
-            <div className="grid grid-cols-3 gap-3">
+          <fieldset disabled={!isThemeSelectionEnabled}>
+            <legend className="mb-3 flex items-center gap-2 text-[12px] font-bold text-navy">
+              Theme
+              {!isThemeSelectionEnabled && (
+                <span className="rounded-full bg-navy/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-navy">
+                  Ongoing
+                </span>
+              )}
+            </legend>
+            <div
+              className={`grid grid-cols-3 gap-3 ${
+                isThemeSelectionEnabled
+                  ? ''
+                  : 'cursor-not-allowed opacity-45 grayscale-[25%]'
+              }`}
+            >
               {themes.map((theme, index) => (
                 <label
                   key={theme.id}
-                  className="group relative cursor-pointer"
+                  className={`group relative ${
+                    isThemeSelectionEnabled ? 'cursor-pointer' : 'cursor-not-allowed'
+                  }`}
                   title={theme.label}
                 >
                   <input
@@ -133,18 +162,28 @@ const CreatePrayerView: React.FC = () => {
               {audiences.map((audience, index) => (
                 <label
                   key={audience.id}
-                  className="flex cursor-pointer items-start gap-3 rounded-xl border border-transparent px-3 py-2.5 transition hover:border-gray-border hover:bg-off-white"
+                  className={`flex items-start gap-3 rounded-xl border border-transparent px-3 py-2.5 transition ${
+                    audience.disabled
+                      ? 'cursor-not-allowed bg-gray-50 opacity-50'
+                      : 'cursor-pointer hover:border-gray-border hover:bg-off-white'
+                  }`}
                 >
                   <input
                     type="radio"
                     name="audience"
                     value={audience.id}
                     defaultChecked={index === 0}
+                    disabled={audience.disabled}
                     className="mt-0.5 size-4 accent-[#1e3a5f]"
                   />
                   <span>
-                    <span className="block text-[13px] font-semibold text-navy">
+                    <span className="flex items-center gap-2 text-[13px] font-semibold text-navy">
                       {audience.label}
+                      {audience.disabled && (
+                        <span className="rounded-full bg-navy/10 px-2 py-0.5 text-[8px] font-bold uppercase tracking-wider text-navy">
+                          Ongoing
+                        </span>
+                      )}
                     </span>
                     <span className="mt-0.5 block text-[10px] text-gray-placeholder">
                       {audience.description}
@@ -156,6 +195,12 @@ const CreatePrayerView: React.FC = () => {
           </fieldset>
         </div>
 
+        {errorMessage && (
+          <p className="mt-5 rounded-xl bg-[#fff3f2] px-4 py-3 text-[12px] font-medium text-[#8b2d23]">
+            {errorMessage}
+          </p>
+        )}
+
         <div className="mt-auto flex items-center justify-between gap-4 pt-10">
           <button
             type="reset"
@@ -164,10 +209,11 @@ const CreatePrayerView: React.FC = () => {
             Clear
           </button>
           <button
-            type="button"
+            type="submit"
+            disabled={isSubmitting}
             className="min-w-32 rounded-full bg-navy px-7 py-2.5 text-[13px] font-bold text-white shadow-btn transition hover:bg-navy-hover active:scale-95 active:bg-navy-active"
           >
-            Post
+            {isSubmitting ? 'Posting...' : 'Post'}
           </button>
         </div>
       </form>
