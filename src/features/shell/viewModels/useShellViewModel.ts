@@ -1,7 +1,3 @@
-// features/shell/viewModels/useShellViewModel.ts
-// ViewModel: manages active tab state for the dashboard shell.
-// Views never manage navigation state directly - they call this hook only.
-
 import { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
@@ -64,62 +60,27 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     return () => window.clearTimeout(timer);
   }, []);
 
-  const setActiveTab = useCallback((tab: DashboardTab) => {
-    setActiveTabState(tab);
-  }, []);
-
-  const navigateToProfile = useCallback(() => {
-    setActiveTabState('profile');
-  }, []);
-
-  const navigateToFindMyChurch = useCallback(() => {
-    setActiveTabState('find-my-church');
-  }, []);
-
-  const navigateToAccountInformation = useCallback(() => {
-    setActiveTabState('account-information');
-  }, []);
-
-  const navigateToEditProfilePicture = useCallback(() => {
-    setActiveTabState('edit-profile-picture');
-  }, []);
-
-  const navigateToSecurity = useCallback(() => {
-    setActiveTabState('security');
-  }, []);
-
-  const navigateToChangeEmail = useCallback(() => {
-    setActiveTabState('change-email');
-  }, []);
+  const setActiveTab = useCallback((tab: DashboardTab) => setActiveTabState(tab), []);
+  const navigateToProfile = useCallback(() => setActiveTabState('profile'), []);
+  const navigateToFindMyChurch = useCallback(() => setActiveTabState('find-my-church'), []);
+  const navigateToAccountInformation = useCallback(() => setActiveTabState('account-information'), []);
+  const navigateToEditProfilePicture = useCallback(() => setActiveTabState('edit-profile-picture'), []);
+  const navigateToSecurity = useCallback(() => setActiveTabState('security'), []);
+  const navigateToChangeEmail = useCallback(() => setActiveTabState('change-email'), []);
+  const navigateToChangeNumber = useCallback(() => setActiveTabState('change-number'), []);
+  const navigateToChangePassword = useCallback(() => setActiveTabState('change-password'), []);
+  const navigateToPrivacyPolicy = useCallback(() => setActiveTabState('privacy-policy'), []);
+  const navigateToNotifications = useCallback(() => setActiveTabState('notifications'), []);
+  const navigateToHelp = useCallback(() => setActiveTabState('help'), []);
 
   const navigateToVerifyEmail = useCallback((email: string) => {
     setVerifyEmailTarget(email);
     setActiveTabState('verify-email');
   }, []);
 
-  const navigateToChangeNumber = useCallback(() => {
-    setActiveTabState('change-number');
-  }, []);
-
   const navigateToVerifyNumber = useCallback((phoneNumber: string) => {
     setVerifyNumberTarget(phoneNumber);
     setActiveTabState('verify-number');
-  }, []);
-
-  const navigateToChangePassword = useCallback(() => {
-    setActiveTabState('change-password');
-  }, []);
-
-  const navigateToPrivacyPolicy = useCallback(() => {
-    setActiveTabState('privacy-policy');
-  }, []);
-
-  const navigateToNotifications = useCallback(() => {
-    setActiveTabState('notifications');
-  }, []);
-
-  const navigateToHelp = useCallback(() => {
-    setActiveTabState('help');
   }, []);
 
   const selectChurch = useCallback((church: Church) => {
