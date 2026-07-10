@@ -16,6 +16,7 @@ import ServicesView from '../../services/views/ServicesView';
 import PrayerWallView from '../../prayer-wall/views/PrayerWallView';
 import ContentView from '../../content/views/ContentView';
 import ProfileView from '../../profile/views/ProfileView';
+import FindMyChurchView from '../../profile/findmychurch/views/FindMyChurchView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 
@@ -26,7 +27,6 @@ const TAB_PAGES: Record<string, React.FC> = {
   content: ContentView,
   giving: GivingView,
   chat: ChatView,
-  profile: ProfileView,
 };
 
 interface HeaderAvatarProps {
@@ -74,32 +74,53 @@ const BackChevron: React.FC = () => (
   </svg>
 );
 
+interface BackHeaderProps {
+  title: string;
+  onBack: () => void;
+}
+
+const BackHeader: React.FC<BackHeaderProps> = ({ title, onBack }) => (
+  <div
+    className="flex items-center gap-5 px-5 h-[59px] bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
+    style={{ paddingTop: 'env(safe-area-inset-top)' }}
+  >
+    <button
+      type="button"
+      aria-label="Go back"
+      onClick={onBack}
+      className="flex items-center justify-center relative cursor-pointer border-none bg-transparent text-[#1f2156] transition-opacity hover:opacity-75"
+    >
+      <BackChevron />
+    </button>
+    <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-[0] font-sans">
+      {title}
+    </h1>
+  </div>
+);
+
 const AppShell: React.FC = () => {
-  const { activeTab, setActiveTab, navigateToProfile, showBrandText } =
-    useShellViewModel();
+  const {
+    activeTab,
+    setActiveTab,
+    navigateToProfile,
+    navigateToFindMyChurch,
+    selectedChurch,
+    selectChurch,
+    showBrandText,
+  } = useShellViewModel();
 
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
+  const isBackHeader = activeTab === 'profile' || activeTab === 'find-my-church';
 
   return (
     <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
       <header className="sticky top-0 z-50 w-full bg-[#001739] text-white">
-        {activeTab === 'profile' ? (
-          <div
-            className="flex items-center gap-5 px-5 h-[59px] bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
-            style={{ paddingTop: 'env(safe-area-inset-top)' }}
-          >
-            <button
-              type="button"
-              aria-label="Go back"
-              onClick={() => setActiveTab('home')}
-              className="flex items-center justify-center relative cursor-pointer border-none bg-transparent text-[#1f2156] transition-opacity hover:opacity-75"
-            >
-              <BackChevron />
-            </button>
-            <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-[0] font-sans">
-              Profile
-            </h1>
-          </div>
+        {isBackHeader ? (
+          activeTab === 'profile' ? (
+            <BackHeader title="Profile" onBack={() => setActiveTab('home')} />
+          ) : (
+            <BackHeader title="Find My Church" onBack={navigateToProfile} />
+          )
         ) : (
           <div
             className="flex items-center justify-between px-5 h-[59px]"
@@ -156,7 +177,17 @@ const AppShell: React.FC = () => {
         aria-live="polite"
         aria-label={`${activeTab} page`}
       >
-        <ActivePage />
+        {activeTab === 'profile' ? (
+          <ProfileView
+            onFindMyChurch={navigateToFindMyChurch}
+            selectedChurch={selectedChurch}
+            onChangeChurch={navigateToFindMyChurch}
+          />
+        ) : activeTab === 'find-my-church' ? (
+          <FindMyChurchView onChurchSelect={selectChurch} />
+        ) : (
+          <ActivePage />
+        )}
       </main>
 
       <div className="sticky bottom-0 z-50 w-full">
