@@ -75,39 +75,19 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({ url }) => {
   );
 };
 
-// ── Component props ───────────────────────────────────────────
-interface ProfileViewProps {
-  /** Called when the user taps the "Find My Church" CTA. Provided by AppShell. */
-  onFindMyChurch?: () => void;
-  /** The church selected via FindMyChurchView. Null until the user picks one. */
-  selectedChurch?: { id: number; name: string; location: string; imageUrl?: string | null } | null;
-  /** Called when the user taps "Change" inside the My Church section. */
-  onChangeChurch?: () => void;
-  /** Called when the user taps "Account Information" in General Settings. */
-  onAccountInformation?: () => void;
-  /** Called when the user taps "Security & Privacy" in General Settings. */
-  onSecurity?: () => void;
-  /** Called when the user taps "Notifications" in Preferences Settings. */
-  onNotifications?: () => void;
-  /** Called when the user taps "Help & FAQ" in Preferences Settings. */
-  onHelp?: () => void;
-}
-
 // ── Component ─────────────────────────────────────────────────
-const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurch, onChangeChurch, onAccountInformation, onSecurity, onNotifications, onHelp }) => {
+const ProfileView: React.FC = () => {
   const {
     profileView,
     isLoadingProfile,
     profileError,
     email,
-    isGuest,
     recentActivities,
     generalSettings,
     preferences,
     isLoggingOut,
     handleSettingsItemPress,
-    handleFindMyChurchGuestPress,
-  } = useProfileViewModel({ onAccountInformation, onSecurity, onNotifications, onHelp });
+  } = useProfileViewModel();
 
   return (
     <main className="flex flex-col w-full items-center gap-6 relative min-h-screen pt-6 px-4 pb-10">
@@ -117,27 +97,16 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurc
 
         {/* Avatar with blue ring */}
         <div className="relative w-[100px] h-[100px] rounded-full border-[5px] border-solid border-[#336ef9] flex items-center justify-center shrink-0">
-          {isGuest ? (
-            /* Guest: neutral grey placeholder, no picture */
-            <ProfileAvatar url={null} />
-          ) : isLoadingProfile ? (
+          {isLoadingProfile ? (
             <div className="w-[81px] h-[81px] rounded-full bg-gray-200 animate-pulse" />
           ) : (
             <ProfileAvatar url={profileView?.profile_picture_url ?? null} />
           )}
         </div>
 
-        {/* Name + email block */}
+        {/* Name + editable email block */}
         <div className="flex flex-col items-center gap-1 w-full max-w-[280px]">
-          {isGuest ? (
-            /* Guest: always show "Guest" with no email */
-            <h2
-              id="profile-heading"
-              className="font-bold text-black text-[26px] text-center leading-tight"
-            >
-              Guest
-            </h2>
-          ) : isLoadingProfile ? (
+          {isLoadingProfile ? (
             <>
               <div className="w-36 h-7 rounded-full bg-gray-200 animate-pulse" />
               <div className="w-28 h-5 rounded-full bg-gray-200 animate-pulse" />
@@ -159,119 +128,66 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurc
           )}
         </div>
 
-        {/* Find My Church CTA  ──or──  My Church section */}
-        {isGuest ? (
-          /* ── Guest: CTA navigates to login ── */
-          <button
-            type="button"
-            onClick={handleFindMyChurchGuestPress}
-            className="flex flex-col w-[310px] h-[51px] items-center justify-center gap-0.5 bg-[#1f2156] rounded-[10px] cursor-pointer hover:bg-[#2c2f6d] hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] transition-all duration-200 shrink-0"
-          >
-            <span className="font-medium text-white text-xl text-center leading-6 whitespace-nowrap tracking-[0]">
-              Find My Church
-            </span>
-          </button>
-        ) : selectedChurch ? (
-          /* ── My Church card (church was chosen) ── */
-          <div className="w-full max-w-[371px] inline-flex flex-col justify-start items-center gap-2.5">
-            {/* Header row */}
-            <div className="self-stretch inline-flex justify-between items-center">
-              <span className="text-neutral-500 text-xl font-bold leading-6">
-                My Church
-              </span>
-              <button
-                type="button"
-                onClick={onChangeChurch}
-                className="font-medium text-[#336ef9] text-[13px] text-right leading-6 whitespace-nowrap tracking-[0] cursor-pointer bg-transparent border-none hover:opacity-75 transition-opacity duration-150"
-              >
-                Change
-              </button>
-            </div>
-
-            {/* Church info card */}
-            <div className="self-stretch h-14 pl-4 pr-3 pt-2 pb-2.5 bg-blue-500/5 rounded-[20px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline outline-1 outline-offset-[-1px] outline-blue-950 flex flex-col justify-center items-center gap-2.5">
-              <div className="w-full inline-flex justify-start items-center gap-2">
-                {/* Church avatar: image or grey circle fallback */}
-                {selectedChurch.imageUrl ? (
-                  <img
-                    src={selectedChurch.imageUrl}
-                    alt={selectedChurch.name}
-                    className="size-7 rounded-full object-cover bg-zinc-300 shrink-0"
-                  />
-                ) : (
-                  <div className="size-7 rounded-full bg-zinc-300 shrink-0" aria-hidden="true" />
-                )}
-                <span className="flex-1 text-black text-xs font-normal leading-4 truncate">
-                  {selectedChurch.name}
-                </span>
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* ── No church selected — show CTA button ── */
-          <button
-            type="button"
-            onClick={onFindMyChurch}
-            className="flex w-[310px] h-[51px] items-center justify-center gap-2.5 bg-[#1f2156] rounded-[10px] cursor-pointer hover:bg-[#2c2f6d] hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] transition-all duration-200 shrink-0"
-          >
-            <span className="flex items-center justify-center font-medium text-white text-xl text-center leading-6 whitespace-nowrap relative tracking-[0]">
-              Find My Church
-            </span>
-          </button>
-        )}
+        {/* Find My Church CTA */}
+        <button
+          type="button"
+          className="flex w-[310px] h-[51px] items-center justify-center gap-2.5 bg-[#1f2156] rounded-[10px] cursor-pointer hover:bg-[#2c2f6d] hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] transition-all duration-200 shrink-0"
+        >
+          <span className="flex items-center justify-center font-medium text-white text-xl text-center leading-6 whitespace-nowrap relative tracking-[0]">
+            Find My Church
+          </span>
+        </button>
       </section>
 
-      {/* ── Recent Activity — hidden for guests ─────────────────── */}
-      {!isGuest && (
-        <section
-          className="flex flex-col w-full max-w-[371px] items-center gap-2.5 relative flex-[0_0_auto]"
-          aria-labelledby="recent-activity-heading"
-        >
-          <div className="flex items-center justify-between relative self-stretch w-full">
-            <h3
-              id="recent-activity-heading"
-              className="font-bold text-[#757575] text-xl leading-6 whitespace-nowrap tracking-[0]"
-            >
-              Recent Activity
-            </h3>
-            <button
-              type="button"
-              className="font-medium text-[#336ef9] text-[13px] text-right leading-6 whitespace-nowrap tracking-[0] cursor-pointer bg-transparent border-none hover:opacity-75 transition-opacity duration-150"
-            >
-              View All
-            </button>
-          </div>
+      {/* ── Recent Activity ───────────────────────────────────── */}
+      <section
+        className="flex flex-col w-full max-w-[371px] items-center gap-2.5 relative flex-[0_0_auto]"
+        aria-labelledby="recent-activity-heading"
+      >
+        <div className="flex items-center justify-between relative self-stretch w-full">
+          <h3
+            id="recent-activity-heading"
+            className="font-bold text-[#757575] text-xl leading-6 whitespace-nowrap tracking-[0]"
+          >
+            Recent Activity
+          </h3>
+          <button
+            type="button"
+            className="font-medium text-[#336ef9] text-[13px] text-right leading-6 whitespace-nowrap tracking-[0] cursor-pointer bg-transparent border-none"
+          >
+            View All
+          </button>
+        </div>
 
-          {recentActivities.map((item) => (
-            <article
-              key={item.id}
-              className="flex flex-col h-14 items-center justify-center gap-2.5 pl-[18px] pr-[13px] pt-[9px] pb-2.5 relative self-stretch w-full bg-[#336ef90d] rounded-[20px] border border-solid border-[#1f2156] shadow-[0px_4px_4px_#00000040]"
-            >
-              {item.type === 'service' ? (
-                <div className="gap-[9px] flex w-full items-center relative">
-                  <ServiceIcon />
-                  <p className="flex-1 font-normal text-black text-xs leading-[14px] tracking-[0] truncate">
-                    <span className="font-normal text-black text-xs tracking-[0] leading-[14px] block truncate">
-                      {item.title}
-                    </span>
-                    <span className="text-[10px] text-gray-placeholder">{item.date}</span>
-                  </p>
-                </div>
-              ) : (
-                <div className="flex w-full items-center gap-4 pl-2 relative">
-                  <PrayerIcon />
-                  <p className="flex-1 font-normal text-black text-xs leading-[14px] tracking-[0] truncate">
-                    <span className="font-normal text-black text-xs tracking-[0] leading-[14px] block truncate">
-                      {item.title}
-                    </span>
-                    <span className="text-[10px] text-gray-placeholder">{item.date}</span>
-                  </p>
-                </div>
-              )}
-            </article>
-          ))}
-        </section>
-      )}
+        {recentActivities.map((item) => (
+          <article
+            key={item.id}
+            className="flex flex-col h-14 items-center justify-center gap-2.5 pl-[18px] pr-[13px] pt-[9px] pb-2.5 relative self-stretch w-full bg-[#336ef90d] rounded-[20px] border border-solid border-[#1f2156] shadow-[0px_4px_4px_#00000040]"
+          >
+            {item.type === 'service' ? (
+              <div className="gap-[9px] flex w-full items-center relative">
+                <ServiceIcon />
+                <p className="flex-1 font-normal text-black text-xs leading-[14px] tracking-[0] truncate">
+                  <span className="font-normal text-black text-xs tracking-[0] leading-[14px] block truncate">
+                    {item.title}
+                  </span>
+                  <span className="text-[10px] text-gray-placeholder">{item.date}</span>
+                </p>
+              </div>
+            ) : (
+              <div className="flex w-full items-center gap-4 pl-2 relative">
+                <PrayerIcon />
+                <p className="flex-1 font-normal text-black text-xs leading-[14px] tracking-[0] truncate">
+                  <span className="font-normal text-black text-xs tracking-[0] leading-[14px] block truncate">
+                    {item.title}
+                  </span>
+                  <span className="text-[10px] text-gray-placeholder">{item.date}</span>
+                </p>
+              </div>
+            )}
+          </article>
+        ))}
+      </section>
 
       {/* ── General Settings ──────────────────────────────────── */}
       <section
@@ -280,7 +196,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurc
       >
         <h3
           id="general-settings-heading"
-          className="self-stretch font-bold text-[#757575] text-xl leading-6 whitespace-nowrap tracking-[0]"
+          className="self-stretch font-medium text-[#757575] text-xl leading-6 whitespace-nowrap tracking-[0]"
         >
           General Settings
         </h3>
@@ -312,7 +228,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurc
       >
         <h3
           id="preferences-heading"
-          className="self-stretch font-bold text-[#757575] text-xl leading-6 whitespace-nowrap tracking-[0]"
+          className="self-stretch font-medium text-[#757575] text-xl leading-6 whitespace-nowrap tracking-[0]"
         >
           Preferences
         </h3>
