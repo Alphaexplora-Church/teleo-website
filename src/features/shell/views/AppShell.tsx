@@ -98,36 +98,57 @@ const AppShell: React.FC = () => {
 
       {/* ── Sticky Top Header ─────────────────────────────── */}
       <header className="sticky top-0 z-20 w-full bg-white border-b border-gray-border/50 shadow-[0_1px_8px_rgba(27,50,82,0.06)]">
-        <div
-          className="flex items-center justify-between px-5 h-[60px]"
-          style={{ paddingTop: 'env(safe-area-inset-top)' }}
-        >
-          {/* Left: Teleo branding */}
-          <div className="flex items-center gap-2.5">
-            <TeleoLogo size={32} />
-            <span className="text-[18px] font-black tracking-[4px] text-navy leading-none select-none font-sans">
-              TELEO
-            </span>
-          </div>
-
-          {/* Right: Bell + Avatar */}
-          <div className="flex items-center gap-3">
-            {/* Notification bell */}
+        {activeTab === 'profile' ? (
+          <div
+            className="flex items-center gap-5 px-5 h-[60px]"
+            style={{ paddingTop: 'env(safe-area-inset-top)' }}
+          >
             <button
-              id="btn-header-notifications"
               type="button"
-              aria-label="Notifications"
-              className="relative w-10 h-10 flex items-center justify-center rounded-full text-navy border-none bg-transparent cursor-pointer transition-colors hover:bg-navy/8 active:bg-navy/15"
+              aria-label="Go back"
+              onClick={() => setActiveTab('home')}
+              className="flex items-center justify-center relative cursor-pointer border-none bg-transparent text-[#1f2156] transition-opacity hover:opacity-75"
             >
-              <BellIcon />
-              {/* Unread indicator dot */}
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#FFAF00] border-2 border-white" aria-hidden="true" />
+              <svg className="w-[7.4px] h-3" viewBox="0 0 8 13" fill="none" aria-hidden="true">
+                <polyline points="7 1 1 6.5 7 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </button>
-
-            {/* Profile avatar — 12–16px gap via gap-3 (12px) */}
-            <HeaderAvatar onClick={navigateToProfile} />
+            <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-[0] font-sans">
+              Profile
+            </h1>
           </div>
-        </div>
+        ) : (
+          <div
+            className="flex items-center justify-between px-5 h-[60px]"
+            style={{ paddingTop: 'env(safe-area-inset-top)' }}
+          >
+            {/* Left: Teleo branding */}
+            <div className="flex items-center gap-2.5">
+              <TeleoLogo size={32} />
+              <span className="text-[18px] font-black tracking-[4px] text-navy leading-none select-none font-sans">
+                TELEO
+              </span>
+            </div>
+
+            {/* Right: Bell + Avatar */}
+            <div className="flex items-center gap-3">
+              {/* Notification bell */}
+              <button
+                id="btn-header-notifications"
+                type="button"
+                aria-label="Notifications"
+                className="relative w-10 h-10 flex items-center justify-center rounded-full text-navy border-none bg-transparent cursor-pointer transition-colors hover:bg-navy/8 active:bg-navy/15"
+              >
+                <BellIcon />
+                {/* Unread indicator dot */}
+                <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#FFAF00] border-2 border-white" aria-hidden="true" />
+              </button>
+
+              {/* Profile avatar — 12–16px gap via gap-3 (12px) */}
+              <HeaderAvatar onClick={navigateToProfile} />
+            </div>
+          </div>
+        )}
       </header>
 
       {/* ── Scrollable Content Area ───────────────────────── */}
