@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
 import { usePrayerHistoryViewModel } from '../viewmodels/PrayerHistoryViewModel';
 
@@ -39,10 +40,37 @@ const PrayerHistoryView: React.FC = () => {
   const {
     prayers,
     historyFilter,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    errorMessage,
     setHistoryFilter,
+    loadMorePrayers,
     goBack,
     navigateToTab,
   } = usePrayerHistoryViewModel();
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const target = loadMoreRef.current;
+
+    if (!target || !hasMore) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          void loadMorePrayers();
+        }
+      },
+      { rootMargin: '180px' },
+    );
+
+    observer.observe(target);
+
+    return () => observer.disconnect();
+  }, [hasMore, loadMorePrayers]);
 
   return (
     <main className="min-h-dvh w-full bg-off-white">
@@ -98,7 +126,17 @@ const PrayerHistoryView: React.FC = () => {
           </div>
 
           <div className="mt-5 space-y-3">
-            {prayers.length === 0 && (
+            {isLoading && (
+              <div className="rounded-2xl border border-gray-border bg-off-white px-5 py-10 text-center">
+                <p className="text-[14px] font-bold text-navy">Loading history...</p>
+              </div>
+            )}
+            {errorMessage && !isLoading && (
+              <div className="rounded-2xl border border-[#f1c2bc] bg-[#fff3f2] px-5 py-4 text-center">
+                <p className="text-[12px] font-medium text-[#8b2d23]">{errorMessage}</p>
+              </div>
+            )}
+            {!isLoading && !errorMessage && prayers.length === 0 && !hasMore && (
               <div className="rounded-2xl border border-dashed border-gray-border bg-off-white px-5 py-10 text-center">
                 <p className="text-[14px] font-bold text-navy">No posts yet</p>
                 <p className="mt-1 text-[11px] text-gray-placeholder">
@@ -107,19 +145,22 @@ const PrayerHistoryView: React.FC = () => {
               </div>
             )}
             {prayers.map((prayer) => (
-              <article
+              <Link
                 key={prayer.id}
-                className="rounded-2xl p-4 text-white shadow-[0_10px_24px_rgba(27,50,82,0.16)]"
+                to={`/prayer/${prayer.id}`}
+                className="block rounded-2xl p-4 text-white shadow-[0_10px_24px_rgba(27,50,82,0.16)] transition active:scale-[0.99]"
                 style={{ backgroundColor: prayer.accentColor }}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="size-8 rounded-full bg-white/85" />
-                    <div>
-                      <p className="text-[12px] font-bold">{prayer.author}</p>
-                      <p className="text-[9px] text-white/65">{prayer.timeAgo}</p>
-                    </div>
+                  <div className="size-8 rounded-full bg-white/85" />
+                  <div>
+                    <p className="text-[12px] font-bold text-white">
+                      {prayer.author ?? 'Teleo Member'}
+                    </p>
+                    <p className="text-[9px] text-white/65">{prayer.timeAgo}</p>
                   </div>
+                </div>
                   <span className="flex size-8 items-center justify-center rounded-full bg-white/20 text-white">
                     <EyeIcon />
                   </span>
@@ -127,8 +168,15 @@ const PrayerHistoryView: React.FC = () => {
                 <p className="mt-5 text-center text-[17px] font-black leading-[1.45] tracking-[-0.025em]">
                   {prayer.frontMessage}
                 </p>
-              </article>
+              </Link>
             ))}
+            {hasMore && (
+              <div ref={loadMoreRef} className="py-4 text-center">
+                <p className="text-[11px] font-semibold text-gray-placeholder">
+                  {isLoadingMore ? 'Loading more prayers...' : 'Loading more when you scroll'}
+                </p>
+              </div>
+            )}
           </div>
         </section>
 
