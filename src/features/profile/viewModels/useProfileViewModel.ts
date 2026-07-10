@@ -70,17 +70,6 @@ const PREFERENCES: SettingsItem[] = [
 
 // ── ViewModel return type ──────────────────────────────────────────────────────
 
-export interface ProfileViewModelOptions {
-  /** Optional callback invoked when the user navigates to Account Information. */
-  onAccountInformation?: () => void;
-  /** Optional callback invoked when the user navigates to Security & Privacy. */
-  onSecurity?: () => void;
-  /** Optional callback invoked when the user navigates to Notifications. */
-  onNotifications?: () => void;
-  /** Optional callback invoked when the user navigates to Help & FAQ. */
-  onHelp?: () => void;
-}
-
 export interface ProfileViewModelReturn {
   // Profile header data (from API)
   profileView: ProfileSettingsView | null;
@@ -89,9 +78,6 @@ export interface ProfileViewModelReturn {
 
   // Read-only email
   email: string;
-
-  // Guest mode
-  isGuest: boolean;
 
   // Static design data
   recentActivities: RecentActivityItem[];
@@ -103,13 +89,11 @@ export interface ProfileViewModelReturn {
   logoutError: string | null;
   handleLogout: () => Promise<void>;
   handleSettingsItemPress: (item: SettingsItem) => Promise<void>;
-  /** Called when a guest taps "Find My Church" — redirects to login. */
-  handleFindMyChurchGuestPress: () => void;
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifications, onHelp }: ProfileViewModelOptions = {}): ProfileViewModelReturn => {
+export const useProfileViewModel = (): ProfileViewModelReturn => {
   // ── Profile API state ──────────────────────────────────────────
   const [profileView, setProfileView] = useState<ProfileSettingsView | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -118,10 +102,6 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifi
   // ── Session state ──────────────────────────────────────────────
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
-
-  // ── Guest detection ────────────────────────────────────────
-  // Guests bypass auth — continueAsGuest() never writes an access_token.
-  const isGuest = localStorage.getItem('access_token') === null;
 
   const navigate = useNavigate();
 
@@ -145,11 +125,6 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifi
   // Derived read-only email with fallback
   const email = profileView?.email || 'email@gmail.com';
 
-  // ── Guest Find My Church → navigate to login ──────────────
-  const handleFindMyChurchGuestPress = useCallback(() => {
-    navigate('/login');
-  }, [navigate]);
-
   // ── Logout ────────────────────────────────────────────────────
   const handleLogout = useCallback(async () => {
     setIsLoggingOut(true);
@@ -171,17 +146,10 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifi
     async (item: SettingsItem) => {
       if (item.iconType === 'logout') {
         await handleLogout();
-      } else if (item.iconType === 'account') {
-        onAccountInformation?.();
-      } else if (item.iconType === 'security') {
-        onSecurity?.();
-      } else if (item.iconType === 'notifications') {
-        onNotifications?.();
-      } else if (item.iconType === 'help') {
-        onHelp?.();
       }
+      // Future: navigate to respective settings screens
     },
-    [handleLogout, onAccountInformation, onSecurity, onNotifications, onHelp],
+    [handleLogout],
   );
 
   return {
@@ -190,9 +158,6 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifi
     isLoadingProfile,
     profileError,
     email,
-
-    // Guest mode
-    isGuest,
 
     // Static design data
     recentActivities: RECENT_ACTIVITIES,
@@ -204,6 +169,5 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifi
     logoutError,
     handleLogout,
     handleSettingsItemPress,
-    handleFindMyChurchGuestPress,
   };
 };
