@@ -7,8 +7,8 @@ import React from 'react';
 import TeleoLogo from '../../../shared/components/TeleoLogo';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
 import { useShellViewModel } from '../viewModels/useShellViewModel';
-import type { ShellDestination } from '../viewModels/useShellViewModel';
-import type { DashboardTab } from '../../../shared/models/navigationTypes';
+//import type { ShellDestination } from '../viewModels/useShellViewModel';
+//import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
 // ── Tab page views ────────────────────────────────────────────
 import HomeFeedView from '../../home/views/HomeFeedView';
