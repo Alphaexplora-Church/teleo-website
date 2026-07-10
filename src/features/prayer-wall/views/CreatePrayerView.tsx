@@ -25,6 +25,9 @@ const CreatePrayerView: React.FC = () => {
     hashtags,
     themes,
     isThemeSelectionEnabled,
+    isSubmitting,
+    errorMessage,
+    submitPrayer,
     navigateToTab,
   } = useCreatePrayerViewModel();
 
@@ -46,7 +49,13 @@ const CreatePrayerView: React.FC = () => {
         </div>
       </header>
 
-      <form className="flex flex-1 flex-col px-5 pb-8 pt-7 sm:px-7">
+      <form
+        className="flex flex-1 flex-col px-5 pb-8 pt-7 sm:px-7"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          await submitPrayer(new FormData(event.currentTarget));
+        }}
+      >
         <div className="mb-7">
           <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#129e9a]">
             Prayer Wall
@@ -97,7 +106,7 @@ const CreatePrayerView: React.FC = () => {
                 Choose a category
               </option>
               {hashtags.map((hashtag) => (
-                <option key={hashtag} value={hashtag.toLowerCase()}>
+                <option key={hashtag} value={hashtag}>
                   {hashtag}
                 </option>
               ))}
@@ -186,6 +195,12 @@ const CreatePrayerView: React.FC = () => {
           </fieldset>
         </div>
 
+        {errorMessage && (
+          <p className="mt-5 rounded-xl bg-[#fff3f2] px-4 py-3 text-[12px] font-medium text-[#8b2d23]">
+            {errorMessage}
+          </p>
+        )}
+
         <div className="mt-auto flex items-center justify-between gap-4 pt-10">
           <button
             type="reset"
@@ -194,10 +209,11 @@ const CreatePrayerView: React.FC = () => {
             Clear
           </button>
           <button
-            type="button"
+            type="submit"
+            disabled={isSubmitting}
             className="min-w-32 rounded-full bg-navy px-7 py-2.5 text-[13px] font-bold text-white shadow-btn transition hover:bg-navy-hover active:scale-95 active:bg-navy-active"
           >
-            Post
+            {isSubmitting ? 'Posting...' : 'Post'}
           </button>
         </div>
       </form>
