@@ -16,11 +16,12 @@ import ServicesView from '../../services/views/ServicesView';
 import PrayerWallView from '../../prayer-wall/views/PrayerWallView';
 import ContentView from '../../content/views/ContentView';
 import ProfileView from '../../profile/views/ProfileView';
+import FindMyChurchView from '../../profile/findmychurch/views/FindMyChurchView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 
 // ── Tab page registry ─────────────────────────────────────────
-// 'profile' is not in the bottom nav but is reachable via the header avatar.
+// 'profile' and 'find-my-church' are not bottom-nav tabs.
 const TAB_PAGES: Record<string, React.FC> = {
   'home': HomeFeedView,
   'services': ServicesView,
@@ -28,7 +29,7 @@ const TAB_PAGES: Record<string, React.FC> = {
   'content': ContentView,
   'giving': GivingView,
   'chat': ChatView,
-  'profile': ProfileView,   // accessed via top-right avatar, not bottom nav
+  'find-my-church': FindMyChurchView, // accessed from ProfileView CTA
 };
 
 // ── Notification bell icon ────────────────────────────────────
@@ -88,9 +89,17 @@ const HeaderAvatar: React.FC<HeaderAvatarProps> = ({ profilePictureUrl, onClick 
 
 // ── AppShell ──────────────────────────────────────────────────
 const AppShell: React.FC = () => {
-  const { activeTab, setActiveTab, navigateToProfile } = useShellViewModel();
+  const {
+    activeTab,
+    setActiveTab,
+    navigateToProfile,
+    navigateToFindMyChurch,
+    selectedChurch,
+    selectChurch,
+  } = useShellViewModel();
 
-  // Resolve the active page component (falls back to HomeFeedView if unknown)
+  // Resolve the active page component (falls back to HomeFeedView if unknown).
+  // 'profile' is rendered separately below so it can receive props.
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
 
   return (
@@ -99,6 +108,7 @@ const AppShell: React.FC = () => {
       {/* ── Sticky Top Header ─────────────────────────────── */}
       <header className="sticky top-0 z-20 w-full bg-white border-b border-gray-border/50 shadow-[0_1px_8px_rgba(27,50,82,0.06)]">
         {activeTab === 'profile' ? (
+          /* Profile back-header: back → home */
           <div
             className="flex items-center gap-5 px-5 h-[60px]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
@@ -117,7 +127,28 @@ const AppShell: React.FC = () => {
               Profile
             </h1>
           </div>
+        ) : activeTab === 'find-my-church' ? (
+          /* Find My Church back-header: back → profile */
+          <div
+            className="flex items-center gap-5 px-5 h-[60px]"
+            style={{ paddingTop: 'env(safe-area-inset-top)' }}
+          >
+            <button
+              type="button"
+              aria-label="Go back to Profile"
+              onClick={navigateToProfile}
+              className="flex items-center justify-center relative cursor-pointer border-none bg-transparent text-[#1f2156] transition-opacity hover:opacity-75"
+            >
+              <svg className="w-[7.4px] h-3" viewBox="0 0 8 13" fill="none" aria-hidden="true">
+                <polyline points="7 1 1 6.5 7 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-[0] font-sans">
+              Find My Church
+            </h1>
+          </div>
         ) : (
+          /* Default branded header */
           <div
             className="flex items-center justify-between px-5 h-[60px]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
@@ -158,7 +189,19 @@ const AppShell: React.FC = () => {
         aria-live="polite"
         aria-label={`${activeTab} page`}
       >
-        <ActivePage />
+        {activeTab === 'profile' ? (
+          /* ProfileView receives navigation callbacks and the selected church */
+          <ProfileView
+            onFindMyChurch={navigateToFindMyChurch}
+            selectedChurch={selectedChurch}
+            onChangeChurch={navigateToFindMyChurch}
+          />
+        ) : activeTab === 'find-my-church' ? (
+          /* FindMyChurchView receives the church selection callback */
+          <FindMyChurchView onChurchSelect={selectChurch} />
+        ) : (
+          <ActivePage />
+        )}
       </main>
 
       {/* ── Sticky Bottom Navigation Bar ─────────────────── */}
