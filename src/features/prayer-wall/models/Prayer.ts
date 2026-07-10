@@ -1,150 +1,466 @@
-export interface Prayer {
+import {
+  cachePrayerComment,
+  mapPrayerCommentRecord,
+  mergePrayerComments,
+  type PrayerComment,
+  type PrayerCommentRecord,
+} from './Comment';
+import type { PrayerReactionRecord, PrayerReactionType } from './PrayerReaction';
+import { fetchProfileSettingsView } from '../../profile/models/profileApi';
+
+export type PrayerAudience = 'PUBLIC' | 'PRIVATE' | 'HOME_CHURCH';
+
+export interface PrayerApiRecord {
   id: string;
-  author: string;
+  user_id: string;
+  home_church_id: number | null;
+  title: string;
+  audience: PrayerAudience;
+  description: string;
+  prayer_tag: string | null;
+  is_answered: boolean;
+  answer_note: string | null;
+  answered_at: string | null;
+  created_at: string;
+  updated_at: string;
+  author_name?: string | null;
+  username?: string | null;
+  full_name?: string | null;
+  display_name?: string | null;
+  name?: string | null;
+}
+
+export interface PrayerFeedResponse {
+  data: PrayerApiRecord[];
+  meta: {
+    next_cursor: string | null;
+    has_more: boolean;
+  };
+}
+
+export interface PrayerCardsPage {
+  prayers: PrayerCard[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+export interface PrayerCard {
+  id: string;
+  author: string | null;
   timeAgo: string;
+  title: string;
+  description: string;
   frontMessage: string;
   backTitle: string;
   backDetails: string;
   accentColor: string;
-  tags?: string[];
-  prayerCount?: number;
-  comments?: PrayerComment[];
+  tags: string[];
+  prayerTag: string | null;
+  audience: PrayerAudience;
+  isAnswered: boolean;
+  answerNote: string | null;
+  createdAt: string;
+  ownerId: string;
+  comments: PrayerComment[];
 }
 
-export interface PrayerComment {
-  id: string;
-  author: string;
-  message: string;
-  timeAgo: string;
+export interface CreatePrayerPayload {
+  title: string;
+  description: string;
+  prayer_tag?: string;
+  audience?: PrayerAudience;
 }
 
-export const PRAYERS: Prayer[] = [
-  {
-    id: 'prayer-1',
-    author: 'Sarah K.',
-    timeAgo: '1 day ago',
-    frontMessage: 'If anyone is up, I need prayer urgently right now!!',
-    backTitle: 'Urgent Prayer Update',
-    backDetails:
-      "I just received some difficult news about my health and I'm feeling overwhelmed and scared. Please pray for peace, wisdom for the doctors, and healing if it's God's will. I could really use some encouragement right now.",
-    accentColor: '#1e3a5f',
-    tags: ['Culture', 'Business'],
-    prayerCount: 12,
-    comments: [
-      {
-        id: 'comment-1',
-        author: 'Pastor Mike',
-        message: 'I have prayed for you 🙏',
-        timeAgo: '9h',
-      },
-      {
-        id: 'comment-2',
-        author: 'Anonymous',
-        message: 'Sending you positive thoughts ✨',
-        timeAgo: '12m',
-      },
-      {
-        id: 'comment-3',
-        author: 'You',
-        message: 'I have prayed for you 🙏',
-        timeAgo: 'Just now',
-      },
-    ],
-  },
-  {
-    id: 'prayer-2',
-    author: 'Daniel M.',
-    timeAgo: '3 hrs ago',
-    frontMessage:
-      'Please pray for peace over my family while we walk through a hard week together.',
-    backTitle: 'Prayer Focus',
-    backDetails:
-      'Card Details & Comments Go Here. Add more context, prayer points, or encouragement from the community.',
-    accentColor: '#10b7b2',
-  },
-  {
-    id: 'prayer-3',
-    author: 'Naomi L.',
-    timeAgo: '5 hrs ago',
-    frontMessage:
-      "Believing for healing and calm before tomorrow morning's appointment.",
-    backTitle: 'Appointment Details',
-    backDetails:
-      'Card Details & Comments Go Here. Share follow-up details, answered prayer notes, and words of support.',
-    accentColor: '#e33686',
-  },
-  {
-    id: 'prayer-4',
-    author: 'Chris A.',
-    timeAgo: '2 days ago',
-    frontMessage:
-      'Pray for courage, discipline, and wisdom as I step into this new season.',
-    backTitle: 'Prayer Journey',
-    backDetails:
-      'Card Details & Comments Go Here. This space can become a full prayer timeline when connected to real data.',
-    accentColor: '#6937d6',
-  },
+export interface UpdatePrayerPayload extends CreatePrayerPayload {}
+
+export interface PrayerApiRecordWithComments extends PrayerApiRecord {
+  comments?: PrayerCommentRecord[];
+}
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const PRAYER_THEME_COLORS = [
+  '#1e3a5f',
+  '#129e9a',
+  '#8426d6',
+  '#c71961',
+  '#dd7600',
+  '#079a73',
 ];
+const MOCK_PRAYER_TITLE_PATTERN = /^prayers?\s+\d+$/i;
+const MOCK_PRAYER_DESCRIPTION_PATTERNS = [
+  /^card details/i,
+  /^this space can become/i,
+  /^only i can see this post/i,
+];
+const MOCK_PRAYER_TITLE_SUBSTRINGS = ['update (public)'];
 
-export const PRAYER_STACK_STYLES = [
-  { rotation: -5.5, offsetX: -12, offsetY: 12, scale: 0.985 },
-  { rotation: 4.5, offsetX: 15, offsetY: 6, scale: 0.972 },
-  { rotation: -2.5, offsetX: -4, offsetY: -2, scale: 0.96 },
-] as const;
+const getAccessToken = () => localStorage.getItem('access_token');
 
-export const PRAYER_GESTURE = {
-  swipeDistance: 90,
-  clickTolerance: 7,
-  flickDistance: 36,
-  flickVelocity: 0.65,
-  dragLimit: 190,
-  exitDistance: 560,
-  exitDuration: 260,
-} as const;
+const getRequiredAccessToken = () => {
+  const token = getAccessToken();
 
-export const PRAYER_HASHTAGS = [
-  'Art',
-  'Business',
-  'Culture',
-  'Education',
-  'Family',
-  'Health',
-] as const;
+  if (!token) {
+    throw new Error('You need to log in to access the Prayer Wall.');
+  }
 
-export const PRAYER_THEMES = [
-  { id: 'navy', label: 'Navy', color: '#1e3a5f' },
-  { id: 'teal', label: 'Teal', color: '#129e9a' },
-  { id: 'purple', label: 'Purple', color: '#8426d6' },
-  { id: 'magenta', label: 'Magenta', color: '#c71961' },
-  { id: 'orange', label: 'Orange', color: '#dd7600' },
-  { id: 'green', label: 'Green', color: '#079a73' },
-] as const;
+  return token;
+};
 
-export const PRAYER_AUDIENCES = [
-  {
-    id: 'public',
-    label: 'Public',
-    description: 'Visible to everyone',
-    disabled: false,
-  },
-  {
-    id: 'community',
-    label: 'Church Community',
-    description: 'Currently ongoing',
-    disabled: true,
-  },
-  {
-    id: 'private',
-    label: 'Only Me',
-    description: 'Visible only to you',
-    disabled: false,
-  },
-] as const;
+const parseJsonResponse = async <T>(response: Response): Promise<T> => {
+  const data = await response.json().catch(() => null);
 
-export const PRAYER_RESPONSES = [
-  'I have prayed for you 🙏',
-  'Wishing you the best 🤞',
-  'Sending you positive thoughts ✨',
-  "I'm holding you in my prayers today 💛",
-  'Sending you strength and support! 💪',
-] as const;
+  if (!response.ok) {
+    const message =
+      (data && typeof data === 'object' && 'error' in data && typeof data.error === 'string'
+        ? data.error
+        : null) ||
+      (data && typeof data === 'object' && 'message' in data && typeof data.message === 'string'
+        ? data.message
+        : null) ||
+      'Prayer Wall request failed.';
+
+    throw new Error(message);
+  }
+
+  return data as T;
+};
+
+const formatTimeAgo = (timestamp: string) => {
+  const now = Date.now();
+  const date = new Date(timestamp).getTime();
+
+  if (Number.isNaN(date)) {
+    return 'Recently';
+  }
+
+  const diffMs = Math.max(now - date, 0);
+  const minute = 60_000;
+  const hour = 60 * minute;
+  const day = 24 * hour;
+
+  if (diffMs < minute) {
+    return 'Just now';
+  }
+
+  if (diffMs < hour) {
+    const minutes = Math.floor(diffMs / minute);
+    return `${minutes} min${minutes === 1 ? '' : 's'} ago`;
+  }
+
+  if (diffMs < day) {
+    const hours = Math.floor(diffMs / hour);
+    return `${hours} hr${hours === 1 ? '' : 's'} ago`;
+  }
+
+  const days = Math.floor(diffMs / day);
+  return `${days} day${days === 1 ? '' : 's'} ago`;
+};
+
+const hashToThemeColor = (seed: string) => {
+  const hash = Array.from(seed).reduce(
+    (total, character) => total + character.charCodeAt(0),
+    0,
+  );
+
+  return PRAYER_THEME_COLORS[hash % PRAYER_THEME_COLORS.length];
+};
+
+const toPrayerPreview = (title: string, description: string) => {
+  const normalizedDescription = description.trim();
+
+  if (normalizedDescription) {
+    return normalizedDescription.length > 160
+      ? `${normalizedDescription.slice(0, 157).trimEnd()}...`
+      : normalizedDescription;
+  }
+
+  return title.trim() || 'Prayer Request';
+};
+
+const getPrayerAuthorName = (record: PrayerApiRecord) => {
+  const authorFields = [
+    record.author_name,
+    record.username,
+    record.full_name,
+    record.display_name,
+    record.name,
+  ];
+
+  return authorFields.find(
+    (value): value is string => typeof value === 'string' && value.trim().length > 0,
+  )?.trim() ?? null;
+};
+
+const applyCurrentUserAuthorFallback = async (prayers: PrayerCard[]) => {
+  const currentUserId = getCurrentUserId();
+
+  if (!currentUserId || !prayers.some((prayer) => prayer.ownerId === currentUserId && !prayer.author)) {
+    return prayers;
+  }
+
+  try {
+    const profile = await fetchProfileSettingsView();
+    const fallbackAuthor = profile.username?.trim() || null;
+
+    if (!fallbackAuthor) {
+      return prayers;
+    }
+
+    return prayers.map((prayer) =>
+      prayer.ownerId === currentUserId && !prayer.author
+        ? { ...prayer, author: fallbackAuthor }
+        : prayer,
+    );
+  } catch {
+    return prayers;
+  }
+};
+
+const mapPrayerRecordToCard = (record: PrayerApiRecord): PrayerCard => {
+  const recordWithComments = record as PrayerApiRecordWithComments;
+  const tag = record.prayer_tag?.trim() || null;
+
+  return {
+    id: record.id,
+    author: getPrayerAuthorName(record),
+    timeAgo: formatTimeAgo(record.created_at),
+    title: record.title,
+    description: record.description,
+    frontMessage: toPrayerPreview(record.title, record.description),
+    backTitle: record.is_answered ? 'Praise Report' : record.title || 'Prayer Request',
+    backDetails: record.is_answered && record.answer_note
+      ? `${record.description}\n\nPraise Report: ${record.answer_note}`
+      : record.description,
+    accentColor: hashToThemeColor(tag ?? record.id),
+    tags: tag ? [tag] : [],
+    prayerTag: tag,
+    audience: record.audience,
+    isAnswered: record.is_answered,
+    answerNote: record.answer_note,
+    createdAt: record.created_at,
+    ownerId: record.user_id,
+    comments: (recordWithComments.comments ?? []).map(mapPrayerCommentRecord),
+  };
+};
+
+const isLikelyMockPrayerRecord = (record: PrayerApiRecord) => {
+  const normalizedTitle = record.title.trim();
+  const normalizedDescription = record.description.trim();
+
+  if (MOCK_PRAYER_TITLE_PATTERN.test(normalizedTitle)) {
+    return true;
+  }
+
+  if (
+    MOCK_PRAYER_TITLE_SUBSTRINGS.some((substring) =>
+      normalizedTitle.toLowerCase().includes(substring),
+    )
+  ) {
+    return true;
+  }
+
+  return MOCK_PRAYER_DESCRIPTION_PATTERNS.some((pattern) =>
+    pattern.test(normalizedDescription),
+  );
+};
+
+const isLikelyMockPrayerCard = (prayer: PrayerCard) =>
+  MOCK_PRAYER_TITLE_PATTERN.test(prayer.frontMessage.trim()) ||
+  MOCK_PRAYER_TITLE_PATTERN.test(prayer.backTitle.trim());
+
+const getPrayerCreatedTime = (prayer: PrayerCard) => {
+  const createdTime = new Date(prayer.createdAt).getTime();
+  return Number.isNaN(createdTime) ? 0 : createdTime;
+};
+
+export const sortPrayerCardsByRecent = (prayers: PrayerCard[]) =>
+  [...prayers].sort(
+    (firstPrayer, secondPrayer) =>
+      getPrayerCreatedTime(secondPrayer) - getPrayerCreatedTime(firstPrayer),
+  );
+
+const fetchPrayerFeed = async (cursor?: string | null, limit = 10) => {
+  const token = getRequiredAccessToken();
+  const params = new URLSearchParams({ limit: String(limit) });
+
+  if (cursor) {
+    params.set('cursor', cursor);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/prayers?${params.toString()}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return parseJsonResponse<PrayerFeedResponse>(response);
+};
+
+const fetchPrayerById = async (prayerId: string) => {
+  const token = getRequiredAccessToken();
+  const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return parseJsonResponse<PrayerApiRecordWithComments>(response);
+};
+
+const addPrayerComment = async (prayerId: string, content: string) => {
+  const token = getRequiredAccessToken();
+  const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}/comments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ content }),
+  });
+
+  return parseJsonResponse<PrayerCommentRecord>(response);
+};
+
+export const getCurrentUserId = (): string | null => {
+  const token = getAccessToken();
+
+  if (!token) {
+    return null;
+  }
+
+  const [, payload] = token.split('.');
+
+  if (!payload) {
+    return null;
+  }
+
+  try {
+    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    return typeof decoded.sub === 'string' ? decoded.sub : null;
+  } catch {
+    return null;
+  }
+};
+
+export const getPrayerCards = async (): Promise<PrayerCard[]> => {
+  const page = await getPrayerCardsPage();
+  return page.prayers;
+};
+
+export const getPrayerCardsPage = async (
+  cursor?: string | null,
+  limit = 10,
+): Promise<PrayerCardsPage> => {
+  const response = await fetchPrayerFeed(cursor, limit);
+
+  const mappedPrayers = response.data
+    .filter((record) => !isLikelyMockPrayerRecord(record))
+    .map(mapPrayerRecordToCard)
+    .filter((prayer) => !isLikelyMockPrayerCard(prayer));
+  const prayers = sortPrayerCardsByRecent(
+    await applyCurrentUserAuthorFallback(mappedPrayers),
+  );
+
+  return {
+    prayers,
+    nextCursor: response.meta.next_cursor,
+    hasMore: response.meta.has_more,
+  };
+};
+
+export const getPrayerCardById = async (prayerId: string): Promise<PrayerCard> => {
+  const record = await fetchPrayerById(prayerId);
+  const [prayer] = await applyCurrentUserAuthorFallback([mapPrayerRecordToCard(record)]);
+  return prayer;
+};
+
+export const getPrayerComments = (
+  prayerId: string,
+  serverComments: PrayerComment[],
+) => mergePrayerComments(prayerId, serverComments);
+
+export const createPrayer = async (payload: CreatePrayerPayload) => {
+  const token = getRequiredAccessToken();
+  const response = await fetch(`${API_BASE_URL}/api/prayers`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return parseJsonResponse<PrayerApiRecord>(response);
+};
+
+export const updatePrayer = async (
+  prayerId: string,
+  payload: UpdatePrayerPayload,
+): Promise<PrayerCard> => {
+  const token = getRequiredAccessToken();
+  const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return mapPrayerRecordToCard(await parseJsonResponse<PrayerApiRecord>(response));
+};
+
+export const deletePrayer = async (prayerId: string) => {
+  const token = getRequiredAccessToken();
+  const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  await parseJsonResponse<unknown>(response);
+};
+
+export const togglePrayerReaction = async (
+  prayerId: string,
+  reactionType: PrayerReactionType,
+) => {
+  const token = getRequiredAccessToken();
+  const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}/react`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ reaction_type: reactionType }),
+  });
+
+  return parseJsonResponse<PrayerReactionRecord>(response);
+};
+
+export const createPrayerComment = async (
+  prayerId: string,
+  content: string,
+): Promise<PrayerComment> => {
+  const newComment = await addPrayerComment(prayerId, content);
+  cachePrayerComment(prayerId, newComment);
+  return mapPrayerCommentRecord(newComment);
+};
+
+export const markPrayerAsAnswered = async (
+  prayerId: string,
+  answerNote: string,
+): Promise<PrayerCard> => {
+  const token = getRequiredAccessToken();
+  const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}/praise`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ answer_note: answerNote }),
+  });
+
+  return mapPrayerRecordToCard(await parseJsonResponse<PrayerApiRecord>(response));
+};
