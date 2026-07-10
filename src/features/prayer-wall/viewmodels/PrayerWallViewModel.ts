@@ -6,11 +6,27 @@ import type {
   SetStateAction,
 } from 'react';
 import {
-  PRAYERS,
-  PRAYER_GESTURE,
-  PRAYER_RESPONSES,
-  type Prayer,
+  getPrayerCardsPage,
+  sortPrayerCardsByRecent,
+  togglePrayerReaction,
+  type PrayerCard,
 } from '../models/Prayer';
+
+const PRAYER_GESTURE = {
+  swipeDistance: 90,
+  clickTolerance: 7,
+  flickDistance: 36,
+  flickVelocity: 0.65,
+  dragLimit: 190,
+} as const;
+
+const PRAYER_RESPONSES = [
+  'I have prayed for you 🙏',
+  'Wishing you the best 🤞',
+  'Sending you positive thoughts ✨',
+  "I'm holding you in my prayers today 💛🤲",
+  'Sending you strength and support! 💪',
+] as const;
 
 interface PointerDragState {
   pointerId: number;
@@ -21,17 +37,20 @@ interface PointerDragState {
 }
 
 export interface PrayerWallViewModel {
-  topCard: Prayer | null;
-  cardsBehind: Prayer[];
+  topCard: PrayerCard | null;
+  cardsBehind: PrayerCard[];
   dragOffsetX: number;
   isDragging: boolean;
-  isLeaving: boolean;
   isFlipped: boolean;
   isLiked: boolean;
   isPrayed: boolean;
+  isLoading: boolean;
+  isLoadingMore: boolean;
+  isOutOfPosts: boolean;
   isPrayerMenuOpen: boolean;
   prayerResponses: readonly string[];
   selectedPrayerResponse: string | null;
+  errorMessage: string | null;
   handleActionPointerDown: (event: PointerEvent<HTMLElement>) => void;
   handleCardKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
   handlePointerDown: (event: PointerEvent<HTMLDivElement>) => void;
@@ -39,14 +58,24 @@ export interface PrayerWallViewModel {
   handlePointerUp: (event: PointerEvent<HTMLDivElement>) => void;
   handlePointerCancel: (event: PointerEvent<HTMLDivElement>) => void;
   toggleFlip: () => void;
-  toggleLike: () => void;
-  togglePray: () => void;
-  selectPrayerResponse: (response: string) => void;
-  refreshPrayers: () => void;
+  toggleLike: () => Promise<void>;
+  togglePrayerMenu: () => void;
+  selectPrayerResponse: (response: string) => Promise<void>;
+  refreshPrayers: () => Promise<void>;
 }
 
+const mergeUniquePrayers = (
+  currentPrayers: PrayerCard[],
+  nextPrayers: PrayerCard[],
+) => {
+  const currentIds = new Set(currentPrayers.map((prayer) => prayer.id));
+  const uniqueNextPrayers = nextPrayers.filter((prayer) => !currentIds.has(prayer.id));
+
+  return sortPrayerCardsByRecent([...currentPrayers, ...uniqueNextPrayers]);
+};
+
 export const usePrayerWallViewModel = (): PrayerWallViewModel => {
-  const [cards, setCards] = useState(PRAYERS);
+  const [cards, setCards] = useState<PrayerCard[]>([]);
   const [flippedCardIds, setFlippedCardIds] = useState<Record<string, boolean>>({});
   const [likedCardIds, setLikedCardIds] = useState<Record<string, boolean>>({});
   const [prayedCardIds, setPrayedCardIds] = useState<Record<string, boolean>>({});
@@ -54,22 +83,36 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     Record<string, string>
   >({});
   const [isPrayerMenuOpen, setIsPrayerMenuOpen] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [dragOffsetX, setDragOffsetX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [isLeaving, setIsLeaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const dragRef = useRef<PointerDragState | null>(null);
-  const exitTimerRef = useRef<number | null>(null);
 
-  const topCard = cards[0] ?? null;
-  const cardsBehind = useMemo(() => cards.slice(1, 4), [cards]);
+  const topCard = cards[currentIndex] ?? null;
+  const isOutOfPosts = cards.length > 0 && currentIndex >= cards.length;
+  const cardsBehind = useMemo(
+    () => cards.slice(currentIndex + 1, currentIndex + 4),
+    [cards, currentIndex],
+  );
 
   useEffect(() => {
-    return () => {
-      if (exitTimerRef.current !== null) {
-        window.clearTimeout(exitTimerRef.current);
-      }
-    };
+    void (async () => {
+      await refreshPrayers();
+    })();
   }, []);
+
+  useEffect(() => {
+    const remainingCards = cards.length - currentIndex - 1;
+
+    if (!isLoading && remainingCards <= 3 && hasMore && !isLoadingMore) {
+      void loadMorePrayers();
+    }
+  }, [cards.length, currentIndex, hasMore, isLoading, isLoadingMore, nextCursor]);
 
   const toggleRecord = (
     setter: Dispatch<SetStateAction<Record<string, boolean>>>,
@@ -85,13 +128,46 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
   };
 
   const toggleFlip = () => toggleRecord(setFlippedCardIds);
-  const toggleLike = () => toggleRecord(setLikedCardIds);
-  const togglePray = () => setIsPrayerMenuOpen((current) => !current);
-
-  const selectPrayerResponse = (response: string) => {
+  const toggleLike = async () => {
     if (!topCard) {
       return;
     }
+
+    const nextLikedState = !likedCardIds[topCard.id];
+
+    setLikedCardIds((current) => ({
+      ...current,
+      [topCard.id]: nextLikedState,
+    }));
+
+    try {
+      await togglePrayerReaction(topCard.id, 'HEART');
+      setErrorMessage(null);
+    } catch (error) {
+      setLikedCardIds((current) => ({
+        ...current,
+        [topCard.id]: !nextLikedState,
+      }));
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Unable to react to this prayer.',
+      );
+    }
+  };
+  const togglePrayerMenu = () => {
+    if (!topCard) {
+      return;
+    }
+
+    setIsPrayerMenuOpen((current) => !current);
+  };
+
+  const selectPrayerResponse = async (response: string) => {
+    if (!topCard) {
+      return;
+    }
+
+    const wasPrayed = Boolean(prayedCardIds[topCard.id]);
+    const previousResponse = prayerResponsesByCard[topCard.id] ?? null;
 
     setPrayedCardIds((current) => ({
       ...current,
@@ -102,28 +178,74 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
       [topCard.id]: response,
     }));
     setIsPrayerMenuOpen(false);
+
+    if (wasPrayed) {
+      return;
+    }
+
+    try {
+      await togglePrayerReaction(topCard.id, 'PRAYING');
+      setErrorMessage(null);
+    } catch (error) {
+      setPrayedCardIds((current) => ({
+        ...current,
+        [topCard.id]: false,
+      }));
+      setPrayerResponsesByCard((current) => {
+        if (previousResponse) {
+          return {
+            ...current,
+            [topCard.id]: previousResponse,
+          };
+        }
+
+        const { [topCard.id]: _removedResponse, ...rest } = current;
+        return rest;
+      });
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Unable to send your prayer reaction.',
+      );
+    }
   };
 
-  const completeSwipe = (direction: 'left' | 'right') => {
+  const resetDragState = () => {
     setIsDragging(false);
-    setIsLeaving(true);
-    setIsPrayerMenuOpen(false);
-    setDragOffsetX(
-      direction === 'right'
-        ? PRAYER_GESTURE.exitDistance
-        : -PRAYER_GESTURE.exitDistance,
-    );
+    setDragOffsetX(0);
+  };
 
-    exitTimerRef.current = window.setTimeout(() => {
-      setCards(([, ...rest]) => rest);
-      setDragOffsetX(0);
-      setIsLeaving(false);
-      exitTimerRef.current = null;
-    }, PRAYER_GESTURE.exitDuration);
+  const advanceBySwipe = () => {
+    if (!topCard) {
+      return;
+    }
+
+    resetDragState();
+    setIsPrayerMenuOpen(false);
+
+    if (currentIndex < cards.length - 1) {
+      setCurrentIndex((index) => Math.min(index + 1, cards.length - 1));
+      return;
+    }
+
+    if (hasMore) {
+      void loadMorePrayers(true);
+      return;
+    }
+
+    setCurrentIndex(cards.length);
+  };
+
+  const goToPreviousBySwipe = () => {
+    if (!topCard) {
+      return;
+    }
+
+    resetDragState();
+    setIsPrayerMenuOpen(false);
+    setCurrentIndex((index) => Math.max(index - 1, 0));
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (isLeaving || !topCard) {
+    if (!topCard) {
       return;
     }
 
@@ -140,7 +262,7 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
-    if (!drag || drag.pointerId !== event.pointerId || isLeaving) {
+    if (!drag || drag.pointerId !== event.pointerId) {
       return;
     }
 
@@ -170,10 +292,9 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     const velocity = distance / elapsed;
     dragRef.current = null;
 
-    // Movement inside the click tolerance flips; deliberate travel swipes.
+    // Movement inside the click tolerance flips; deliberate horizontal travel navigates the stack.
     if (!drag.moved) {
-      setIsDragging(false);
-      setDragOffsetX(0);
+      resetDragState();
       toggleFlip();
       return;
     }
@@ -184,12 +305,16 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
       Math.abs(velocity) >= PRAYER_GESTURE.flickVelocity;
 
     if (passedDistance || passedFlick) {
-      completeSwipe(distance > 0 ? 'right' : 'left');
+      if (distance < 0) {
+        advanceBySwipe();
+        return;
+      }
+
+      goToPreviousBySwipe();
       return;
     }
 
-    setIsDragging(false);
-    setDragOffsetX(0);
+    resetDragState();
   };
 
   const handlePointerCancel = (event: PointerEvent<HTMLDivElement>) => {
@@ -213,32 +338,87 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     event.stopPropagation();
   };
 
-  const refreshPrayers = () => {
-    setCards(PRAYERS);
+  async function refreshPrayers() {
+    setIsLoading(true);
+    setErrorMessage(null);
+    setNextCursor(null);
+    setHasMore(false);
+
+    try {
+      const page = await getPrayerCardsPage();
+      setCards(page.prayers);
+      setNextCursor(page.nextCursor);
+      setHasMore(page.hasMore);
+    } catch (error) {
+      setCards([]);
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Unable to load the Prayer Wall.',
+      );
+    } finally {
+      setIsLoading(false);
+    }
+
     setFlippedCardIds({});
     setLikedCardIds({});
     setPrayedCardIds({});
     setPrayerResponsesByCard({});
     setIsPrayerMenuOpen(false);
+    setCurrentIndex(0);
     setDragOffsetX(0);
     setIsDragging(false);
-    setIsLeaving(false);
   };
+
+  async function loadMorePrayers(advanceAfterLoad = false) {
+    if (!hasMore || isLoadingMore) {
+      return;
+    }
+
+    setIsLoadingMore(true);
+
+    try {
+      const page = await getPrayerCardsPage(nextCursor);
+      setCards((current) => {
+        const merged = mergeUniquePrayers(current, page.prayers);
+
+        if (advanceAfterLoad && merged.length > current.length) {
+          setCurrentIndex((index) => Math.min(index + 1, merged.length - 1));
+        }
+
+        if (advanceAfterLoad && merged.length === current.length && !page.hasMore) {
+          setCurrentIndex(current.length);
+        }
+
+        return merged;
+      });
+      setNextCursor(page.nextCursor);
+      setHasMore(page.hasMore);
+      setErrorMessage(null);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Unable to load more prayers.',
+      );
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }
 
   return {
     topCard,
     cardsBehind,
     dragOffsetX,
     isDragging,
-    isLeaving,
     isFlipped: topCard ? Boolean(flippedCardIds[topCard.id]) : false,
     isLiked: topCard ? Boolean(likedCardIds[topCard.id]) : false,
     isPrayed: topCard ? Boolean(prayedCardIds[topCard.id]) : false,
+    isLoading,
+    isLoadingMore,
+    isOutOfPosts,
     isPrayerMenuOpen,
     prayerResponses: PRAYER_RESPONSES,
     selectedPrayerResponse: topCard
       ? prayerResponsesByCard[topCard.id] ?? null
       : null,
+    errorMessage,
     handleActionPointerDown,
     handleCardKeyDown,
     handlePointerDown,
@@ -247,7 +427,7 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     handlePointerCancel,
     toggleFlip,
     toggleLike,
-    togglePray,
+    togglePrayerMenu,
     selectPrayerResponse,
     refreshPrayers,
   };
