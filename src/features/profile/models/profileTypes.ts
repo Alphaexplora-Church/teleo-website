@@ -8,6 +8,7 @@ export interface ProfileSettingsView {
   home_church_name: string;
   home_church_short_name: string;
   profile_picture_url: string | null;
+  email?: string;
 }
 
 export interface ProfileSettingsViewResponse {
@@ -15,3 +16,21 @@ export interface ProfileSettingsViewResponse {
   message: string;
   meta: null;
 }
+
+// ── Design data types ─────────────────────────────────────────────────────────
+
+export interface RecentActivityItem {
+  id: string;
+  title: string;
+  date: string;
+  type: 'service' | 'prayer-1' | 'prayer-2';
+}
+
+export interface SettingsItem {
+  id: string;
+  label: string;
+  iconType: 'account' | 'security' | 'notifications' | 'help' | 'logout';
+  hasArrow?: boolean;
+  destructive?: boolean;
+}
+
