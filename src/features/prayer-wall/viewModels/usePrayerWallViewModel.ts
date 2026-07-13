@@ -5,9 +5,7 @@ import type {
   PointerEvent,
   SetStateAction,
 } from 'react';
-import { createPrayerComment } from '../models/commentApi';
 import {
-  getCurrentUserId,
   getPrayerCardsPage,
   sortPrayerCardsByRecent,
   togglePrayerReaction,
@@ -23,7 +21,7 @@ const PRAYER_GESTURE = {
 } as const;
 
 // Temporary switch: taps still flip the card, while horizontal swipes are no-ops.
-const HORIZONTAL_SWIPE_ENABLED = true; // set to false to disable horizontal swipes and only allow taps to flip the card
+const HORIZONTAL_SWIPE_ENABLED = false;
 
 const PRAYER_RESPONSES = [
   'I have prayed for you 🙏',
@@ -32,10 +30,6 @@ const PRAYER_RESPONSES = [
   "I'm holding you in my prayers today 💛🤲",
   'Sending you strength and support! 💪',
 ] as const;
-
-const COMMENT_SENT_INDICATOR_MS = 2000;
-
-type PrayerCommentStatus = 'sending' | 'sent';
 
 interface PointerDragState {
   pointerId: number;
@@ -53,14 +47,12 @@ export interface PrayerWallViewModel {
   isFlipped: boolean;
   isLiked: boolean;
   isPrayed: boolean;
-  isOwnPrayerRequest: boolean;
   isLoading: boolean;
   isLoadingMore: boolean;
   isOutOfPosts: boolean;
   isPrayerMenuOpen: boolean;
   prayerResponses: readonly string[];
   selectedPrayerResponse: string | null;
-  selectedPrayerCommentStatus: PrayerCommentStatus | null;
   errorMessage: string | null;
   handleActionPointerDown: (event: PointerEvent<HTMLElement>) => void;
   handleCardKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
@@ -93,9 +85,6 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
   const [prayerResponsesByCard, setPrayerResponsesByCard] = useState<
     Record<string, string>
   >({});
-  const [prayerCommentStatusByCard, setPrayerCommentStatusByCard] = useState<
-    Record<string, PrayerCommentStatus>
-  >({});
   const [isPrayerMenuOpen, setIsPrayerMenuOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dragOffsetX, setDragOffsetX] = useState(0);
@@ -106,7 +95,6 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
   const [hasMore, setHasMore] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const dragRef = useRef<PointerDragState | null>(null);
-  const sentIndicatorTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const topCard = cards[currentIndex] ?? null;
   const isOutOfPosts = cards.length > 0 && currentIndex >= cards.length;
@@ -119,10 +107,6 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     void (async () => {
       await refreshPrayers();
     })();
-
-    return () => {
-      Object.values(sentIndicatorTimersRef.current).forEach(clearTimeout);
-    };
   }, []);
 
   useEffect(() => {
@@ -185,11 +169,6 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
       return;
     }
 
-    if (topCard.ownerId === getCurrentUserId()) {
-      setIsPrayerMenuOpen(false);
-      return;
-    }
-
     const wasPrayed = Boolean(prayedCardIds[topCard.id]);
     const previousResponse = prayerResponsesByCard[topCard.id] ?? null;
 
@@ -201,72 +180,14 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
       ...current,
       [topCard.id]: response,
     }));
-    setPrayerCommentStatusByCard((current) => ({
-      ...current,
-      [topCard.id]: 'sending',
-    }));
-    clearTimeout(sentIndicatorTimersRef.current[topCard.id]);
-    delete sentIndicatorTimersRef.current[topCard.id];
     setIsPrayerMenuOpen(false);
 
     if (wasPrayed) {
-      setPrayerCommentStatusByCard((current) => ({
-        ...current,
-        [topCard.id]: 'sent',
-      }));
-      sentIndicatorTimersRef.current[topCard.id] = setTimeout(() => {
-        setPrayedCardIds((current) => ({
-          ...current,
-          [topCard.id]: false,
-        }));
-        setPrayerResponsesByCard((current) => {
-          const { [topCard.id]: _removedResponse, ...rest } = current;
-          return rest;
-        });
-        setPrayerCommentStatusByCard((current) => {
-          const { [topCard.id]: _removedStatus, ...rest } = current;
-          return rest;
-        });
-        delete sentIndicatorTimersRef.current[topCard.id];
-      }, COMMENT_SENT_INDICATOR_MS);
       return;
     }
 
     try {
-      const newComment = await createPrayerComment(topCard.id, response);
-
-      setCards((currentCards) =>
-        currentCards.map((card) =>
-          card.id === topCard.id
-            ? {
-                ...card,
-                comments: card.comments.some((comment) => comment.id === newComment.id)
-                  ? card.comments
-                  : [...card.comments, newComment],
-              }
-            : card,
-        ),
-      );
       await togglePrayerReaction(topCard.id, 'PRAYING');
-      setPrayerCommentStatusByCard((current) => ({
-        ...current,
-        [topCard.id]: 'sent',
-      }));
-      sentIndicatorTimersRef.current[topCard.id] = setTimeout(() => {
-        setPrayedCardIds((current) => ({
-          ...current,
-          [topCard.id]: false,
-        }));
-        setPrayerResponsesByCard((current) => {
-          const { [topCard.id]: _removedResponse, ...rest } = current;
-          return rest;
-        });
-        setPrayerCommentStatusByCard((current) => {
-          const { [topCard.id]: _removedStatus, ...rest } = current;
-          return rest;
-        });
-        delete sentIndicatorTimersRef.current[topCard.id];
-      }, COMMENT_SENT_INDICATOR_MS);
       setErrorMessage(null);
     } catch (error) {
       setPrayedCardIds((current) => ({
@@ -282,10 +203,6 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
         }
 
         const { [topCard.id]: _removedResponse, ...rest } = current;
-        return rest;
-      });
-      setPrayerCommentStatusByCard((current) => {
-        const { [topCard.id]: _removedStatus, ...rest } = current;
         return rest;
       });
       setErrorMessage(
@@ -318,6 +235,16 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     }
 
     setCurrentIndex(cards.length);
+  };
+
+  const goToPreviousBySwipe = () => {
+    if (!topCard) {
+      return;
+    }
+
+    resetDragState();
+    setIsPrayerMenuOpen(false);
+    setCurrentIndex((index) => Math.max(index - 1, 0));
   };
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -391,7 +318,12 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
       Math.abs(velocity) >= PRAYER_GESTURE.flickVelocity;
 
     if (passedDistance || passedFlick) {
-      advanceBySwipe();
+      if (distance < 0) {
+        advanceBySwipe();
+        return;
+      }
+
+      goToPreviousBySwipe();
       return;
     }
 
@@ -443,9 +375,6 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     setLikedCardIds({});
     setPrayedCardIds({});
     setPrayerResponsesByCard({});
-    setPrayerCommentStatusByCard({});
-    Object.values(sentIndicatorTimersRef.current).forEach(clearTimeout);
-    sentIndicatorTimersRef.current = {};
     setIsPrayerMenuOpen(false);
     setCurrentIndex(0);
     setDragOffsetX(0);
@@ -494,7 +423,6 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     isFlipped: topCard ? Boolean(flippedCardIds[topCard.id]) : false,
     isLiked: topCard ? Boolean(likedCardIds[topCard.id]) : false,
     isPrayed: topCard ? Boolean(prayedCardIds[topCard.id]) : false,
-    isOwnPrayerRequest: topCard ? topCard.ownerId === getCurrentUserId() : false,
     isLoading,
     isLoadingMore,
     isOutOfPosts,
@@ -502,9 +430,6 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     prayerResponses: PRAYER_RESPONSES,
     selectedPrayerResponse: topCard
       ? prayerResponsesByCard[topCard.id] ?? null
-      : null,
-    selectedPrayerCommentStatus: topCard
-      ? prayerCommentStatusByCard[topCard.id] ?? null
       : null,
     errorMessage,
     handleActionPointerDown,
