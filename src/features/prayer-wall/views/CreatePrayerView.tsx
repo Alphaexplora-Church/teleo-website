@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useCreatePrayerViewModel } from '../viewmodels/CreatePrayerViewModel';
+import { useCreatePrayerViewModel } from '../viewModels/useCreatePrayerViewModel';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
 
 const BackIcon = () => (

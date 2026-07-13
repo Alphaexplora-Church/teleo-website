@@ -1,18 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  createPrayerComment,
   deletePrayer,
   getCurrentUserId,
   getPrayerCardById,
   getPrayerComments,
   togglePrayerReaction,
   updatePrayer,
-  type PrayerAudience,
-  type PrayerCard,
-} from '../models/Prayer';
-import type { PrayerComment } from '../models/Comment';
-import type { PrayerReactionType } from '../models/PrayerReaction';
+} from '../models/prayerApi';
+import { createPrayerComment } from '../models/commentApi';
+import type { PrayerComment } from '../models/commentTypes';
+import type { PrayerAudience, PrayerCard, PrayerReactionType } from '../models/prayerTypes';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
 export const usePrayerDetailsViewModel = () => {

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createPrayer, type PrayerAudience } from '../models/Prayer';
+import { createPrayer } from '../models/prayerApi';
+import type { PrayerAudience } from '../models/prayerTypes';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
 const PRAYER_HASHTAGS = [

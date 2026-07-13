@@ -1,21 +1,36 @@
-export interface PrayerCommentRecord {
-  id: string;
-  prayer_id: string;
-  user_id: number | string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-  author_name?: string | null;
-}
+import type { PrayerComment, PrayerCommentRecord } from './commentTypes';
 
-export interface PrayerComment {
-  id: string;
-  author: string | null;
-  message: string;
-  timeAgo: string;
-}
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 const LOCAL_COMMENT_CACHE_KEY = 'teleo_prayer_comments';
+
+const getRequiredAccessToken = () => {
+  const token = localStorage.getItem('access_token');
+
+  if (!token) {
+    throw new Error('You need to log in to access the Prayer Wall.');
+  }
+
+  return token;
+};
+
+const parseJsonResponse = async <T>(response: Response): Promise<T> => {
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    const message =
+      (data && typeof data === 'object' && 'error' in data && typeof data.error === 'string'
+        ? data.error
+        : null) ||
+      (data && typeof data === 'object' && 'message' in data && typeof data.message === 'string'
+        ? data.message
+        : null) ||
+      'Prayer Wall request failed.';
+
+    throw new Error(message);
+  }
+
+  return data as T;
+};
 
 const formatTimeAgo = (timestamp: string) => {
   const now = Date.now();
@@ -115,4 +130,23 @@ export const mergePrayerComments = (
   });
 
   return merged;
+};
+
+export const createPrayerComment = async (
+  prayerId: string,
+  content: string,
+): Promise<PrayerComment> => {
+  const token = getRequiredAccessToken();
+  const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}/comments`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ content }),
+  });
+  const newComment = await parseJsonResponse<PrayerCommentRecord>(response);
+
+  cachePrayerComment(prayerId, newComment);
+  return mapPrayerCommentRecord(newComment);
 };

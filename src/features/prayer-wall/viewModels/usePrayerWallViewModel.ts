@@ -9,8 +9,8 @@ import {
   getPrayerCardsPage,
   sortPrayerCardsByRecent,
   togglePrayerReaction,
-  type PrayerCard,
-} from '../models/Prayer';
+} from '../models/prayerApi';
+import type { PrayerCard } from '../models/prayerTypes';
 
 const PRAYER_GESTURE = {
   swipeDistance: 90,
@@ -19,6 +19,9 @@ const PRAYER_GESTURE = {
   flickVelocity: 0.65,
   dragLimit: 190,
 } as const;
+
+// Temporary switch: taps still flip the card, while horizontal swipes are no-ops.
+const HORIZONTAL_SWIPE_ENABLED = false;
 
 const PRAYER_RESPONSES = [
   'I have prayed for you 🙏',
@@ -257,7 +260,7 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
       startTime: performance.now(),
       moved: false,
     };
-    setIsDragging(true);
+    setIsDragging(HORIZONTAL_SWIPE_ENABLED);
   };
 
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
@@ -269,6 +272,11 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     const nextOffset = event.clientX - drag.startX;
     drag.currentX = event.clientX;
     drag.moved ||= Math.abs(nextOffset) > PRAYER_GESTURE.clickTolerance;
+
+    if (!HORIZONTAL_SWIPE_ENABLED) {
+      return;
+    }
+
     setDragOffsetX(
       Math.max(
         -PRAYER_GESTURE.dragLimit,
@@ -287,18 +295,23 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
 
-    const distance = drag.currentX - drag.startX;
-    const elapsed = Math.max(performance.now() - drag.startTime, 1);
-    const velocity = distance / elapsed;
     dragRef.current = null;
 
-    // Movement inside the click tolerance flips; deliberate horizontal travel navigates the stack.
+    // Movement inside the click tolerance is still treated as a tap.
     if (!drag.moved) {
       resetDragState();
       toggleFlip();
       return;
     }
 
+    if (!HORIZONTAL_SWIPE_ENABLED) {
+      resetDragState();
+      return;
+    }
+
+    const distance = drag.currentX - drag.startX;
+    const elapsed = Math.max(performance.now() - drag.startTime, 1);
+    const velocity = distance / elapsed;
     const passedDistance = Math.abs(distance) >= PRAYER_GESTURE.swipeDistance;
     const passedFlick =
       Math.abs(distance) >= PRAYER_GESTURE.flickDistance &&

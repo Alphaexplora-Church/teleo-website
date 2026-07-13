@@ -1,5 +1,5 @@
 import React from 'react';
-import { usePrayerDetailsViewModel } from '../viewmodels/PrayerDetailsViewModel';
+import { usePrayerDetailsViewModel } from '../viewModels/usePrayerDetailsViewModel';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
 
 const BackIcon = () => (

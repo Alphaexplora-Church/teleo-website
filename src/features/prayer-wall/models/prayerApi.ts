@@ -1,81 +1,20 @@
 import {
-  cachePrayerComment,
   mapPrayerCommentRecord,
   mergePrayerComments,
-  type PrayerComment,
-  type PrayerCommentRecord,
-} from './Comment';
-import type { PrayerReactionRecord, PrayerReactionType } from './PrayerReaction';
+} from './commentApi';
 import { fetchProfileSettingsView } from '../../profile/models/profileApi';
-
-export type PrayerAudience = 'PUBLIC' | 'PRIVATE' | 'HOME_CHURCH';
-
-export interface PrayerApiRecord {
-  id: string;
-  user_id: string;
-  home_church_id: number | null;
-  title: string;
-  audience: PrayerAudience;
-  description: string;
-  prayer_tag: string | null;
-  is_answered: boolean;
-  answer_note: string | null;
-  answered_at: string | null;
-  created_at: string;
-  updated_at: string;
-  author_name?: string | null;
-  username?: string | null;
-  full_name?: string | null;
-  display_name?: string | null;
-  name?: string | null;
-}
-
-export interface PrayerFeedResponse {
-  data: PrayerApiRecord[];
-  meta: {
-    next_cursor: string | null;
-    has_more: boolean;
-  };
-}
-
-export interface PrayerCardsPage {
-  prayers: PrayerCard[];
-  nextCursor: string | null;
-  hasMore: boolean;
-}
-
-export interface PrayerCard {
-  id: string;
-  author: string | null;
-  timeAgo: string;
-  title: string;
-  description: string;
-  frontMessage: string;
-  backTitle: string;
-  backDetails: string;
-  accentColor: string;
-  tags: string[];
-  prayerTag: string | null;
-  audience: PrayerAudience;
-  isAnswered: boolean;
-  answerNote: string | null;
-  createdAt: string;
-  ownerId: string;
-  comments: PrayerComment[];
-}
-
-export interface CreatePrayerPayload {
-  title: string;
-  description: string;
-  prayer_tag?: string;
-  audience?: PrayerAudience;
-}
-
-export interface UpdatePrayerPayload extends CreatePrayerPayload {}
-
-export interface PrayerApiRecordWithComments extends PrayerApiRecord {
-  comments?: PrayerCommentRecord[];
-}
+import type { PrayerComment } from './commentTypes';
+import type {
+  CreatePrayerPayload,
+  PrayerApiRecord,
+  PrayerApiRecordWithComments,
+  PrayerCard,
+  PrayerCardsPage,
+  PrayerFeedResponse,
+  PrayerReactionRecord,
+  PrayerReactionType,
+  UpdatePrayerPayload,
+} from './prayerTypes';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 const PRAYER_THEME_COLORS = [
@@ -165,17 +104,7 @@ const hashToThemeColor = (seed: string) => {
   return PRAYER_THEME_COLORS[hash % PRAYER_THEME_COLORS.length];
 };
 
-const toPrayerPreview = (title: string, description: string) => {
-  const normalizedDescription = description.trim();
-
-  if (normalizedDescription) {
-    return normalizedDescription.length > 160
-      ? `${normalizedDescription.slice(0, 157).trimEnd()}...`
-      : normalizedDescription;
-  }
-
-  return title.trim() || 'Prayer Request';
-};
+const toPrayerSubject = (title: string) => title.trim() || 'Prayer Request';
 
 const getPrayerAuthorName = (record: PrayerApiRecord) => {
   const authorFields = [
@@ -226,7 +155,7 @@ const mapPrayerRecordToCard = (record: PrayerApiRecord): PrayerCard => {
     timeAgo: formatTimeAgo(record.created_at),
     title: record.title,
     description: record.description,
-    frontMessage: toPrayerPreview(record.title, record.description),
+    frontMessage: toPrayerSubject(record.title),
     backTitle: record.is_answered ? 'Praise Report' : record.title || 'Prayer Request',
     backDetails: record.is_answered && record.answer_note
       ? `${record.description}\n\nPraise Report: ${record.answer_note}`
@@ -305,20 +234,6 @@ const fetchPrayerById = async (prayerId: string) => {
   });
 
   return parseJsonResponse<PrayerApiRecordWithComments>(response);
-};
-
-const addPrayerComment = async (prayerId: string, content: string) => {
-  const token = getRequiredAccessToken();
-  const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}/comments`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ content }),
-  });
-
-  return parseJsonResponse<PrayerCommentRecord>(response);
 };
 
 export const getCurrentUserId = (): string | null => {
@@ -437,15 +352,6 @@ export const togglePrayerReaction = async (
   });
 
   return parseJsonResponse<PrayerReactionRecord>(response);
-};
-
-export const createPrayerComment = async (
-  prayerId: string,
-  content: string,
-): Promise<PrayerComment> => {
-  const newComment = await addPrayerComment(prayerId, content);
-  cachePrayerComment(prayerId, newComment);
-  return mapPrayerCommentRecord(newComment);
 };
 
 export const markPrayerAsAnswered = async (

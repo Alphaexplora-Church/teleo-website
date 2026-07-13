@@ -4,8 +4,8 @@ import {
   getCurrentUserId,
   getPrayerCardsPage,
   sortPrayerCardsByRecent,
-  type PrayerCard,
-} from '../models/Prayer';
+} from '../models/prayerApi';
+import type { PrayerCard } from '../models/prayerTypes';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
 const mergeUniquePrayers = (
