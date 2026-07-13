@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
-import { usePrayerHistoryViewModel } from '../viewmodels/PrayerHistoryViewModel';
+import { usePrayerHistoryViewModel } from '../viewModels/usePrayerHistoryViewModel';
 
 const BackIcon = () => (
   <svg

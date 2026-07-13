@@ -5,8 +5,6 @@
 
 import React from 'react';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
-import type { ShellDestination } from '../viewModels/useShellViewModel';
-import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import { useShellViewModel } from '../viewModels/useShellViewModel';
 import searchIcon from '../../../assets/icons/Search Button.svg';
 import notificationIcon from '../../../assets/icons/Notification Icon.svg';
