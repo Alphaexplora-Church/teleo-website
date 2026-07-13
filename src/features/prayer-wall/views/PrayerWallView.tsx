@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { usePrayerWallViewModel } from '../viewmodels/PrayerWallViewModel';
+import { usePrayerWallViewModel } from '../viewModels/usePrayerWallViewModel';
 
 const PRAYER_STACK_STYLES = [
   { rotation: -5.5, offsetX: -12, offsetY: 12, scale: 0.985 },
@@ -354,10 +354,8 @@ const PrayerWallView: React.FC = () => {
         <div
           role="button"
           tabIndex={0}
-          aria-label="Prayer request. Click to flip, swipe left for older prayers, or swipe right for newer prayers."
-          className={`absolute left-1/2 top-[47%] z-10 h-[clamp(420px,64vh,500px)] w-[clamp(288px,86vw,360px)] -translate-x-1/2 -translate-y-1/2 touch-none select-none outline-none [perspective:1300px] focus-visible:ring-4 focus-visible:ring-[#2e69ff]/30 ${
-            isDragging ? 'cursor-grabbing' : 'cursor-grab'
-          }`}
+          aria-label="Prayer request. Click to flip."
+          className="absolute left-1/2 top-[47%] z-10 h-[clamp(420px,64vh,500px)] w-[clamp(288px,86vw,360px)] -translate-x-1/2 -translate-y-1/2 touch-none select-none cursor-pointer outline-none [perspective:1300px] focus-visible:ring-4 focus-visible:ring-[#2e69ff]/30"
           onKeyDown={handleCardKeyDown}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
