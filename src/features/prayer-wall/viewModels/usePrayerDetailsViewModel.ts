@@ -5,10 +5,10 @@ import {
   getCurrentUserId,
   getPrayerCardById,
   getPrayerComments,
+  markPrayerAsAnswered,
   togglePrayerReaction,
   updatePrayer,
 } from '../models/prayerApi';
-import { createPrayerComment } from '../models/commentApi';
 import type { PrayerComment } from '../models/commentTypes';
 import type { PrayerAudience, PrayerCard, PrayerReactionType } from '../models/prayerTypes';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
@@ -20,8 +20,6 @@ export const usePrayerDetailsViewModel = () => {
   const [comments, setComments] = useState<PrayerComment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [commentText, setCommentText] = useState('');
-  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [reactingAction, setReactingAction] = useState<PrayerReactionType | null>(null);
   const [isPostMenuOpen, setIsPostMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -31,6 +29,8 @@ export const usePrayerDetailsViewModel = () => {
   const [editAudience, setEditAudience] = useState<PrayerAudience>('PUBLIC');
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isMarkingAnswered, setIsMarkingAnswered] = useState(false);
+  const [hasHeartReacted, setHasHeartReacted] = useState(false);
 
   useEffect(() => {
     void (async () => {
@@ -67,6 +67,10 @@ export const usePrayerDetailsViewModel = () => {
 
     try {
       await togglePrayerReaction(prayer.id, reactionType);
+
+      if (reactionType === 'HEART') {
+        setHasHeartReacted((current) => !current);
+      }
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to react to this prayer request.',
@@ -138,32 +142,38 @@ export const usePrayerDetailsViewModel = () => {
     }
   };
 
-  const startEditing = () => {
-    setIsEditing(true);
-    setIsPostMenuOpen(false);
-  };
-
-  const submitComment = async () => {
-    const content = commentText.trim();
-
-    if (!prayer || !content || isSubmittingComment) {
+  const markCurrentPrayerAsAnswered = async () => {
+    if (!prayer || prayer.isAnswered || isMarkingAnswered) {
       return;
     }
 
-    setIsSubmittingComment(true);
+    const answerNote = window.prompt('How did God answer this prayer?');
+    const trimmedAnswerNote = answerNote?.trim();
+
+    if (!trimmedAnswerNote) {
+      return;
+    }
+
+    setIsMarkingAnswered(true);
+    setIsPostMenuOpen(false);
     setErrorMessage(null);
 
     try {
-      const newComment = await createPrayerComment(prayer.id, content);
-      setComments((current) => [...current, newComment]);
-      setCommentText('');
+      const updatedPrayer = await markPrayerAsAnswered(prayer.id, trimmedAnswerNote);
+      setPrayer(updatedPrayer);
+      setComments(getPrayerComments(updatedPrayer.id, updatedPrayer.comments));
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to post your comment.',
+        error instanceof Error ? error.message : 'Unable to mark this prayer as answered.',
       );
     } finally {
-      setIsSubmittingComment(false);
+      setIsMarkingAnswered(false);
     }
+  };
+
+  const startEditing = () => {
+    setIsEditing(true);
+    setIsPostMenuOpen(false);
   };
 
   return {
@@ -172,9 +182,6 @@ export const usePrayerDetailsViewModel = () => {
     isOwner: prayer ? prayer.ownerId === getCurrentUserId() : false,
     isLoading,
     errorMessage,
-    commentText,
-    setCommentText,
-    isSubmittingComment,
     reactingAction,
     isPostMenuOpen,
     setIsPostMenuOpen,
@@ -190,11 +197,13 @@ export const usePrayerDetailsViewModel = () => {
     setEditAudience,
     isSavingEdit,
     isDeleting,
+    isMarkingAnswered,
+    hasHeartReacted,
     reactToPost,
     startEditing,
+    markCurrentPrayerAsAnswered,
     savePrayerEdit,
     deleteCurrentPrayer,
-    submitComment,
     goBack: () => navigate(-1),
     navigateToTab: (tab: DashboardTab) =>
       navigate('/dashboard', { state: { activeTab: tab } }),

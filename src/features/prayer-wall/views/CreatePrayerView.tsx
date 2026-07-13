@@ -95,23 +95,27 @@ const CreatePrayerView: React.FC = () => {
             />
           </label>
 
-          <label className="block">
-            <span className="mb-2 block text-[12px] font-bold text-navy">Hashtag</span>
-            <select
-              name="hashtag"
-              defaultValue=""
-              className="h-12 w-full appearance-none rounded-xl border border-gray-border bg-white px-4 text-[13px] text-gray-label outline-none transition focus:border-navy focus:ring-4 focus:ring-navy/8"
-            >
-              <option value="" disabled>
-                Choose a category
-              </option>
+          <fieldset>
+            <legend className="mb-3 text-[12px] font-bold text-navy">
+              Hashtags
+            </legend>
+            <div className="grid grid-cols-2 gap-2.5">
               {hashtags.map((hashtag) => (
-                <option key={hashtag} value={hashtag}>
-                  {hashtag}
-                </option>
+                <label
+                  key={hashtag}
+                  className="flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl border border-gray-border bg-white px-3 py-2 text-[12px] font-semibold text-gray-label transition hover:border-navy hover:bg-off-white"
+                >
+                  <input
+                    type="checkbox"
+                    name="hashtags"
+                    value={hashtag}
+                    className="size-4 accent-[#1e3a5f]"
+                  />
+                  <span>{hashtag}</span>
+                </label>
               ))}
-            </select>
-          </label>
+            </div>
+          </fieldset>
 
           <fieldset disabled={!isThemeSelectionEnabled}>
             <legend className="mb-3 flex items-center gap-2 text-[12px] font-bold text-navy">
