@@ -56,7 +56,11 @@ export const useCreatePrayerViewModel = () => {
   const submitPrayer = async (formData: FormData) => {
     const title = String(formData.get('subject') ?? '').trim();
     const description = String(formData.get('request') ?? '').trim();
-    const prayerTag = String(formData.get('hashtag') ?? '').trim();
+    const prayerTag = formData
+      .getAll('hashtags')
+      .map((hashtag) => String(hashtag).trim())
+      .filter(Boolean)
+      .join(', ');
     const audience = String(formData.get('audience') ?? 'PUBLIC') as PrayerAudience;
 
     if (!title || !description) {
