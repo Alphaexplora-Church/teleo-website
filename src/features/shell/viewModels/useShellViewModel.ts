@@ -1,9 +1,6 @@
 // features/shell/viewModels/useShellViewModel.ts
 // ViewModel: manages active tab state for the dashboard shell.
 // Views never manage navigation state directly - they call this hook only.
-//
-// NOTE: 'profile' and 'find-my-church' are NOT in the DashboardTab nav union.
-// They are extended shell destinations reachable via header/profile interactions.
 
 import { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
@@ -45,9 +42,7 @@ export interface DashboardViewModelReturn {
   navigateToHelp: () => void;
   verifyEmailTarget: string;
   verifyNumberTarget: string;
-  /** The church the user has selected from FindMyChurchView. Null until selected. */
   selectedChurch: Church | null;
-  /** Saves the chosen church and navigates back to the Profile page. */
   selectChurch: (church: Church) => void;
 }
 
@@ -73,7 +68,6 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState(tab);
   }, []);
 
-  // Dedicated actions - views call these instead of knowing the string literals.
   const navigateToProfile = useCallback(() => {
     setActiveTabState('profile');
   }, []);
@@ -128,7 +122,6 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('help');
   }, []);
 
-  // Selects a church and navigates back to Profile in one action.
   const selectChurch = useCallback((church: Church) => {
     setSelectedChurch(church);
     setActiveTabState('profile');
