@@ -5,7 +5,7 @@
 // NOTE: 'profile' is NOT in the DashboardTab nav union (it's not a bottom-nav tab).
 // It is an extended shell destination reachable only via the header avatar button.
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
 // Shell destinations extend the nav tabs with the profile page (header-only access)
@@ -15,10 +15,17 @@ export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
   setActiveTab: (tab: DashboardTab) => void;
   navigateToProfile: () => void;
+  showBrandText: boolean;
 }
 
 export const useShellViewModel = (): DashboardViewModelReturn => {
   const [activeTab, setActiveTabState] = useState<ShellDestination>('home');
+  const [showBrandText, setShowBrandText] = useState(true);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShowBrandText(false), 2200);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const setActiveTab = useCallback((tab: DashboardTab) => {
     setActiveTabState(tab);
@@ -33,5 +40,6 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     activeTab,
     setActiveTab,
     navigateToProfile,
+    showBrandText,
   };
 };
