@@ -21,7 +21,7 @@ const PRAYER_GESTURE = {
 } as const;
 
 // Temporary switch: taps still flip the card, while horizontal swipes are no-ops.
-const HORIZONTAL_SWIPE_ENABLED = false;
+const HORIZONTAL_SWIPE_ENABLED = true; // set to false to disable horizontal swipes and only allow taps to flip the card
 
 const PRAYER_RESPONSES = [
   'I have prayed for you 🙏',
