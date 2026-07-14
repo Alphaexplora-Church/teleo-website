@@ -10,6 +10,8 @@ import searchIcon from '../../../assets/icons/Search Button.svg';
 import notificationIcon from '../../../assets/icons/Notification Icon.svg';
 import profileIcon from '../../../assets/icons/Peofile Icon.svg';
 import teleoMini from '../../../assets/icons/teleo-mini.svg';
+//import type { ShellDestination } from '../viewModels/useShellViewModel';
+//import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
 // ── Tab page views ────────────────────────────────────────────
 import HomeFeedView from '../../home/views/HomeFeedView';
