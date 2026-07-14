@@ -11,14 +11,14 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy: #1B3252;
-  --color-navy-hover: #152843;
-  --color-navy-active: #0f1f33;
-  --color-off-white: #f8f9fa;
-  --color-gray-border: #d1d5db;
-  --color-gray-placeholder: #9ca3af;
-  --color-gray-label: #374151;
-  --color-link: #2563EB;
+  --color-navy: #001739;
+  --color-navy-hover: #042C58;
+  --color-navy-active: #0B4E87;
+  --color-off-white: #DBE0E4;
+  --color-gray-border: #DBE0E4;
+  --color-gray-placeholder: #757575;
+  --color-gray-label: #000000;
+  --color-link: #3399FF;
   --color-error: #dc2626;
   --color-error-bg: #fef2f2;
 
@@ -87,6 +87,7 @@
     align-items: center;
     background-color: var(--color-off-white);
   }
+}
 
   /* ── Form element resets (merged from profile/tailwind.css) ── */
   button,

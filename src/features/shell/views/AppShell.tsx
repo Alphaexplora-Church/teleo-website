@@ -4,9 +4,12 @@
 // Tab switching is entirely state-driven — no URL changes, no shell re-mounts.
 
 import React from 'react';
-import TeleoLogo from '../../../shared/components/TeleoLogo';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
 import { useShellViewModel } from '../viewModels/useShellViewModel';
+import searchIcon from '../../../assets/icons/Search Button.svg';
+import notificationIcon from '../../../assets/icons/Notification Icon.svg';
+import profileIcon from '../../../assets/icons/Peofile Icon.svg';
+import teleoMini from '../../../assets/icons/teleo-mini.svg';
 //import type { ShellDestination } from '../viewModels/useShellViewModel';
 //import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
@@ -33,23 +36,6 @@ const TAB_PAGES: Record<string, React.FC> = {
 };
 
 // ── Notification bell icon ────────────────────────────────────
-const BellIcon: React.FC = () => (
-  <svg
-    width="22"
-    height="22"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-  </svg>
-);
-
 // ── Header profile avatar ─────────────────────────────────────
 interface HeaderAvatarProps {
   profilePictureUrl?: string | null;
@@ -76,12 +62,7 @@ const HeaderAvatar: React.FC<HeaderAvatarProps> = ({ profilePictureUrl, onClick 
         />
       ) : (
         // Fallback: light grey silhouette placeholder
-        <div className="w-8 h-8 rounded-full bg-[#e8ecef] ring-2 ring-navy/10 flex items-center justify-center text-[#a0aab4]">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-        </div>
+        <img src={profileIcon} alt="" className="h-[25px] w-[25px]" />
       )}
     </button>
   );
@@ -89,6 +70,9 @@ const HeaderAvatar: React.FC<HeaderAvatarProps> = ({ profilePictureUrl, onClick 
 
 // ── AppShell ──────────────────────────────────────────────────
 const AppShell: React.FC = () => {
+  const { activeTab, setActiveTab, navigateToProfile, showBrandText } = useShellViewModel();
+
+  // Resolve the active page component (falls back to HomeFeedView if unknown)
   const {
     activeTab,
     setActiveTab,
@@ -103,9 +87,26 @@ const AppShell: React.FC = () => {
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
 
   return (
-    <div className="w-full max-w-[448px] min-h-dvh bg-off-white flex flex-col relative ring-1 ring-black/4 shadow-card">
+    <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
 
       {/* ── Sticky Top Header ─────────────────────────────── */}
+      <header className="sticky top-0 z-50 w-full bg-[#001739] text-white">
+        <div
+          className="flex items-center justify-between px-5 h-[59px]"
+          style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        >
+          {/* Left: Teleo branding */}
+          <div className="flex items-center gap-2">
+            <img src={teleoMini} alt="Teleo" className="h-8 w-8 shrink-0" />
+            <span className={`overflow-hidden whitespace-nowrap text-[24px] font-black leading-none tracking-[5px] text-white transition-all duration-700 ease-in-out ${showBrandText ? 'max-w-[135px] translate-x-0 opacity-100' : 'max-w-0 -translate-x-2 opacity-0'}`}>
+              TELEO
+            </span>
+          </div>
+
+          {/* Right: Bell + Avatar */}
+          <div className="flex items-center gap-2 text-white">
+            <button type="button" aria-label="Search" className="flex h-10 w-10 items-center justify-center"><img src={searchIcon} alt="" className="h-[38px] w-9" /></button>
+            {/* Notification bell */}
       <header className="sticky top-0 z-20 w-full bg-white border-b border-gray-border/50 shadow-[0_1px_8px_rgba(27,50,82,0.06)]">
         {activeTab === 'profile' ? (
           /* Profile back-header: back → home */
@@ -135,6 +136,12 @@ const AppShell: React.FC = () => {
           >
             <button
               type="button"
+              aria-label="Notifications"
+              className="relative w-8 h-10 flex items-center justify-center rounded-full text-white border-none bg-transparent cursor-pointer"
+            >
+              <img src={notificationIcon} alt="" className="h-[25px] w-[25px]" />
+              {/* Unread indicator dot */}
+              <span className="absolute top-0 right-0 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FFAF00] px-1 text-[10px] font-bold text-[#001739]" aria-hidden="true">3</span>
               aria-label="Go back to Profile"
               onClick={navigateToProfile}
               className="flex items-center justify-center relative cursor-pointer border-none bg-transparent text-[#1f2156] transition-opacity hover:opacity-75"
@@ -205,7 +212,7 @@ const AppShell: React.FC = () => {
       </main>
 
       {/* ── Sticky Bottom Navigation Bar ─────────────────── */}
-      <div className="sticky bottom-0 z-20 w-full">
+      <div className="sticky bottom-0 z-50 w-full">
         <BottomNavBar activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
     </div>

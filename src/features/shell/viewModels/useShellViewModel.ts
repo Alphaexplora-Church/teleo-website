@@ -5,7 +5,7 @@
 // NOTE: 'profile' and 'find-my-church' are NOT in the DashboardTab nav union.
 // They are extended shell destinations reachable via header/profile interactions.
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import type { Church } from '../../profile/findmychurch/models/findMyChurchTypes';
 
@@ -16,6 +16,7 @@ export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
   setActiveTab: (tab: DashboardTab) => void;
   navigateToProfile: () => void;
+  showBrandText: boolean;
   navigateToFindMyChurch: () => void;
   /** The church the user has selected from FindMyChurchView. Null until selected. */
   selectedChurch: Church | null;
@@ -25,6 +26,12 @@ export interface DashboardViewModelReturn {
 
 export const useShellViewModel = (): DashboardViewModelReturn => {
   const [activeTab, setActiveTabState] = useState<ShellDestination>('home');
+  const [showBrandText, setShowBrandText] = useState(true);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setShowBrandText(false), 2200);
+    return () => window.clearTimeout(timer);
+  }, []);
   const [selectedChurch, setSelectedChurch] = useState<Church | null>(null);
 
   const setActiveTab = useCallback((tab: DashboardTab) => {
@@ -50,6 +57,7 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     activeTab,
     setActiveTab,
     navigateToProfile,
+    showBrandText,
     navigateToFindMyChurch,
     selectedChurch,
     selectChurch,
