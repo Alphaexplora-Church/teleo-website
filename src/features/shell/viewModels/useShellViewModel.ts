@@ -1,9 +1,6 @@
 // features/shell/viewModels/useShellViewModel.ts
 // ViewModel: manages active tab state for the dashboard shell.
 // Views never manage navigation state directly - they call this hook only.
-//
-// NOTE: 'profile' and 'find-my-church' are NOT in the DashboardTab nav union.
-// They are extended shell destinations reachable via header/profile interactions.
 
 import { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
