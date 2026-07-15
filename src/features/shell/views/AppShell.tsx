@@ -25,6 +25,7 @@ import EditProfilePictureView from '../../profile/accountinformation/views/EditP
 import SecurityView from '../../profile/security/views/SecurityView';
 import ChangeEmailView from '../../profile/security/change-email/views/ChangeEmailView';
 import VerificationView from '../../profile/security/change-email/views/VerificationView';
+import ChangeNumberView from '../../profile/security/change-number/views/ChangeNumberView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 
@@ -123,6 +124,7 @@ const AppShell: React.FC = () => {
     navigateToSecurity,
     navigateToChangeEmail,
     navigateToVerifyEmail,
+    navigateToChangeNumber,
     verifyEmailTarget,
     selectedChurch,
     selectChurch,
@@ -134,7 +136,7 @@ const AppShell: React.FC = () => {
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
 
   // Sub-pages that show a back-nav header instead of the main branded header
-  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security', 'change-email', 'verify-email'].includes(activeTab);
+  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security', 'change-email', 'verify-email', 'change-number'].includes(activeTab);
 
   return (
     <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
@@ -167,6 +169,9 @@ const AppShell: React.FC = () => {
             )}
             {activeTab === 'verify-email' && (
               <BackHeader title="Verify Email" onBack={navigateToChangeEmail} />
+            )}
+            {activeTab === 'change-number' && (
+              <BackHeader title="Change Phone Number" onBack={navigateToSecurity} />
             )}
           </div>
         ) : (
@@ -246,7 +251,10 @@ const AppShell: React.FC = () => {
         ) : activeTab === 'edit-profile-picture' ? (
           <EditProfilePictureView />
         ) : activeTab === 'security' ? (
-          <SecurityView onChangeEmail={navigateToChangeEmail} />
+          <SecurityView
+            onChangeEmail={navigateToChangeEmail}
+            onChangeNumber={navigateToChangeNumber}
+          />
         ) : activeTab === 'change-email' ? (
           <ChangeEmailView onCodeSent={navigateToVerifyEmail} />
         ) : activeTab === 'verify-email' ? (
@@ -256,6 +264,8 @@ const AppShell: React.FC = () => {
               setTimeout(navigateToSecurity, 2000);
             }}
           />
+        ) : activeTab === 'change-number' ? (
+          <ChangeNumberView />
         ) : (
           <ActivePage />
         )}

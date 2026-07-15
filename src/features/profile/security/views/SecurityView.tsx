@@ -229,9 +229,11 @@ const ErrorBanner: React.FC<FeedbackBannerProps> = ({ message, onDismiss }) => (
 interface SecurityViewProps {
   /** Called when the user taps the Change Email row. */
   onChangeEmail?: () => void;
+  /** Called when the user taps the Change Phone Number row. */
+  onChangeNumber?: () => void;
 }
 
-const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail }) => {
+const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail, onChangeNumber }) => {
   const {
     credentialItems,
     privacyItems,
@@ -243,7 +245,7 @@ const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail }) => {
     handleConfirmDelete,
     handleCancelDelete,
     handleDismissError,
-  } = useSecurityViewModel({ onChangeEmail });
+  } = useSecurityViewModel({ onChangeEmail, onChangeNumber });
 
   return (
     <main className="flex flex-col w-full items-center gap-6 relative min-h-full pt-6 pb-10">
