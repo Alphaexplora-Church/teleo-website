@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useCreatePrayerViewModel } from '../viewModels/useCreatePrayerViewModel';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
@@ -19,6 +19,22 @@ const BackIcon = () => (
   </svg>
 );
 
+const ChevronDownIcon = () => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+);
+
 const CreatePrayerView: React.FC = () => {
   const {
     audiences,
@@ -30,6 +46,16 @@ const CreatePrayerView: React.FC = () => {
     submitPrayer,
     navigateToTab,
   } = useCreatePrayerViewModel();
+  const [isHashtagDropdownOpen, setIsHashtagDropdownOpen] = useState(false);
+  const [selectedHashtags, setSelectedHashtags] = useState<string[]>([]);
+
+  const toggleHashtag = (hashtag: string) => {
+    setSelectedHashtags((current) =>
+      current.includes(hashtag)
+        ? current.filter((selectedHashtag) => selectedHashtag !== hashtag)
+        : [...current, hashtag],
+    );
+  };
 
   return (
     <main className="min-h-dvh w-full bg-off-white">
@@ -54,6 +80,10 @@ const CreatePrayerView: React.FC = () => {
         onSubmit={async (event) => {
           event.preventDefault();
           await submitPrayer(new FormData(event.currentTarget));
+        }}
+        onReset={() => {
+          setSelectedHashtags([]);
+          setIsHashtagDropdownOpen(false);
         }}
       >
         <div className="mb-7">
@@ -95,26 +125,48 @@ const CreatePrayerView: React.FC = () => {
             />
           </label>
 
-          <fieldset>
-            <legend className="mb-3 text-[12px] font-bold text-navy">
+          <fieldset className="relative">
+            <legend className="mb-2 block text-[12px] font-bold text-navy">
               Hashtags
             </legend>
-            <div className="grid grid-cols-2 gap-2.5">
-              {hashtags.map((hashtag) => (
-                <label
-                  key={hashtag}
-                  className="flex min-h-11 cursor-pointer items-center gap-2.5 rounded-xl border border-gray-border bg-white px-3 py-2 text-[12px] font-semibold text-gray-label transition hover:border-navy hover:bg-off-white"
-                >
-                  <input
-                    type="checkbox"
-                    name="hashtags"
-                    value={hashtag}
-                    className="size-4 accent-[#1e3a5f]"
-                  />
-                  <span>{hashtag}</span>
-                </label>
-              ))}
-            </div>
+            <button
+              type="button"
+              aria-haspopup="listbox"
+              aria-expanded={isHashtagDropdownOpen}
+              className="flex h-12 w-full items-center justify-between gap-3 rounded-xl border border-gray-border bg-white px-4 text-left text-[13px] font-semibold text-gray-label outline-none transition hover:border-navy focus:border-navy focus:ring-4 focus:ring-navy/8"
+              onClick={() => setIsHashtagDropdownOpen((isOpen) => !isOpen)}
+            >
+              <span className="min-w-0 flex-1 truncate">
+                {selectedHashtags.length > 0
+                  ? selectedHashtags.join(', ')
+                  : 'Select hashtags'}
+              </span>
+              <ChevronDownIcon />
+            </button>
+            {isHashtagDropdownOpen && (
+              <div
+                role="listbox"
+                aria-label="Choose hashtags"
+                className="absolute left-0 right-0 top-[calc(100%+6px)] z-20 overflow-hidden rounded-xl border border-gray-border bg-white py-1 shadow-[0_14px_30px_rgba(27,50,82,0.16)]"
+              >
+                {hashtags.map((hashtag) => (
+                  <label
+                    key={hashtag}
+                    className="flex min-h-11 cursor-pointer items-center gap-3 px-4 py-2 text-[13px] font-semibold text-gray-label transition hover:bg-off-white"
+                  >
+                    <input
+                      type="checkbox"
+                      name="hashtags"
+                      value={hashtag}
+                      checked={selectedHashtags.includes(hashtag)}
+                      onChange={() => toggleHashtag(hashtag)}
+                      className="size-4 accent-[#1e3a5f]"
+                    />
+                    <span>{hashtag}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </fieldset>
 
           <fieldset disabled={!isThemeSelectionEnabled}>
