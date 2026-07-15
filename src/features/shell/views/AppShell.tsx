@@ -231,8 +231,6 @@ const AppShell: React.FC = () => {
           /* FindMyChurchView receives the church selection callback */
           <FindMyChurchView onChurchSelect={selectChurch} />
         ) : activeTab === 'account-information' ? (
-          /* AccountInformationView is registered in TAB_PAGES but also handled here
-             so we can pass the navigateToProfile callback as onBack */
           <AccountInformationView />
         ) : (
           <ActivePage />

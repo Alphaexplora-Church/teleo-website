@@ -10,7 +10,7 @@ import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import type { Church } from '../../profile/findmychurch/models/findMyChurchTypes';
 
 // Shell destinations extend the nav tabs with sub-pages (header-only access)
-export type ShellDestination = DashboardTab | 'profile' | 'find-my-church';
+export type ShellDestination = DashboardTab | 'profile' | 'find-my-church' | 'account-information';
 
 export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
@@ -18,6 +18,7 @@ export interface DashboardViewModelReturn {
   navigateToProfile: () => void;
   showBrandText: boolean;
   navigateToFindMyChurch: () => void;
+  navigateToAccountInformation: () => void;
   /** The church the user has selected from FindMyChurchView. Null until selected. */
   selectedChurch: Church | null;
   /** Saves the chosen church and navigates back to the Profile page. */
@@ -47,6 +48,10 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('find-my-church');
   }, []);
 
+  const navigateToAccountInformation = useCallback(() => {
+    setActiveTabState('account-information');
+  }, []);
+
   // Selects a church AND navigates back to Profile in one action
   const selectChurch = useCallback((church: Church) => {
     setSelectedChurch(church);
@@ -59,6 +64,7 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     navigateToProfile,
     showBrandText,
     navigateToFindMyChurch,
+    navigateToAccountInformation,
     selectedChurch,
     selectChurch,
   };
