@@ -211,7 +211,7 @@ const EditProfilePictureView: React.FC<EditProfilePictureViewProps> = ({
   const displayUrl = pictureState.previewUrl ?? currentPictureUrl;
 
   return (
-    <main className="flex flex-col w-full items-center gap-6 min-h-screen pt-6 pb-10 bg-white">
+    <main className="flex flex-col w-full items-center gap-6 min-h-screen pt-6 pb-10">
 
       {/* Hidden file input */}
       <input

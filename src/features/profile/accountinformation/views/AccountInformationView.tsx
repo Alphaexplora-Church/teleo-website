@@ -230,7 +230,7 @@ const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditP
     handleFieldChange(field, value);
 
   return (
-    <main className="flex flex-col w-full items-center gap-6 relative min-h-screen pt-6 pb-10 bg-white">
+    <main className="flex flex-col w-full items-center gap-6 relative min-h-screen pt-6 pb-10">
 
       <div className="flex flex-col w-full items-center gap-6 px-4">
 
