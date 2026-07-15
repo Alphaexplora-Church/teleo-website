@@ -164,6 +164,7 @@ interface CardActionsProps {
   prayerId: string;
   liked: boolean;
   prayed: boolean;
+  isOwnPrayerRequest: boolean;
   isPrayerMenuOpen: boolean;
   showPrayerMenu: boolean;
   prayerResponses: readonly string[];
@@ -179,6 +180,7 @@ const CardActions: React.FC<CardActionsProps> = ({
   prayerId,
   liked,
   prayed,
+  isOwnPrayerRequest,
   isPrayerMenuOpen,
   showPrayerMenu,
   prayerResponses,
@@ -242,22 +244,27 @@ const CardActions: React.FC<CardActionsProps> = ({
 
       <button
         type="button"
-        aria-pressed={prayed}
-        aria-expanded={isPrayerMenuOpen && showPrayerMenu}
-        aria-haspopup="menu"
+        aria-pressed={isOwnPrayerRequest ? undefined : prayed}
+        aria-expanded={isOwnPrayerRequest ? undefined : isPrayerMenuOpen && showPrayerMenu}
+        aria-haspopup={isOwnPrayerRequest ? undefined : 'menu'}
+        disabled={isOwnPrayerRequest}
         onPointerDown={onPointerDown}
         onClick={onPray}
         className={`flex w-full min-w-0 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-[15px] font-semibold transition duration-200 active:scale-[0.97] ${
-          prayed
+          isOwnPrayerRequest
+            ? 'cursor-not-allowed bg-white/75 text-[#5d6c7c]'
+            : prayed
             ? 'bg-white text-[#1e3a5f]'
             : 'bg-white/28 text-white hover:bg-white/35'
         }`}
       >
         <PrayIcon />
         <span className="min-w-0 truncate">
-          {selectedPrayerResponse ?? (prayed ? 'Prayed' : 'Pray')}
+          {isOwnPrayerRequest
+            ? 'Your request'
+            : selectedPrayerResponse ?? (prayed ? 'Prayed' : 'Pray')}
         </span>
-        {selectedPrayerResponse && <ChevronUpIcon />}
+        {!isOwnPrayerRequest && selectedPrayerResponse && <ChevronUpIcon />}
       </button>
     </div>
 
@@ -285,6 +292,7 @@ const PrayerWallView: React.FC = () => {
     isFlipped,
     isLiked,
     isPrayed,
+    isOwnPrayerRequest,
     isPrayerMenuOpen,
     prayerResponses,
     selectedPrayerResponse,
@@ -304,6 +312,7 @@ const PrayerWallView: React.FC = () => {
     prayerId: topCard?.id ?? '',
     liked: isLiked,
     prayed: isPrayed,
+    isOwnPrayerRequest,
     isPrayerMenuOpen,
     prayerResponses,
     selectedPrayerResponse,
