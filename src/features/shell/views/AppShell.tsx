@@ -22,6 +22,7 @@ import ProfileView from '../../profile/views/ProfileView';
 import FindMyChurchView from '../../profile/findmychurch/views/FindMyChurchView';
 import AccountInformationView from '../../profile/accountinformation/views/AccountInformationView';
 import EditProfilePictureView from '../../profile/accountinformation/views/EditProfilePictureView';
+import SecurityView from '../../profile/security/views/SecurityView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 
@@ -37,6 +38,7 @@ const TAB_PAGES: Record<string, React.FC> = {
   'find-my-church': FindMyChurchView, // accessed from ProfileView CTA
   'account-information': AccountInformationView, // accessed from Profile > Account Information
   'edit-profile-picture': EditProfilePictureView, // accessed from Account Information camera icon
+  'security': SecurityView, // accessed from Profile > Security & Privacy
 };
 
 // ── Notification bell icon ────────────────────────────────────
@@ -84,6 +86,7 @@ const AppShell: React.FC = () => {
     navigateToFindMyChurch,
     navigateToAccountInformation,
     navigateToEditProfilePicture,
+    navigateToSecurity,
     selectedChurch,
     selectChurch,
   } = useShellViewModel();
@@ -200,6 +203,26 @@ const AppShell: React.FC = () => {
               Edit Profile Picture
             </h1>
           </div>
+        ) : activeTab === 'security' ? (
+          /* Security back-header: back → profile */
+          <div
+            className="flex items-center gap-5 px-5 h-[60px]"
+            style={{ paddingTop: 'env(safe-area-inset-top)' }}
+          >
+            <button
+              type="button"
+              aria-label="Go back to Profile"
+              onClick={navigateToProfile}
+              className="flex items-center justify-center relative cursor-pointer border-none bg-transparent text-[#1f2156] transition-opacity hover:opacity-75"
+            >
+              <svg className="w-[7.4px] h-3" viewBox="0 0 8 13" fill="none" aria-hidden="true">
+                <polyline points="7 1 1 6.5 7 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-[0] font-sans">
+              Security &amp; Privacy
+            </h1>
+          </div>
         ) : (
           /* Default branded header */
           <div
@@ -249,6 +272,7 @@ const AppShell: React.FC = () => {
             selectedChurch={selectedChurch}
             onChangeChurch={navigateToFindMyChurch}
             onAccountInformation={navigateToAccountInformation}
+            onSecurity={navigateToSecurity}
           />
         ) : activeTab === 'find-my-church' ? (
           /* FindMyChurchView receives the church selection callback */
@@ -257,6 +281,8 @@ const AppShell: React.FC = () => {
           <AccountInformationView onEditProfilePicture={navigateToEditProfilePicture} />
         ) : activeTab === 'edit-profile-picture' ? (
           <EditProfilePictureView />
+        ) : activeTab === 'security' ? (
+          <SecurityView />
         ) : (
           <ActivePage />
         )}

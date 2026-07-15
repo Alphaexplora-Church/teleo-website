@@ -73,6 +73,8 @@ const PREFERENCES: SettingsItem[] = [
 export interface ProfileViewModelOptions {
   /** Optional callback invoked when the user navigates to Account Information. */
   onAccountInformation?: () => void;
+  /** Optional callback invoked when the user navigates to Security & Privacy. */
+  onSecurity?: () => void;
 }
 
 export interface ProfileViewModelReturn {
@@ -103,7 +105,7 @@ export interface ProfileViewModelReturn {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export const useProfileViewModel = ({ onAccountInformation }: ProfileViewModelOptions = {}): ProfileViewModelReturn => {
+export const useProfileViewModel = ({ onAccountInformation, onSecurity }: ProfileViewModelOptions = {}): ProfileViewModelReturn => {
   // ── Profile API state ──────────────────────────────────────────
   const [profileView, setProfileView] = useState<ProfileSettingsView | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -167,10 +169,12 @@ export const useProfileViewModel = ({ onAccountInformation }: ProfileViewModelOp
         await handleLogout();
       } else if (item.iconType === 'account') {
         onAccountInformation?.();
+      } else if (item.iconType === 'security') {
+        onSecurity?.();
       }
       // Future: navigate to respective settings screens
     },
-    [handleLogout, onAccountInformation],
+    [handleLogout, onAccountInformation, onSecurity],
   );
 
   return {
