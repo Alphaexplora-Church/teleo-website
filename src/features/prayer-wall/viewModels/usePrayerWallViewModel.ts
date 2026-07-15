@@ -7,6 +7,7 @@ import type {
 } from 'react';
 import { createPrayerComment } from '../models/commentApi';
 import {
+  getCurrentUserId,
   getPrayerCardsPage,
   sortPrayerCardsByRecent,
   togglePrayerReaction,
@@ -52,6 +53,7 @@ export interface PrayerWallViewModel {
   isFlipped: boolean;
   isLiked: boolean;
   isPrayed: boolean;
+  isOwnPrayerRequest: boolean;
   isLoading: boolean;
   isLoadingMore: boolean;
   isOutOfPosts: boolean;
@@ -180,6 +182,11 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
 
   const selectPrayerResponse = async (response: string) => {
     if (!topCard) {
+      return;
+    }
+
+    if (topCard.ownerId === getCurrentUserId()) {
+      setIsPrayerMenuOpen(false);
       return;
     }
 
@@ -487,6 +494,7 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     isFlipped: topCard ? Boolean(flippedCardIds[topCard.id]) : false,
     isLiked: topCard ? Boolean(likedCardIds[topCard.id]) : false,
     isPrayed: topCard ? Boolean(prayedCardIds[topCard.id]) : false,
+    isOwnPrayerRequest: topCard ? topCard.ownerId === getCurrentUserId() : false,
     isLoading,
     isLoadingMore,
     isOutOfPosts,
