@@ -23,6 +23,8 @@ import FindMyChurchView from '../../profile/findmychurch/views/FindMyChurchView'
 import AccountInformationView from '../../profile/accountinformation/views/AccountInformationView';
 import EditProfilePictureView from '../../profile/accountinformation/views/EditProfilePictureView';
 import SecurityView from '../../profile/security/views/SecurityView';
+import ChangeEmailView from '../../profile/security/change-email/views/ChangeEmailView';
+import VerificationView from '../../profile/security/change-email/views/VerificationView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 
@@ -39,6 +41,7 @@ const TAB_PAGES: Record<string, React.FC> = {
   'account-information': AccountInformationView, // accessed from Profile › Account Information
   'edit-profile-picture': EditProfilePictureView, // accessed from Account Information camera icon
   'security': SecurityView,                 // accessed from Profile › Security & Privacy
+  'change-email': ChangeEmailView,           // accessed from Security › Change Email
 };
 
 // ── Back-nav chevron ──────────────────────────────────────────
@@ -118,6 +121,9 @@ const AppShell: React.FC = () => {
     navigateToAccountInformation,
     navigateToEditProfilePicture,
     navigateToSecurity,
+    navigateToChangeEmail,
+    navigateToVerifyEmail,
+    verifyEmailTarget,
     selectedChurch,
     selectChurch,
     showBrandText,
@@ -128,7 +134,7 @@ const AppShell: React.FC = () => {
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
 
   // Sub-pages that show a back-nav header instead of the main branded header
-  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security'].includes(activeTab);
+  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security', 'change-email', 'verify-email'].includes(activeTab);
 
   return (
     <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
@@ -155,6 +161,12 @@ const AppShell: React.FC = () => {
             )}
             {activeTab === 'security' && (
               <BackHeader title="Security & Privacy" onBack={navigateToProfile} />
+            )}
+            {activeTab === 'change-email' && (
+              <BackHeader title="Change Email" onBack={navigateToSecurity} />
+            )}
+            {activeTab === 'verify-email' && (
+              <BackHeader title="Verify Email" onBack={navigateToChangeEmail} />
             )}
           </div>
         ) : (
@@ -234,7 +246,16 @@ const AppShell: React.FC = () => {
         ) : activeTab === 'edit-profile-picture' ? (
           <EditProfilePictureView />
         ) : activeTab === 'security' ? (
-          <SecurityView />
+          <SecurityView onChangeEmail={navigateToChangeEmail} />
+        ) : activeTab === 'change-email' ? (
+          <ChangeEmailView onCodeSent={navigateToVerifyEmail} />
+        ) : activeTab === 'verify-email' ? (
+          <VerificationView
+            targetEmail={verifyEmailTarget}
+            onSuccess={() => {
+              setTimeout(navigateToSecurity, 2000);
+            }}
+          />
         ) : (
           <ActivePage />
         )}

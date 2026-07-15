@@ -58,11 +58,11 @@ const ChevronRight: React.FC<{ colour?: string }> = ({ colour = '#1f2156' }) => 
 );
 
 const ICON_MAP: Record<SecurityActionItem['iconType'], React.ReactNode> = {
-  email:    <EmailIcon />,
+  email: <EmailIcon />,
   password: <PasswordIcon />,
-  phone:    <PhoneIcon />,
-  shield:   <ShieldIcon />,
-  trash:    <TrashIcon colour="#1f2156" />,
+  phone: <PhoneIcon />,
+  shield: <ShieldIcon />,
+  trash: <TrashIcon colour="#1f2156" />,
 };
 
 // ── Security row card ──────────────────────────────────────────────────────────
@@ -226,7 +226,12 @@ const ErrorBanner: React.FC<FeedbackBannerProps> = ({ message, onDismiss }) => (
 );
 
 // ── View component ─────────────────────────────────────────────────────────────
-const SecurityView: React.FC = () => {
+interface SecurityViewProps {
+  /** Called when the user taps the Change Email row. */
+  onChangeEmail?: () => void;
+}
+
+const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail }) => {
   const {
     credentialItems,
     privacyItems,
@@ -238,10 +243,10 @@ const SecurityView: React.FC = () => {
     handleConfirmDelete,
     handleCancelDelete,
     handleDismissError,
-  } = useSecurityViewModel();
+  } = useSecurityViewModel({ onChangeEmail });
 
   return (
-    <main className="flex flex-col w-full items-center gap-6 relative min-h-screen pt-6 pb-10">
+    <main className="flex flex-col w-full items-center gap-6 relative min-h-full pt-6 pb-10">
 
       <div className="flex flex-col w-full items-start gap-6 px-4 max-w-[448px]">
 
