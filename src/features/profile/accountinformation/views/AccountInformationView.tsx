@@ -203,7 +203,12 @@ const SkeletonLabel: React.FC<{ width?: string }> = ({ width = 'w-20' }) => (
 );
 
 // ── View component ─────────────────────────────────────────────────────────────
-const AccountInformationView: React.FC = () => {
+interface AccountInformationViewProps {
+  /** Called when the user taps the camera badge to go to the Edit Profile Picture page. */
+  onEditProfilePicture?: () => void;
+}
+
+const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditProfilePicture }) => {
   const {
     isLoadingProfile,
     loadError,
@@ -242,6 +247,7 @@ const AccountInformationView: React.FC = () => {
               <button
                 type="button"
                 aria-label="Change profile picture"
+                onClick={onEditProfilePicture}
                 className="absolute bottom-0 right-0 size-6 bg-amber-500 rounded-xl flex items-center justify-center shadow-md hover:bg-amber-400 active:scale-90 transition-all duration-150"
               >
                 <CameraIcon />

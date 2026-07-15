@@ -21,6 +21,7 @@ import ContentView from '../../content/views/ContentView';
 import ProfileView from '../../profile/views/ProfileView';
 import FindMyChurchView from '../../profile/findmychurch/views/FindMyChurchView';
 import AccountInformationView from '../../profile/accountinformation/views/AccountInformationView';
+import EditProfilePictureView from '../../profile/accountinformation/views/EditProfilePictureView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 
@@ -35,6 +36,7 @@ const TAB_PAGES: Record<string, React.FC> = {
   'chat': ChatView,
   'find-my-church': FindMyChurchView, // accessed from ProfileView CTA
   'account-information': AccountInformationView, // accessed from Profile > Account Information
+  'edit-profile-picture': EditProfilePictureView, // accessed from Account Information camera icon
 };
 
 // ── Notification bell icon ────────────────────────────────────
@@ -81,6 +83,7 @@ const AppShell: React.FC = () => {
     navigateToProfile,
     navigateToFindMyChurch,
     navigateToAccountInformation,
+    navigateToEditProfilePicture,
     selectedChurch,
     selectChurch,
   } = useShellViewModel();
@@ -177,6 +180,26 @@ const AppShell: React.FC = () => {
               Account Information
             </h1>
           </div>
+        ) : activeTab === 'edit-profile-picture' ? (
+          /* Edit Profile Picture back-header: back → account-information */
+          <div
+            className="flex items-center gap-5 px-5 h-[60px]"
+            style={{ paddingTop: 'env(safe-area-inset-top)' }}
+          >
+            <button
+              type="button"
+              aria-label="Go back to Account Information"
+              onClick={navigateToAccountInformation}
+              className="flex items-center justify-center relative cursor-pointer border-none bg-transparent text-[#1f2156] transition-opacity hover:opacity-75"
+            >
+              <svg className="w-[7.4px] h-3" viewBox="0 0 8 13" fill="none" aria-hidden="true">
+                <polyline points="7 1 1 6.5 7 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-[0] font-sans">
+              Edit Profile Picture
+            </h1>
+          </div>
         ) : (
           /* Default branded header */
           <div
@@ -231,7 +254,9 @@ const AppShell: React.FC = () => {
           /* FindMyChurchView receives the church selection callback */
           <FindMyChurchView onChurchSelect={selectChurch} />
         ) : activeTab === 'account-information' ? (
-          <AccountInformationView />
+          <AccountInformationView onEditProfilePicture={navigateToEditProfilePicture} />
+        ) : activeTab === 'edit-profile-picture' ? (
+          <EditProfilePictureView />
         ) : (
           <ActivePage />
         )}
