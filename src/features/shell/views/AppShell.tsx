@@ -70,7 +70,7 @@ interface BackHeaderProps {
 }
 const BackHeader: React.FC<BackHeaderProps> = ({ title, onBack }) => (
   <div
-    className="flex items-center gap-5 px-5 h-[60px]"
+    className="flex items-center gap-5 h-[60px]"
     style={{ paddingTop: 'env(safe-area-inset-top)' }}
   >
     <button

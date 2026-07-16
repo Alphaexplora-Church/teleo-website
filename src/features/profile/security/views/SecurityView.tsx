@@ -253,7 +253,6 @@ const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail, onChangeNumb
 
   return (
     <main className="flex flex-col w-full items-center gap-6 relative min-h-full pt-6 pb-10">
-
       <div className="flex flex-col w-full items-start gap-6 px-4 max-w-[448px]">
 
         {/* ── Hero text ──────────────────────────────────────── */}
