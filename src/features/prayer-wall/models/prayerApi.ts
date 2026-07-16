@@ -106,6 +106,14 @@ const hashToThemeColor = (seed: string) => {
 
 const toPrayerSubject = (title: string) => title.trim() || 'Prayer Request';
 
+const splitPrayerTags = (tag: string | null) =>
+  tag
+    ? tag
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+    : [];
+
 const getPrayerAuthorName = (record: PrayerApiRecord) => {
   const authorFields = [
     record.author_name,
@@ -148,6 +156,7 @@ const applyCurrentUserAuthorFallback = async (prayers: PrayerCard[]) => {
 const mapPrayerRecordToCard = (record: PrayerApiRecord): PrayerCard => {
   const recordWithComments = record as PrayerApiRecordWithComments;
   const tag = record.prayer_tag?.trim() || null;
+  const tags = splitPrayerTags(tag);
 
   return {
     id: record.id,
@@ -160,8 +169,8 @@ const mapPrayerRecordToCard = (record: PrayerApiRecord): PrayerCard => {
     backDetails: record.is_answered && record.answer_note
       ? `${record.description}\n\nPraise Report: ${record.answer_note}`
       : record.description,
-    accentColor: hashToThemeColor(tag ?? record.id),
-    tags: tag ? [tag] : [],
+    accentColor: hashToThemeColor(tags[0] ?? record.id),
+    tags,
     prayerTag: tag,
     audience: record.audience,
     isAnswered: record.is_answered,
