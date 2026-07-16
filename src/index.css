@@ -1,13 +1,9 @@
-/* index.css — Teleo Design System
+/* index.css - Teleo Design System
  * Tailwind CSS v4 + Google Fonts + Custom design tokens
  */
 
-/* ── Google Fonts ─────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
-
-/* ── Leaflet map styles ────────────────────────────────────── */
 @import 'leaflet/dist/leaflet.css';
-
 @import "tailwindcss";
 
 @theme {
@@ -87,8 +83,6 @@
     align-items: center;
     background-color: var(--color-off-white);
   }
-
-  /* ── Form element resets (merged from profile/tailwind.css) ── */
   button,
   input,
   select,
@@ -103,8 +97,6 @@
     all: unset;
   }
 }
-
-/* ── Animation utility classes (merged from profile/tailwind.css) ── */
 
 .animate-fade-in {
   animation: fade-in 1s var(--animation-delay, 0s) ease forwards;
@@ -129,8 +121,6 @@
 .animate-spin {
   animation: var(--animate-spin);
 }
-
-/* ── Keyframes (merged from profile/tailwind.css) ─────────────────── */
 
 @keyframes spin {
   to {
