@@ -27,6 +27,7 @@ import ChangeEmailView from '../../profile/security/change-email/views/ChangeEma
 import VerificationView from '../../profile/security/change-email/views/VerificationView';
 import ChangeNumberView from '../../profile/security/change-number/views/ChangeNumberView';
 import OtpView from '../../profile/security/change-number/views/OtpView';
+import ChangePasswordView from '../../profile/security/change-password/views/ChangePasswordView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 
@@ -127,6 +128,7 @@ const AppShell: React.FC = () => {
     navigateToVerifyEmail,
     navigateToChangeNumber,
     navigateToVerifyNumber,
+    navigateToChangePassword,
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,
@@ -139,7 +141,7 @@ const AppShell: React.FC = () => {
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
 
   // Sub-pages that show a back-nav header instead of the main branded header
-  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security', 'change-email', 'verify-email', 'change-number', 'verify-number'].includes(activeTab);
+  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security', 'change-email', 'verify-email', 'change-number', 'verify-number', 'change-password'].includes(activeTab);
 
   return (
     <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
@@ -257,6 +259,7 @@ const AppShell: React.FC = () => {
           <SecurityView
             onChangeEmail={navigateToChangeEmail}
             onChangeNumber={navigateToChangeNumber}
+            onChangePassword={navigateToChangePassword}
           />
         ) : activeTab === 'change-email' ? (
           <ChangeEmailView onCodeSent={navigateToVerifyEmail} />
@@ -272,6 +275,12 @@ const AppShell: React.FC = () => {
         ) : activeTab === 'verify-number' ? (
           <OtpView
             targetNumber={verifyNumberTarget}
+            onSuccess={() => {
+              setTimeout(navigateToSecurity, 2000);
+            }}
+          />
+        ) : activeTab === 'change-password' ? (
+          <ChangePasswordView
             onSuccess={() => {
               setTimeout(navigateToSecurity, 2000);
             }}

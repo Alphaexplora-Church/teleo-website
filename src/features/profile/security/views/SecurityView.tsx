@@ -231,9 +231,11 @@ interface SecurityViewProps {
   onChangeEmail?: () => void;
   /** Called when the user taps the Change Phone Number row. */
   onChangeNumber?: () => void;
+  /** Called when the user taps the Change Password row. */
+  onChangePassword?: () => void;
 }
 
-const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail, onChangeNumber }) => {
+const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail, onChangeNumber, onChangePassword }) => {
   const {
     credentialItems,
     privacyItems,
@@ -245,7 +247,7 @@ const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail, onChangeNumb
     handleConfirmDelete,
     handleCancelDelete,
     handleDismissError,
-  } = useSecurityViewModel({ onChangeEmail, onChangeNumber });
+  } = useSecurityViewModel({ onChangeEmail, onChangeNumber, onChangePassword });
 
   return (
     <main className="flex flex-col w-full items-center gap-6 relative min-h-full pt-6 pb-10">

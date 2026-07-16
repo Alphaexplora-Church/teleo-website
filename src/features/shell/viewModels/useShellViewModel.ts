@@ -10,7 +10,7 @@ import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import type { Church } from '../../profile/findmychurch/models/findMyChurchTypes';
 
 // Shell destinations extend the nav tabs with sub-pages (header-only access)
-export type ShellDestination = DashboardTab | 'profile' | 'find-my-church' | 'account-information' | 'edit-profile-picture' | 'security' | 'change-email' | 'verify-email' | 'change-number' | 'verify-number';
+export type ShellDestination = DashboardTab | 'profile' | 'find-my-church' | 'account-information' | 'edit-profile-picture' | 'security' | 'change-email' | 'verify-email' | 'change-number' | 'verify-number' | 'change-password';
 
 export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
@@ -25,6 +25,7 @@ export interface DashboardViewModelReturn {
   navigateToVerifyEmail: (email: string) => void;
   navigateToChangeNumber: () => void;
   navigateToVerifyNumber: (phoneNumber: string) => void;
+  navigateToChangePassword: () => void;
   verifyEmailTarget: string;
   verifyNumberTarget: string;
   /** The church the user has selected from FindMyChurchView. Null until selected. */
@@ -88,6 +89,10 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('verify-number');
   }, []);
 
+  const navigateToChangePassword = useCallback(() => {
+    setActiveTabState('change-password');
+  }, []);
+
   // Selects a church AND navigates back to Profile in one action
   const selectChurch = useCallback((church: Church) => {
     setSelectedChurch(church);
@@ -107,6 +112,7 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     navigateToVerifyEmail,
     navigateToChangeNumber,
     navigateToVerifyNumber,
+    navigateToChangePassword,
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,

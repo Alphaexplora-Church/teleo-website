@@ -38,9 +38,11 @@ export interface SecurityViewModelOptions {
   onChangeEmail?: () => void;
   /** Called when the user taps the Change Phone Number row. Provided by AppShell. */
   onChangeNumber?: () => void;
+  /** Called when the user taps the Change Password row. Provided by AppShell. */
+  onChangePassword?: () => void;
 }
 
-export const useSecurityViewModel = ({ onChangeEmail, onChangeNumber }: SecurityViewModelOptions = {}): SecurityViewModelReturn => {
+export const useSecurityViewModel = ({ onChangeEmail, onChangeNumber, onChangePassword }: SecurityViewModelOptions = {}): SecurityViewModelReturn => {
 
   // ── Delete account state ───────────────────────────────────────
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -72,9 +74,14 @@ export const useSecurityViewModel = ({ onChangeEmail, onChangeNumber }: Security
       return;
     }
 
+    if (id === 'change-password') {
+      onChangePassword?.();
+      return;
+    }
+
     // Placeholder for future sub-page navigation
     console.info(`[Security] Navigate to: ${id}`);
-  }, [onChangeEmail, onChangeNumber]);
+  }, [onChangeEmail, onChangeNumber, onChangePassword]);
 
   // ── Delete account ─────────────────────────────────────────────
   const handleConfirmDelete = useCallback(async () => {
