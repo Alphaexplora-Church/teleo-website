@@ -70,6 +70,17 @@ const PREFERENCES: SettingsItem[] = [
 
 // ── ViewModel return type ──────────────────────────────────────────────────────
 
+export interface ProfileViewModelOptions {
+  /** Optional callback invoked when the user navigates to Account Information. */
+  onAccountInformation?: () => void;
+  /** Optional callback invoked when the user navigates to Security & Privacy. */
+  onSecurity?: () => void;
+  /** Optional callback invoked when the user navigates to Notifications. */
+  onNotifications?: () => void;
+  /** Optional callback invoked when the user navigates to Help & FAQ. */
+  onHelp?: () => void;
+}
+
 export interface ProfileViewModelReturn {
   // Profile header data (from API)
   profileView: ProfileSettingsView | null;
@@ -98,7 +109,7 @@ export interface ProfileViewModelReturn {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export const useProfileViewModel = (): ProfileViewModelReturn => {
+export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifications, onHelp }: ProfileViewModelOptions = {}): ProfileViewModelReturn => {
   // ── Profile API state ──────────────────────────────────────────
   const [profileView, setProfileView] = useState<ProfileSettingsView | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -160,10 +171,17 @@ export const useProfileViewModel = (): ProfileViewModelReturn => {
     async (item: SettingsItem) => {
       if (item.iconType === 'logout') {
         await handleLogout();
+      } else if (item.iconType === 'account') {
+        onAccountInformation?.();
+      } else if (item.iconType === 'security') {
+        onSecurity?.();
+      } else if (item.iconType === 'notifications') {
+        onNotifications?.();
+      } else if (item.iconType === 'help') {
+        onHelp?.();
       }
-      // Future: navigate to respective settings screens
     },
-    [handleLogout],
+    [handleLogout, onAccountInformation, onSecurity, onNotifications, onHelp],
   );
 
   return {
