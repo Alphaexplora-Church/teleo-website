@@ -26,6 +26,7 @@ import SecurityView from '../../profile/security/views/SecurityView';
 import ChangeEmailView from '../../profile/security/change-email/views/ChangeEmailView';
 import VerificationView from '../../profile/security/change-email/views/VerificationView';
 import ChangeNumberView from '../../profile/security/change-number/views/ChangeNumberView';
+import OtpView from '../../profile/security/change-number/views/OtpView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 
@@ -125,7 +126,9 @@ const AppShell: React.FC = () => {
     navigateToChangeEmail,
     navigateToVerifyEmail,
     navigateToChangeNumber,
+    navigateToVerifyNumber,
     verifyEmailTarget,
+    verifyNumberTarget,
     selectedChurch,
     selectChurch,
     showBrandText,
@@ -136,7 +139,7 @@ const AppShell: React.FC = () => {
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
 
   // Sub-pages that show a back-nav header instead of the main branded header
-  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security', 'change-email', 'verify-email', 'change-number'].includes(activeTab);
+  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security', 'change-email', 'verify-email', 'change-number', 'verify-number'].includes(activeTab);
 
   return (
     <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
@@ -265,7 +268,14 @@ const AppShell: React.FC = () => {
             }}
           />
         ) : activeTab === 'change-number' ? (
-          <ChangeNumberView />
+          <ChangeNumberView onOtpSent={navigateToVerifyNumber} />
+        ) : activeTab === 'verify-number' ? (
+          <OtpView
+            targetNumber={verifyNumberTarget}
+            onSuccess={() => {
+              setTimeout(navigateToSecurity, 2000);
+            }}
+          />
         ) : (
           <ActivePage />
         )}

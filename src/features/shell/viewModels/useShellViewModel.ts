@@ -10,7 +10,7 @@ import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import type { Church } from '../../profile/findmychurch/models/findMyChurchTypes';
 
 // Shell destinations extend the nav tabs with sub-pages (header-only access)
-export type ShellDestination = DashboardTab | 'profile' | 'find-my-church' | 'account-information' | 'edit-profile-picture' | 'security' | 'change-email' | 'verify-email' | 'change-number';
+export type ShellDestination = DashboardTab | 'profile' | 'find-my-church' | 'account-information' | 'edit-profile-picture' | 'security' | 'change-email' | 'verify-email' | 'change-number' | 'verify-number';
 
 export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
@@ -24,7 +24,9 @@ export interface DashboardViewModelReturn {
   navigateToChangeEmail: () => void;
   navigateToVerifyEmail: (email: string) => void;
   navigateToChangeNumber: () => void;
+  navigateToVerifyNumber: (phoneNumber: string) => void;
   verifyEmailTarget: string;
+  verifyNumberTarget: string;
   /** The church the user has selected from FindMyChurchView. Null until selected. */
   selectedChurch: Church | null;
   /** Saves the chosen church and navigates back to the Profile page. */
@@ -35,6 +37,7 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
   const [activeTab, setActiveTabState] = useState<ShellDestination>('home');
   const [showBrandText, setShowBrandText] = useState(true);
   const [verifyEmailTarget, setVerifyEmailTarget] = useState('');
+  const [verifyNumberTarget, setVerifyNumberTarget] = useState('');
 
   useEffect(() => {
     const timer = window.setTimeout(() => setShowBrandText(false), 2200);
@@ -80,6 +83,11 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('change-number');
   }, []);
 
+  const navigateToVerifyNumber = useCallback((phoneNumber: string) => {
+    setVerifyNumberTarget(phoneNumber);
+    setActiveTabState('verify-number');
+  }, []);
+
   // Selects a church AND navigates back to Profile in one action
   const selectChurch = useCallback((church: Church) => {
     setSelectedChurch(church);
@@ -98,7 +106,9 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     navigateToChangeEmail,
     navigateToVerifyEmail,
     navigateToChangeNumber,
+    navigateToVerifyNumber,
     verifyEmailTarget,
+    verifyNumberTarget,
     selectedChurch,
     selectChurch,
   };
