@@ -160,8 +160,25 @@ const CreatePrayerView: React.FC = () => {
                       value={hashtag}
                       checked={selectedHashtags.includes(hashtag)}
                       onChange={() => toggleHashtag(hashtag)}
-                      className="size-4 accent-[#1e3a5f]"
+                      className="peer sr-only"
                     />
+                    <span
+                      aria-hidden="true"
+                      className="flex size-4 shrink-0 items-center justify-center rounded border border-gray-placeholder bg-white text-white transition peer-checked:border-navy peer-checked:bg-navy peer-focus-visible:ring-2 peer-focus-visible:ring-link peer-focus-visible:ring-offset-2"
+                    >
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="m5 12 4 4L19 6" />
+                      </svg>
+                    </span>
                     <span>{hashtag}</span>
                   </label>
                 ))}
@@ -230,8 +247,14 @@ const CreatePrayerView: React.FC = () => {
                     value={audience.id}
                     defaultChecked={index === 0}
                     disabled={audience.disabled}
-                    className="mt-0.5 size-4 accent-[#1e3a5f]"
+                    className="peer sr-only"
                   />
+                  <span
+                    aria-hidden="true"
+                    className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border border-gray-placeholder bg-white transition peer-checked:border-navy peer-focus-visible:ring-2 peer-focus-visible:ring-link peer-focus-visible:ring-offset-2 peer-checked:[&>span]:opacity-100"
+                  >
+                    <span className="size-2 rounded-full bg-navy opacity-0 transition" />
+                  </span>
                   <span>
                     <span className="flex items-center gap-2 text-[13px] font-semibold text-navy">
                       {audience.label}
