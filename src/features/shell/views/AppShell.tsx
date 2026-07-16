@@ -1,7 +1,6 @@
 // features/shell/views/AppShell.tsx
 
 import React from 'react';
-import TeleoLogo from '../../../shared/components/TeleoLogo';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
 import { useShellViewModel } from '../viewModels/useShellViewModel';
 
@@ -82,7 +81,10 @@ interface HeaderAvatarProps {
   onClick: () => void;
 }
 
-const HeaderAvatar: React.FC<HeaderAvatarProps> = ({ profilePictureUrl, onClick }) => {
+const HeaderAvatar: React.FC<HeaderAvatarProps> = ({
+  profilePictureUrl,
+  onClick,
+}) => {
   const [imgError, setImgError] = React.useState(false);
 
   return (

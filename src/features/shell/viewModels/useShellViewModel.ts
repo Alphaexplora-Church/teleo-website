@@ -88,6 +88,61 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('profile');
   }, []);
 
+  const navigateToFindMyChurch = useCallback(() => {
+    setActiveTabState('find-my-church');
+  }, []);
+
+  const navigateToAccountInformation = useCallback(() => {
+    setActiveTabState('account-information');
+  }, []);
+
+  const navigateToEditProfilePicture = useCallback(() => {
+    setActiveTabState('edit-profile-picture');
+  }, []);
+
+  const navigateToSecurity = useCallback(() => {
+    setActiveTabState('security');
+  }, []);
+
+  const navigateToChangeEmail = useCallback(() => {
+    setActiveTabState('change-email');
+  }, []);
+
+  const navigateToVerifyEmail = useCallback((email: string) => {
+    setVerifyEmailTarget(email);
+    setActiveTabState('verify-email');
+  }, []);
+
+  const navigateToChangeNumber = useCallback(() => {
+    setActiveTabState('change-number');
+  }, []);
+
+  const navigateToVerifyNumber = useCallback((phoneNumber: string) => {
+    setVerifyNumberTarget(phoneNumber);
+    setActiveTabState('verify-number');
+  }, []);
+
+  const navigateToChangePassword = useCallback(() => {
+    setActiveTabState('change-password');
+  }, []);
+
+  const navigateToPrivacyPolicy = useCallback(() => {
+    setActiveTabState('privacy-policy');
+  }, []);
+
+  const navigateToNotifications = useCallback(() => {
+    setActiveTabState('notifications');
+  }, []);
+
+  const navigateToHelp = useCallback(() => {
+    setActiveTabState('help');
+  }, []);
+
+  const selectChurch = useCallback((church: Church) => {
+    setSelectedChurch(church);
+    setActiveTabState('profile');
+  }, []);
+
   return {
     activeTab,
     setActiveTab,
