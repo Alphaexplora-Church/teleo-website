@@ -126,7 +126,7 @@ const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({ isDeleting, onC
     role="dialog"
     aria-modal="true"
     aria-labelledby="delete-confirm-title"
-    className="fixed inset-0 z-50 flex items-center justify-center px-6"
+    className="fixed inset-0 z-[100] flex items-center justify-center px-6"
   >
     {/* Backdrop */}
     <div
@@ -233,9 +233,11 @@ interface SecurityViewProps {
   onChangeNumber?: () => void;
   /** Called when the user taps the Change Password row. */
   onChangePassword?: () => void;
+  /** Called when the user taps the Privacy Policy row. */
+  onChangePrivacyPolicy?: () => void;
 }
 
-const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail, onChangeNumber, onChangePassword }) => {
+const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail, onChangeNumber, onChangePassword, onChangePrivacyPolicy }) => {
   const {
     credentialItems,
     privacyItems,
@@ -247,7 +249,7 @@ const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail, onChangeNumb
     handleConfirmDelete,
     handleCancelDelete,
     handleDismissError,
-  } = useSecurityViewModel({ onChangeEmail, onChangeNumber, onChangePassword });
+  } = useSecurityViewModel({ onChangeEmail, onChangeNumber, onChangePassword, onChangePrivacyPolicy });
 
   return (
     <main className="flex flex-col w-full items-center gap-6 relative min-h-full pt-6 pb-10">
@@ -325,13 +327,6 @@ const SecurityView: React.FC<SecurityViewProps> = ({ onChangeEmail, onChangeNumb
           aria-labelledby="danger-heading"
           className="flex flex-col w-full gap-2.5"
         >
-          <h2
-            id="danger-heading"
-            className="text-[#757575] text-xl font-bold font-sans leading-6"
-          >
-            Danger Zone
-          </h2>
-
           {dangerItems.map((item) => (
             <button
               key={item.id}

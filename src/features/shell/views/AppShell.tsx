@@ -28,6 +28,7 @@ import VerificationView from '../../profile/security/change-email/views/Verifica
 import ChangeNumberView from '../../profile/security/change-number/views/ChangeNumberView';
 import OtpView from '../../profile/security/change-number/views/OtpView';
 import ChangePasswordView from '../../profile/security/change-password/views/ChangePasswordView';
+import PrivacyPolicyView from '../../profile/security/views/PrivacyPolicyView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 
@@ -129,6 +130,7 @@ const AppShell: React.FC = () => {
     navigateToChangeNumber,
     navigateToVerifyNumber,
     navigateToChangePassword,
+    navigateToPrivacyPolicy,
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,
@@ -141,7 +143,7 @@ const AppShell: React.FC = () => {
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
 
   // Sub-pages that show a back-nav header instead of the main branded header
-  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security', 'change-email', 'verify-email', 'change-number', 'verify-number', 'change-password'].includes(activeTab);
+  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security', 'change-email', 'verify-email', 'change-number', 'verify-number', 'change-password', 'privacy-policy'].includes(activeTab);
 
   return (
     <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
@@ -177,6 +179,15 @@ const AppShell: React.FC = () => {
             )}
             {activeTab === 'change-number' && (
               <BackHeader title="Change Phone Number" onBack={navigateToSecurity} />
+            )}
+            {activeTab === 'verify-number' && (
+              <BackHeader title="Verify OTP" onBack={navigateToChangeNumber} />
+            )}
+            {activeTab === 'change-password' && (
+              <BackHeader title="Change Password" onBack={navigateToSecurity} />
+            )}
+            {activeTab === 'privacy-policy' && (
+              <BackHeader title="Privacy Policy" onBack={navigateToSecurity} />
             )}
           </div>
         ) : (
@@ -260,6 +271,7 @@ const AppShell: React.FC = () => {
             onChangeEmail={navigateToChangeEmail}
             onChangeNumber={navigateToChangeNumber}
             onChangePassword={navigateToChangePassword}
+            onChangePrivacyPolicy={navigateToPrivacyPolicy}
           />
         ) : activeTab === 'change-email' ? (
           <ChangeEmailView onCodeSent={navigateToVerifyEmail} />
@@ -285,6 +297,8 @@ const AppShell: React.FC = () => {
               setTimeout(navigateToSecurity, 2000);
             }}
           />
+        ) : activeTab === 'privacy-policy' ? (
+          <PrivacyPolicyView />
         ) : (
           <ActivePage />
         )}

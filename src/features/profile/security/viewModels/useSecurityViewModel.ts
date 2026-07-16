@@ -3,7 +3,7 @@
 // NO JSX. Returns only what the View needs.
 
 import { useState, useCallback } from 'react';
-import { deleteUserAccount, SECURITY_ENDPOINTS } from '../models/securityApi';
+import { deleteUserAccount } from '../models/securityApi';
 import {
   SECURITY_CREDENTIAL_ITEMS,
   SECURITY_PRIVACY_ITEMS,
@@ -40,9 +40,11 @@ export interface SecurityViewModelOptions {
   onChangeNumber?: () => void;
   /** Called when the user taps the Change Password row. Provided by AppShell. */
   onChangePassword?: () => void;
+  /** Called when the user taps the Privacy Policy row. Provided by AppShell. */
+  onChangePrivacyPolicy?: () => void;
 }
 
-export const useSecurityViewModel = ({ onChangeEmail, onChangeNumber, onChangePassword }: SecurityViewModelOptions = {}): SecurityViewModelReturn => {
+export const useSecurityViewModel = ({ onChangeEmail, onChangeNumber, onChangePassword, onChangePrivacyPolicy }: SecurityViewModelOptions = {}): SecurityViewModelReturn => {
 
   // ── Delete account state ───────────────────────────────────────
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -60,7 +62,7 @@ export const useSecurityViewModel = ({ onChangeEmail, onChangeNumber, onChangePa
     }
 
     if (id === 'privacy-policy') {
-      window.open(SECURITY_ENDPOINTS.PRIVACY_POLICY_URL, '_blank', 'noopener,noreferrer');
+      onChangePrivacyPolicy?.();
       return;
     }
 
