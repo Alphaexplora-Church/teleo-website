@@ -35,6 +35,22 @@ const PrayIcon = () => (
   </svg>
 );
 
+const HeartIcon = ({ filled = false }: { filled?: boolean }) => (
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill={filled ? 'currentColor' : 'none'}
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
+  </svg>
+);
+
 const CommentIcon = () => (
   <svg
     width="17"
@@ -72,9 +88,6 @@ const PrayerDetailsView: React.FC = () => {
     isOwner,
     isLoading,
     errorMessage,
-    commentText,
-    setCommentText,
-    isSubmittingComment,
     reactingAction,
     isPostMenuOpen,
     setIsPostMenuOpen,
@@ -90,11 +103,13 @@ const PrayerDetailsView: React.FC = () => {
     setEditAudience,
     isSavingEdit,
     isDeleting,
+    isMarkingAnswered,
+    hasHeartReacted,
     reactToPost,
     startEditing,
+    markCurrentPrayerAsAnswered,
     savePrayerEdit,
     deleteCurrentPrayer,
-    submitComment,
     goBack,
     navigateToTab,
   } = usePrayerDetailsViewModel();
@@ -164,6 +179,18 @@ const PrayerDetailsView: React.FC = () => {
                     className="block w-full px-4 py-2.5 text-left text-[12px] font-semibold transition hover:bg-[#f5f6ff]"
                   >
                     Edit post
+                  </button>
+                  <button
+                    type="button"
+                    onClick={markCurrentPrayerAsAnswered}
+                    disabled={prayer.isAnswered || isMarkingAnswered}
+                    className="block w-full px-4 py-2.5 text-left text-[12px] font-semibold text-[#096f5f] transition hover:bg-[#ecfbf7] disabled:cursor-not-allowed disabled:text-gray-placeholder disabled:opacity-65 disabled:hover:bg-transparent"
+                  >
+                    {prayer.isAnswered
+                      ? 'Prayer answered'
+                      : isMarkingAnswered
+                        ? 'Marking answered...'
+                        : 'Mark as answered'}
                   </button>
                   <button
                     type="button"
@@ -283,20 +310,25 @@ const PrayerDetailsView: React.FC = () => {
           )}
         </article>
 
-        <div className="grid grid-cols-2 gap-3 border-y border-white/22 px-4 py-3">
+        <div className="flex items-center gap-3 border-y border-white/22 px-4 py-3">
           <button
             type="button"
-            onClick={() => reactToPost('AMEN')}
+            onClick={() => reactToPost('HEART')}
             disabled={Boolean(reactingAction)}
-            className="flex w-full items-center justify-center rounded-full bg-white/20 px-5 py-2 text-[14px] font-semibold text-white transition hover:bg-white/30 active:scale-[0.98]"
+            aria-label="Heart react to prayer"
+            className={`flex size-11 shrink-0 items-center justify-center rounded-full transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 ${
+              hasHeartReacted
+                ? 'bg-white text-[#d92d20] hover:bg-white/92'
+                : 'bg-white/22 text-white hover:bg-white/32'
+            }`}
           >
-            {reactingAction === 'AMEN' ? 'Sending...' : 'Amen'}
+            <HeartIcon filled={hasHeartReacted || reactingAction === 'HEART'} />
           </button>
           <button
             type="button"
             onClick={() => reactToPost('PRAYING')}
             disabled={Boolean(reactingAction)}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-white/35 px-5 py-2 text-[14px] font-semibold text-white transition hover:bg-white/45 active:scale-[0.98]"
+            className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-white/35 px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-white/45 active:scale-[0.98]"
           >
             <PrayIcon />
             {reactingAction === 'PRAYING' ? 'Sending...' : 'Pray'}
@@ -340,25 +372,6 @@ const PrayerDetailsView: React.FC = () => {
             </p>
           )}
 
-          <div className="mt-5 rounded-2xl bg-white/92 p-3 text-gray-label shadow-sm">
-            <textarea
-              value={commentText}
-              onChange={(event) => setCommentText(event.target.value)}
-              rows={3}
-              placeholder="Write a supportive comment"
-              className="w-full resize-none rounded-xl border border-gray-border bg-white px-3 py-2 text-[12px] leading-5 outline-none transition focus:border-navy focus:ring-4 focus:ring-navy/8"
-            />
-            <div className="mt-3 flex justify-end">
-              <button
-                type="button"
-                onClick={submitComment}
-                disabled={isSubmittingComment || !commentText.trim()}
-                className="rounded-full bg-navy px-4 py-2 text-[12px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {isSubmittingComment ? 'Posting...' : 'Post Comment'}
-              </button>
-            </div>
-          </div>
         </section>
 
         <div className="sticky bottom-0 z-20 mt-auto text-gray-label">
