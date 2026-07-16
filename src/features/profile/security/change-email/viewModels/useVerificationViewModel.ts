@@ -34,7 +34,7 @@ export interface VerificationViewModelReturn {
   handleDismissError: () => void;
 
   /** Refs for each OTP input cell — used by the View for auto-advance/retreat focus. */
-  inputRefs: React.RefObject<HTMLInputElement>[];
+  inputRefs: React.RefObject<HTMLInputElement | null>[];
 }
 
 // ── Hook ───────────────────────────────────────────────────────────────────────

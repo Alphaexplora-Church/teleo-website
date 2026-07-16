@@ -89,20 +89,19 @@
   }
 }
 
-  /* ── Form element resets (merged from profile/tailwind.css) ── */
-  button,
-  input,
-  select,
-  textarea {
-    appearance: none;
-    background: transparent;
-    border: 0;
-    outline: none;
-  }
+/* ── Form element resets (merged from profile/tailwind.css) ── */
+button,
+input,
+select,
+textarea {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  outline: none;
+}
 
-  .all-unset {
-    all: unset;
-  }
+.all-unset {
+  all: unset;
 }
 
 /* ── Animation utility classes (merged from profile/tailwind.css) ── */
