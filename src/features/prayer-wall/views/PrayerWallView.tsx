@@ -169,6 +169,7 @@ interface CardActionsProps {
   showPrayerMenu: boolean;
   prayerResponses: readonly string[];
   selectedPrayerResponse: string | null;
+  selectedPrayerCommentStatus: 'sending' | 'sent' | null;
   onLike: () => void;
   onPray: () => void;
   onSelectPrayerResponse: (response: string) => void;
@@ -184,6 +185,7 @@ const CardActions: React.FC<CardActionsProps> = ({
   showPrayerMenu,
   prayerResponses,
   selectedPrayerResponse,
+  selectedPrayerCommentStatus,
   onLike,
   onPray,
   onSelectPrayerResponse,
@@ -231,6 +233,12 @@ const CardActions: React.FC<CardActionsProps> = ({
               </button>
             );
           })}
+        </div>
+      )}
+
+      {selectedPrayerResponse && selectedPrayerCommentStatus && !(isPrayerMenuOpen && showPrayerMenu) && (
+        <div className="absolute bottom-[calc(100%+8px)] left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-3 py-1 text-[10px] font-bold text-[#1e3a5f] shadow-sm">
+          {selectedPrayerCommentStatus === 'sent' ? 'Comment sent' : 'Sending...'}
         </div>
       )}
 
@@ -308,6 +316,7 @@ const PrayerWallView: React.FC = () => {
     isPrayerMenuOpen,
     prayerResponses,
     selectedPrayerResponse,
+    selectedPrayerCommentStatus: viewModel.selectedPrayerCommentStatus,
     onLike: toggleLike,
     onPray: togglePrayerMenu,
     onSelectPrayerResponse: (response: string) => {
