@@ -29,6 +29,8 @@ import ChangeNumberView from '../../profile/security/change-number/views/ChangeN
 import OtpView from '../../profile/security/change-number/views/OtpView';
 import ChangePasswordView from '../../profile/security/change-password/views/ChangePasswordView';
 import PrivacyPolicyView from '../../profile/security/views/PrivacyPolicyView';
+import NotificationView from '../../profile/views/NotificationView';
+import HelpView from '../../profile/views/HelpView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 
@@ -131,6 +133,8 @@ const AppShell: React.FC = () => {
     navigateToVerifyNumber,
     navigateToChangePassword,
     navigateToPrivacyPolicy,
+    navigateToNotifications,
+    navigateToHelp,
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,
@@ -143,7 +147,7 @@ const AppShell: React.FC = () => {
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
 
   // Sub-pages that show a back-nav header instead of the main branded header
-  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security', 'change-email', 'verify-email', 'change-number', 'verify-number', 'change-password', 'privacy-policy'].includes(activeTab);
+  const isSubPage = ['profile', 'find-my-church', 'account-information', 'edit-profile-picture', 'security', 'change-email', 'verify-email', 'change-number', 'verify-number', 'change-password', 'privacy-policy', 'notifications', 'help'].includes(activeTab);
 
   return (
     <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
@@ -188,6 +192,12 @@ const AppShell: React.FC = () => {
             )}
             {activeTab === 'privacy-policy' && (
               <BackHeader title="Privacy Policy" onBack={navigateToSecurity} />
+            )}
+            {activeTab === 'notifications' && (
+              <BackHeader title="Notifications" onBack={navigateToProfile} />
+            )}
+            {activeTab === 'help' && (
+              <BackHeader title="Help & FAQs" onBack={navigateToProfile} />
             )}
           </div>
         ) : (
@@ -259,6 +269,8 @@ const AppShell: React.FC = () => {
             onChangeChurch={navigateToFindMyChurch}
             onAccountInformation={navigateToAccountInformation}
             onSecurity={navigateToSecurity}
+            onNotifications={navigateToNotifications}
+            onHelp={navigateToHelp}
           />
         ) : activeTab === 'find-my-church' ? (
           <FindMyChurchView onChurchSelect={selectChurch} />
@@ -299,6 +311,10 @@ const AppShell: React.FC = () => {
           />
         ) : activeTab === 'privacy-policy' ? (
           <PrivacyPolicyView />
+        ) : activeTab === 'notifications' ? (
+          <NotificationView onSuccess={() => setTimeout(navigateToProfile, 2000)} />
+        ) : activeTab === 'help' ? (
+          <HelpView />
         ) : (
           <ActivePage />
         )}

@@ -75,6 +75,10 @@ export interface ProfileViewModelOptions {
   onAccountInformation?: () => void;
   /** Optional callback invoked when the user navigates to Security & Privacy. */
   onSecurity?: () => void;
+  /** Optional callback invoked when the user navigates to Notifications. */
+  onNotifications?: () => void;
+  /** Optional callback invoked when the user navigates to Help & FAQ. */
+  onHelp?: () => void;
 }
 
 export interface ProfileViewModelReturn {
@@ -105,7 +109,7 @@ export interface ProfileViewModelReturn {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export const useProfileViewModel = ({ onAccountInformation, onSecurity }: ProfileViewModelOptions = {}): ProfileViewModelReturn => {
+export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifications, onHelp }: ProfileViewModelOptions = {}): ProfileViewModelReturn => {
   // ── Profile API state ──────────────────────────────────────────
   const [profileView, setProfileView] = useState<ProfileSettingsView | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -171,10 +175,13 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity }: Profil
         onAccountInformation?.();
       } else if (item.iconType === 'security') {
         onSecurity?.();
+      } else if (item.iconType === 'notifications') {
+        onNotifications?.();
+      } else if (item.iconType === 'help') {
+        onHelp?.();
       }
-      // Future: navigate to respective settings screens
     },
-    [handleLogout, onAccountInformation, onSecurity],
+    [handleLogout, onAccountInformation, onSecurity, onNotifications, onHelp],
   );
 
   return {

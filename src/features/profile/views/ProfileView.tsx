@@ -87,10 +87,14 @@ interface ProfileViewProps {
   onAccountInformation?: () => void;
   /** Called when the user taps "Security & Privacy" in General Settings. */
   onSecurity?: () => void;
+  /** Called when the user taps "Notifications" in Preferences Settings. */
+  onNotifications?: () => void;
+  /** Called when the user taps "Help & FAQ" in Preferences Settings. */
+  onHelp?: () => void;
 }
 
 // ── Component ─────────────────────────────────────────────────
-const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurch, onChangeChurch, onAccountInformation, onSecurity }) => {
+const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurch, onChangeChurch, onAccountInformation, onSecurity, onNotifications, onHelp }) => {
   const {
     profileView,
     isLoadingProfile,
@@ -103,7 +107,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurc
     isLoggingOut,
     handleSettingsItemPress,
     handleFindMyChurchGuestPress,
-  } = useProfileViewModel({ onAccountInformation, onSecurity });
+  } = useProfileViewModel({ onAccountInformation, onSecurity, onNotifications, onHelp });
 
   return (
     <main className="flex flex-col w-full items-center gap-6 relative min-h-screen pt-6 px-4 pb-10">

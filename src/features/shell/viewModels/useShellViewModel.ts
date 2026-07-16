@@ -10,7 +10,7 @@ import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import type { Church } from '../../profile/findmychurch/models/findMyChurchTypes';
 
 // Shell destinations extend the nav tabs with sub-pages (header-only access)
-export type ShellDestination = DashboardTab | 'profile' | 'find-my-church' | 'account-information' | 'edit-profile-picture' | 'security' | 'change-email' | 'verify-email' | 'change-number' | 'verify-number' | 'change-password' | 'privacy-policy';
+export type ShellDestination = DashboardTab | 'profile' | 'find-my-church' | 'account-information' | 'edit-profile-picture' | 'security' | 'change-email' | 'verify-email' | 'change-number' | 'verify-number' | 'change-password' | 'privacy-policy' | 'notifications' | 'help';
 
 export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
@@ -27,6 +27,8 @@ export interface DashboardViewModelReturn {
   navigateToVerifyNumber: (phoneNumber: string) => void;
   navigateToChangePassword: () => void;
   navigateToPrivacyPolicy: () => void;
+  navigateToNotifications: () => void;
+  navigateToHelp: () => void;
   verifyEmailTarget: string;
   verifyNumberTarget: string;
   /** The church the user has selected from FindMyChurchView. Null until selected. */
@@ -98,6 +100,14 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('privacy-policy');
   }, []);
 
+  const navigateToNotifications = useCallback(() => {
+    setActiveTabState('notifications');
+  }, []);
+
+  const navigateToHelp = useCallback(() => {
+    setActiveTabState('help');
+  }, []);
+
   // Selects a church AND navigates back to Profile in one action
   const selectChurch = useCallback((church: Church) => {
     setSelectedChurch(church);
@@ -119,6 +129,8 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     navigateToVerifyNumber,
     navigateToChangePassword,
     navigateToPrivacyPolicy,
+    navigateToNotifications,
+    navigateToHelp,
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,
