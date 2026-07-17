@@ -67,10 +67,6 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     return () => window.clearTimeout(timer);
   }, []);
 
-  const setActiveTab = useCallback((tab: DashboardTab) => {
-    setActiveTabState(tab);
-  }, []);
-
   const navigateToProfile = useCallback(() => {
     setActiveTabState('profile');
   }, []);
@@ -132,7 +128,7 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
 
   return {
     activeTab,
-    setActiveTab,
+    setActiveTab: setActiveTabState,
     navigateToProfile,
     showBrandText,
     navigateToFindMyChurch,
