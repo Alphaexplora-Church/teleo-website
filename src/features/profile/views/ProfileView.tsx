@@ -91,10 +91,12 @@ interface ProfileViewProps {
   onNotifications?: () => void;
   /** Called when the user taps "Help & FAQ" in Preferences Settings. */
   onHelp?: () => void;
+  /** Called when the user taps the My Church card to view church profile. */
+  onChurchProfile?: () => void;
 }
 
 // ── Component ─────────────────────────────────────────────────
-const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurch, onChangeChurch, onAccountInformation, onSecurity, onNotifications, onHelp }) => {
+const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurch, onChangeChurch, onAccountInformation, onSecurity, onNotifications, onHelp, onChurchProfile }) => {
   const {
     profileView,
     isLoadingProfile,
@@ -188,8 +190,11 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurc
               </button>
             </div>
 
-            {/* Church info card */}
-            <div className="self-stretch h-14 pl-4 pr-3 pt-2 pb-2.5 bg-blue-500/5 rounded-[20px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline outline-1 outline-offset-[-1px] outline-blue-950 flex flex-col justify-center items-center gap-2.5">
+            {/* Church info card — clickable to view church profile */}
+            <button
+              type="button"
+              onClick={onChurchProfile}
+              className="self-stretch h-14 pl-4 pr-3 pt-2 pb-2.5 bg-blue-500/5 rounded-[20px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] outline outline-1 outline-offset-[-1px] outline-blue-950 flex flex-col justify-center items-center gap-2.5 cursor-pointer border-none w-full text-left hover:bg-blue-500/10 active:scale-[0.98] transition-all duration-200">
               <div className="w-full inline-flex justify-start items-center gap-2">
                 {/* Church avatar: image or grey circle fallback */}
                 {selectedChurch.imageUrl ? (
@@ -205,7 +210,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ onFindMyChurch, selectedChurc
                   {selectedChurch.name}
                 </span>
               </div>
-            </div>
+            </button>
           </div>
         ) : (
           /* ── No church selected — show CTA button ── */
