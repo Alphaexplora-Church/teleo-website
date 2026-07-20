@@ -119,6 +119,12 @@ export interface ChurchProfileViewModelReturn {
   /** Toggle the follow state. */
   toggleFollow: () => void;
 
+  /** Whether this church is set as the user's home church. */
+  isHomeChurch: boolean;
+
+  /** Toggle the home church state. */
+  toggleHomeChurch: () => void;
+
   /** All available tab definitions. */
   tabs: ChurchProfileTabDef[];
 
@@ -134,16 +140,23 @@ export interface ChurchProfileViewModelReturn {
 export const useChurchProfileViewModel = (): ChurchProfileViewModelReturn => {
   // ── Business state ────────────────────────────────────────────
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isHomeChurch, setIsHomeChurch] = useState(false);
   const [activeTab, setActiveTab] = useState<ChurchProfileTab>('overview');
 
   const toggleFollow = useCallback(() => {
     setIsFollowing((prev) => !prev);
   }, []);
 
+  const toggleHomeChurch = useCallback(() => {
+    setIsHomeChurch((prev) => !prev);
+  }, []);
+
   return {
     church: MOCK_CHURCH,
     isFollowing,
     toggleFollow,
+    isHomeChurch,
+    toggleHomeChurch,
     tabs: TABS,
     activeTab,
     setActiveTab,

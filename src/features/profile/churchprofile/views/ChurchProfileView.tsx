@@ -7,24 +7,6 @@ import { useChurchProfileViewModel } from '../viewModels/useChurchProfileViewMod
 import type { ChurchProfileTab } from '../models/churchProfileTypes';
 import FeedPost from '../../../home/views/FeedPost';
 
-// ── Back arrow icon (inline SVG — no dependency needed) ──────────────────────
-const BackArrowIcon: React.FC = () => (
-  <svg
-    width="10"
-    height="18"
-    viewBox="0 0 10 18"
-    fill="none"
-    aria-hidden="true"
-  >
-    <polyline
-      points="9 1 1 9 9 17"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 // ── Clock icon for services ──────────────────────────────────────────────────
 const ClockIcon: React.FC = () => (
@@ -46,17 +28,16 @@ const ClockIcon: React.FC = () => (
 
 
 // ── Component props ──────────────────────────────────────────────────────────
-interface ChurchProfileViewProps {
-  /** Called when the user taps the back arrow. Provided by AppShell. */
-  onBack?: () => void;
-}
+interface ChurchProfileViewProps {}
 
 // ── Component ────────────────────────────────────────────────────────────────
-const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ onBack }) => {
+const ChurchProfileView: React.FC<ChurchProfileViewProps> = () => {
   const {
     church,
     isFollowing,
     toggleFollow,
+    isHomeChurch,
+    toggleHomeChurch,
     tabs,
     activeTab,
     setActiveTab,
@@ -88,15 +69,6 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ onBack }) => {
         {/* Dark gradient overlay at bottom */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-        {/* Top-left: Back arrow */}
-        <button
-          type="button"
-          aria-label="Go back"
-          onClick={onBack}
-          className="absolute top-4 left-4 z-10 flex items-center justify-center w-9 h-9 rounded-full bg-black/30 backdrop-blur-sm text-white cursor-pointer border-none hover:bg-black/50 active:scale-95 transition-all duration-200"
-        >
-          <BackArrowIcon />
-        </button>
 
         {/* Top-right: "Joined" badge */}
         <span className="absolute top-4 right-4 z-10 inline-flex items-center px-3 py-1 rounded-full bg-[#F59E0B] text-white text-[11px] font-semibold tracking-wide shadow-md">
@@ -133,21 +105,40 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ onBack }) => {
             {church.name}
           </h1>
 
-          {/* Follow / Unfollow button */}
-          <button
-            type="button"
-            onClick={toggleFollow}
-            className={[
-              'mt-4 w-full max-w-[260px] py-3 rounded-full text-white text-[15px] font-semibold',
-              'cursor-pointer border-none shadow-md',
-              'active:scale-[0.97] transition-all duration-300 ease-in-out',
-              isFollowing
-                ? 'bg-[#EF4444] hover:bg-[#DC2626]'
-                : 'bg-[#F59E0B] hover:bg-[#D97706]',
-            ].join(' ')}
-          >
-            {isFollowing ? 'Unfollow' : 'Follow Church'}
-          </button>
+          {/* Action buttons row */}
+          <div className="mt-4 flex w-full max-w-[300px] gap-2.5">
+            {/* Follow / Unfollow button */}
+            <button
+              type="button"
+              onClick={toggleFollow}
+              className={[
+                'flex-1 py-2.5 rounded-full text-white text-[13px] font-semibold',
+                'cursor-pointer border-none shadow-md',
+                'active:scale-[0.97] transition-all duration-300 ease-in-out',
+                isFollowing
+                  ? 'bg-[#EF4444] hover:bg-[#DC2626]'
+                  : 'bg-[#F59E0B] hover:bg-[#D97706]',
+              ].join(' ')}
+            >
+              {isFollowing ? 'Unfollow' : 'Follow Church'}
+            </button>
+
+            {/* Set as Home Church button */}
+            <button
+              type="button"
+              onClick={toggleHomeChurch}
+              className={[
+                'flex-1 py-2.5 rounded-full text-[13px] font-semibold',
+                'cursor-pointer shadow-md',
+                'active:scale-[0.97] transition-all duration-300 ease-in-out',
+                isHomeChurch
+                  ? 'bg-white text-[#23234F] border-2 border-white hover:bg-gray-100'
+                  : 'bg-transparent text-white border-2 border-white/40 hover:border-white/70',
+              ].join(' ')}
+            >
+              {isHomeChurch ? '✓ Home Church' : 'Set as Home'}
+            </button>
+          </div>
         </div>
       </section>
 
