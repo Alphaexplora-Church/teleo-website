@@ -3,16 +3,6 @@ import type { PrayerComment, PrayerCommentRecord } from './commentTypes';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 const LOCAL_COMMENT_CACHE_KEY = 'teleo_prayer_comments';
 
-const getRequiredAccessToken = () => {
-  const token = localStorage.getItem('access_token');
-
-  if (!token) {
-    throw new Error('You need to log in to access the Prayer Wall.');
-  }
-
-  return token;
-};
-
 const parseJsonResponse = async <T>(response: Response): Promise<T> => {
   const data = await response.json().catch(() => null);
 
@@ -136,12 +126,11 @@ export const createPrayerComment = async (
   prayerId: string,
   content: string,
 ): Promise<PrayerComment> => {
-  const token = getRequiredAccessToken();
   const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}/comments`, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ content }),
   });

@@ -1,8 +1,9 @@
 // App.tsx — Router shell + lazy-loaded page routes
 // All page-level views are lazy-loaded per MVVM convention
 
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ensureCurrentUserLoaded } from './shared/models/authService';
 
 // ── Lazy-loaded page views ─────────────────────────────────
 const AppShell = lazy(
@@ -42,6 +43,11 @@ const PageLoader: React.FC = () => (
 
 // ── App ────────────────────────────────────────────────────
 function App() {
+  // Rehydrate the in-memory user id from the session cookie after a page reload.
+  useEffect(() => {
+    ensureCurrentUserLoaded();
+  }, []);
+
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
