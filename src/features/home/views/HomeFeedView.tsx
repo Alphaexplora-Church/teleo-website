@@ -15,6 +15,8 @@ const HomeFeedView: React.FC = () => {
     isGospelLoading,
     gospelError,
     posts,
+    isFeedLoading,
+    feedError,
     selectedPost,
     openPost,
     openEventPost,
@@ -38,6 +40,9 @@ const HomeFeedView: React.FC = () => {
         <div className="absolute -bottom-10 left-0 right-0 z-10"><QuickActions /></div>
       </div>
       <div className="bg-white pt-14">
+        {isFeedLoading && <p className="px-5 py-8 text-center text-sm text-[#757575]">Loading church updates…</p>}
+        {!isFeedLoading && feedError && <p role="alert" className="mx-5 my-5 rounded-xl bg-[#FFF1F1] px-4 py-3 text-sm text-[#A11]">{feedError}</p>}
+        {!isFeedLoading && !feedError && posts.length === 0 && <p className="px-5 py-8 text-center text-sm text-[#757575]">No announcements or later events yet.</p>}
         {posts.map((post, index) => <FeedPost key={post.id} post={post} first={index === 0} onOpen={() => openPost(post)} />)}
       </div>
       {/* Detail content is mounted on demand while the shared shell remains visible. */}
