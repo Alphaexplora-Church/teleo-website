@@ -20,6 +20,7 @@ export const registerAccount = async (
   try {
     const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
@@ -63,6 +64,7 @@ export const createProfile = async (
   try {
     const response = await fetch(`${API_BASE_URL}/api/profiles/me`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
