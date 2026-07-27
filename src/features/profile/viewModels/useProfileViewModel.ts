@@ -120,8 +120,9 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifi
   const [logoutError, setLogoutError] = useState<string | null>(null);
 
   // ── Guest detection ────────────────────────────────────────
-  // Guests bypass auth — continueAsGuest() never writes an access_token.
-  const isGuest = localStorage.getItem('access_token') === null;
+  // Session lives in an httpOnly cookie now, so guest status is derived from
+  // whether the profile fetch actually succeeds rather than a local flag.
+  const [isGuest, setIsGuest] = useState(true);
 
   const navigate = useNavigate();
 
@@ -131,6 +132,7 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifi
       try {
         const data = await fetchProfileSettingsView();
         setProfileView(data);
+        setIsGuest(false);
       } catch (err) {
         console.error('Failed to load profile view:', err);
         setProfileError('Could not load profile information.');

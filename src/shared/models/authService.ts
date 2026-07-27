@@ -5,6 +5,46 @@ import type { LoginCredentials, AuthResult } from './types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
+// The access/refresh tokens live in httpOnly cookies now (JS can't read them),
+// so we keep the signed-in user's id in memory for sync consumers like
+// getCurrentUserId(). It's set on login and cleared on logout; on a hard page
+// reload it's repopulated by ensureCurrentUserLoaded() via GET /api/auth/me.
+let cachedUserId: string | null = null;
+let pendingUserFetch: Promise<void> | null = null;
+
+export const getCachedUserId = (): string | null => cachedUserId;
+
+export const refreshCurrentUser = async (): Promise<string | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      cachedUserId = null;
+      return null;
+    }
+
+    const json = await response.json();
+    cachedUserId = json?.data?.id ?? null;
+    return cachedUserId;
+  } catch {
+    return cachedUserId;
+  }
+};
+
+/** Call once on app bootstrap to hydrate the in-memory user id from the session cookie. */
+export const ensureCurrentUserLoaded = (): Promise<void> => {
+  if (!pendingUserFetch) {
+    pendingUserFetch = refreshCurrentUser()
+      .then(() => undefined)
+      .finally(() => {
+        pendingUserFetch = null;
+      });
+  }
+  return pendingUserFetch;
+};
+
 /**
  * Authenticate a user with email/phone + password.
  * Currently stubbed — replace with real API call.
@@ -15,6 +55,7 @@ export const loginWithEmail = async (
   try {
     const response = await fetch(`${API_BASE_URL}/api/auth/login/user`, {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -36,13 +77,9 @@ export const loginWithEmail = async (
       return { success: false, error: data?.message || `Login failed (${response.status})` };
     }
 
-    if (data?.data?.user && data?.data?.session) {
-      // Store session tokens locally
-      localStorage.setItem('access_token', data.data.session.access_token);
-      if (data.data.session.refresh_token) {
-        localStorage.setItem('refresh_token', data.data.session.refresh_token);
-      }
-
+    if (data?.data?.user) {
+      // Tokens are set as httpOnly cookies by the server — nothing to store here.
+      cachedUserId = data.data.user.id;
       return {
         success: true,
         user: {
@@ -106,24 +143,18 @@ export const continueAsGuest = async (): Promise<AuthResult> => {
  * Clears local tokens and invalidates session on server.
  */
 export const logout = async (): Promise<void> => {
-  const token = localStorage.getItem('access_token');
-  
-  // Regardless of API success, we clear the local state
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
-
-  if (token) {
-    try {
-      await fetch(`${API_BASE_URL}/api/auth/logout`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-    } catch (error) {
-      console.error('Logout API failed:', error);
-      // We still clear local state even if the network fails
-    }
+  try {
+    await fetch(`${API_BASE_URL}/api/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  } catch (error) {
+    console.error('Logout API failed:', error);
+    // Cookies are httpOnly — the server clears them; nothing local to clean up.
+  } finally {
+    cachedUserId = null;
   }
 };

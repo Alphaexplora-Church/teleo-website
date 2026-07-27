@@ -3,6 +3,7 @@ import {
   mergePrayerComments,
 } from './commentApi';
 import { fetchProfileSettingsView } from '../../profile/models/profileApi';
+import { getCachedUserId } from '../../../shared/models/authService';
 import type { PrayerComment } from './commentTypes';
 import type {
   CreatePrayerPayload,
@@ -32,18 +33,6 @@ const MOCK_PRAYER_DESCRIPTION_PATTERNS = [
   /^only i can see this post/i,
 ];
 const MOCK_PRAYER_TITLE_SUBSTRINGS = ['update (public)'];
-
-const getAccessToken = () => localStorage.getItem('access_token');
-
-const getRequiredAccessToken = () => {
-  const token = getAccessToken();
-
-  if (!token) {
-    throw new Error('You need to log in to access the Prayer Wall.');
-  }
-
-  return token;
-};
 
 const parseJsonResponse = async <T>(response: Response): Promise<T> => {
   const data = await response.json().catch(() => null);
@@ -218,7 +207,6 @@ export const sortPrayerCardsByRecent = (prayers: PrayerCard[]) =>
   );
 
 const fetchPrayerFeed = async (cursor?: string | null, limit = 10) => {
-  const token = getRequiredAccessToken();
   const params = new URLSearchParams({ limit: String(limit) });
 
   if (cursor) {
@@ -226,45 +214,27 @@ const fetchPrayerFeed = async (cursor?: string | null, limit = 10) => {
   }
 
   const response = await fetch(`${API_BASE_URL}/api/prayers?${params.toString()}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   return parseJsonResponse<PrayerFeedResponse>(response);
 };
 
 const fetchPrayerById = async (prayerId: string) => {
-  const token = getRequiredAccessToken();
   const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   return parseJsonResponse<PrayerApiRecordWithComments>(response);
 };
 
-export const getCurrentUserId = (): string | null => {
-  const token = getAccessToken();
-
-  if (!token) {
-    return null;
-  }
-
-  const [, payload] = token.split('.');
-
-  if (!payload) {
-    return null;
-  }
-
-  try {
-    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
-    return typeof decoded.sub === 'string' ? decoded.sub : null;
-  } catch {
-    return null;
-  }
-};
+/**
+ * Synchronous best-effort read of the signed-in user's id. Backed by an
+ * in-memory cache (see shared/models/authService) since the session lives in
+ * an httpOnly cookie — call ensureCurrentUserLoaded() on app bootstrap so
+ * this is populated after a page reload.
+ */
+export const getCurrentUserId = (): string | null => getCachedUserId();
 
 export const getPrayerCards = async (): Promise<PrayerCard[]> => {
   const page = await getPrayerCardsPage();
@@ -304,12 +274,11 @@ export const getPrayerComments = (
 ) => mergePrayerComments(prayerId, serverComments);
 
 export const createPrayer = async (payload: CreatePrayerPayload) => {
-  const token = getRequiredAccessToken();
   const response = await fetch(`${API_BASE_URL}/api/prayers`, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
   });
@@ -321,12 +290,11 @@ export const updatePrayer = async (
   prayerId: string,
   payload: UpdatePrayerPayload,
 ): Promise<PrayerCard> => {
-  const token = getRequiredAccessToken();
   const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}`, {
     method: 'PUT',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
   });
@@ -335,12 +303,9 @@ export const updatePrayer = async (
 };
 
 export const deletePrayer = async (prayerId: string) => {
-  const token = getRequiredAccessToken();
   const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}`, {
     method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: 'include',
   });
 
   await parseJsonResponse<unknown>(response);
@@ -350,12 +315,11 @@ export const togglePrayerReaction = async (
   prayerId: string,
   reactionType: PrayerReactionType,
 ) => {
-  const token = getRequiredAccessToken();
   const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}/react`, {
     method: 'POST',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ reaction_type: reactionType }),
   });
@@ -367,12 +331,11 @@ export const markPrayerAsAnswered = async (
   prayerId: string,
   answerNote: string,
 ): Promise<PrayerCard> => {
-  const token = getRequiredAccessToken();
   const response = await fetch(`${API_BASE_URL}/api/prayers/${prayerId}/praise`, {
     method: 'PUT',
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ answer_note: answerNote }),
   });

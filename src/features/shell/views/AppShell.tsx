@@ -90,13 +90,7 @@ const HeaderAvatar: React.FC<HeaderAvatarProps> = ({
   const [imgError, setImgError] = React.useState(false);
 
   return (
-    <button
-      id="btn-header-profile-avatar"
-      type="button"
-      aria-label="Go to Profile"
-      onClick={onClick}
-      className="relative w-8 h-8 rounded-full border-none bg-transparent cursor-pointer flex items-center justify-center p-0 shrink-0 transition-opacity hover:opacity-80 active:scale-95"
-    >
+    <button id="btn-header-profile-avatar" type="button" aria-label="Go to Profile" onClick={onClick} className="relative w-8 h-8 rounded-full border-none bg-transparent cursor-pointer flex items-center justify-center p-0 shrink-0 transition-opacity hover:opacity-80 active:scale-95">
       {profilePictureUrl && !imgError ? (
         <img
           src={profilePictureUrl}
