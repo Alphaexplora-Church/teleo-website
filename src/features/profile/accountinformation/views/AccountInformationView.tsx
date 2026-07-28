@@ -24,14 +24,6 @@ const UserPlaceholderIcon: React.FC = () => (
   </svg>
 );
 
-// ── Camera / edit icon over avatar ─────────────────────────────────────────────
-const CameraIcon: React.FC = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="white" aria-hidden="true">
-    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-    <circle cx="12" cy="13" r="4" />
-  </svg>
-);
-
 // ── Profile avatar ─────────────────────────────────────────────────────────────
 interface ProfileAvatarProps {
   url: string | null;
@@ -207,7 +199,9 @@ interface AccountInformationViewProps {
   onEditProfilePicture?: () => void;
 }
 
-const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditProfilePicture }) => {
+const AccountInformationView: React.FC<AccountInformationViewProps> = ({
+  onEditProfilePicture: _onEditProfilePicture, // unused while camera badge is disabled (see below)
+}) => {
   const {
     isLoadingProfile,
     loadError,
