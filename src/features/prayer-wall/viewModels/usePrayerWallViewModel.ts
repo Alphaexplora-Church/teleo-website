@@ -13,6 +13,7 @@ import {
   togglePrayerReaction,
 } from '../models/prayerApi';
 import type { PrayerCard } from '../models/prayerTypes';
+import { useLocation } from 'react-router-dom';
 
 const PRAYER_GESTURE = {
   swipeDistance: 90,
@@ -85,25 +86,41 @@ const mergeUniquePrayers = (
   return sortPrayerCardsByRecent([...currentPrayers, ...uniqueNextPrayers]);
 };
 
+let cachedState: {
+  cards: PrayerCard[];
+  currentIndex: number;
+  nextCursor: string | null;
+  hasMore: boolean;
+  flippedCardIds: Record<string, boolean>;
+  likedCardIds: Record<string, boolean>;
+  prayedCardIds: Record<string, boolean>;
+  prayerResponsesByCard: Record<string, string>;
+  prayerCommentStatusByCard: Record<string, PrayerCommentStatus>;
+} | null = null;
+let lastRefreshTime = 0;
+
 export const usePrayerWallViewModel = (): PrayerWallViewModel => {
-  const [cards, setCards] = useState<PrayerCard[]>([]);
-  const [flippedCardIds, setFlippedCardIds] = useState<Record<string, boolean>>({});
-  const [likedCardIds, setLikedCardIds] = useState<Record<string, boolean>>({});
-  const [prayedCardIds, setPrayedCardIds] = useState<Record<string, boolean>>({});
+  const location = useLocation();
+  const refreshRequestedTime = (location.state as { prayerWallRefresh?: number } | null)?.prayerWallRefresh;
+
+  const [cards, setCards] = useState<PrayerCard[]>(cachedState?.cards ?? []);
+  const [flippedCardIds, setFlippedCardIds] = useState<Record<string, boolean>>(cachedState?.flippedCardIds ?? {});
+  const [likedCardIds, setLikedCardIds] = useState<Record<string, boolean>>(cachedState?.likedCardIds ?? {});
+  const [prayedCardIds, setPrayedCardIds] = useState<Record<string, boolean>>(cachedState?.prayedCardIds ?? {});
   const [prayerResponsesByCard, setPrayerResponsesByCard] = useState<
     Record<string, string>
-  >({});
+  >(cachedState?.prayerResponsesByCard ?? {});
   const [prayerCommentStatusByCard, setPrayerCommentStatusByCard] = useState<
     Record<string, PrayerCommentStatus>
-  >({});
+  >(cachedState?.prayerCommentStatusByCard ?? {});
   const [isPrayerMenuOpen, setIsPrayerMenuOpen] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(cachedState?.currentIndex ?? 0);
   const [dragOffsetX, setDragOffsetX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!cachedState);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | null>(null);
-  const [hasMore, setHasMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState<string | null>(cachedState?.nextCursor ?? null);
+  const [hasMore, setHasMore] = useState(cachedState?.hasMore ?? false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const dragRef = useRef<PointerDragState | null>(null);
   const sentIndicatorTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
@@ -116,14 +133,48 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
   );
 
   useEffect(() => {
-    void (async () => {
-      await refreshPrayers();
-    })();
+    const needsRefresh = !cachedState || (refreshRequestedTime && refreshRequestedTime > lastRefreshTime);
+
+    if (needsRefresh) {
+      if (refreshRequestedTime) {
+        lastRefreshTime = refreshRequestedTime;
+      }
+      void (async () => {
+        await refreshPrayers();
+      })();
+    }
 
     return () => {
       Object.values(sentIndicatorTimersRef.current).forEach(clearTimeout);
     };
-  }, []);
+  }, [refreshRequestedTime]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      cachedState = {
+        cards,
+        currentIndex,
+        nextCursor,
+        hasMore,
+        flippedCardIds,
+        likedCardIds,
+        prayedCardIds,
+        prayerResponsesByCard,
+        prayerCommentStatusByCard,
+      };
+    }
+  }, [
+    cards,
+    currentIndex,
+    nextCursor,
+    hasMore,
+    flippedCardIds,
+    likedCardIds,
+    prayedCardIds,
+    prayerResponsesByCard,
+    prayerCommentStatusByCard,
+    isLoading
+  ]);
 
   useEffect(() => {
     const remainingCards = cards.length - currentIndex - 1;
