@@ -26,26 +26,74 @@ const ClockIcon: React.FC = () => (
   </svg>
 );
 
+// ── Loading spinner icon ──────────────────────────────────────────────────────
+const SpinnerIcon: React.FC = () => (
+  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+  </svg>
+);
+
 
 // ── Component props ──────────────────────────────────────────────────────────
-interface ChurchProfileViewProps {}
+interface ChurchProfileViewProps {
+  /** The church ID to display. Passed from AppShell. */
+  churchId?: number;
+  /** The user's current home_church_id from profile settings. */
+  userHomeChurchId?: number | null;
+  /** Called when user taps back. */
+  onBack?: () => void;
+}
 
 // ── Component ────────────────────────────────────────────────────────────────
-const ChurchProfileView: React.FC<ChurchProfileViewProps> = () => {
+const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ churchId, userHomeChurchId }) => {
   const {
     church,
+    isLoading,
+    error,
     isFollowing,
     toggleFollow,
     isHomeChurch,
     toggleHomeChurch,
+    isTogglingHome,
     tabs,
     activeTab,
     setActiveTab,
-  } = useChurchProfileViewModel();
+  } = useChurchProfileViewModel(churchId, userHomeChurchId);
 
   // UI-only state: image error fallback
   const [bannerError, setBannerError] = React.useState(false);
   const [logoError, setLogoError] = React.useState(false);
+
+  // ── Loading state ──────────────────────────────────────────
+  if (isLoading) {
+    return (
+      <div className="flex flex-col w-full min-h-screen bg-gray-50 animate-pulse">
+        <div className="w-full h-[200px] bg-gray-200" />
+        <div className="relative -mt-16 mx-4 z-20">
+          <div className="bg-[#23234F] rounded-[20px] pt-16 pb-6 px-5 flex flex-col items-center">
+            <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+              <div className="w-24 h-24 rounded-full border-[4px] border-white bg-gray-300" />
+            </div>
+            <div className="w-48 h-6 bg-white/20 rounded mt-1" />
+            <div className="mt-4 flex w-full max-w-[300px] gap-2.5">
+              <div className="flex-1 h-10 bg-white/10 rounded-full" />
+              <div className="flex-1 h-10 bg-white/10 rounded-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Error state ──────────────────────────────────────────
+  if (error || !church) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[300px] px-4">
+        <p className="text-red-500 text-sm text-center">{error || 'Church not found.'}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gray-50">
@@ -69,11 +117,12 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = () => {
         {/* Dark gradient overlay at bottom */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-
         {/* Top-right: "Joined" badge */}
-        <span className="absolute top-4 right-4 z-10 inline-flex items-center px-3 py-1 rounded-full bg-[#F59E0B] text-white text-[11px] font-semibold tracking-wide shadow-md">
-          Joined {church.joinedDate}
-        </span>
+        {church.joinedDate && (
+          <span className="absolute top-4 right-4 z-10 inline-flex items-center px-3 py-1 rounded-full bg-[#F59E0B] text-white text-[11px] font-semibold tracking-wide shadow-md">
+            Joined {church.joinedDate}
+          </span>
+        )}
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
@@ -127,16 +176,27 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = () => {
             <button
               type="button"
               onClick={toggleHomeChurch}
+              disabled={isTogglingHome}
               className={[
                 'flex-1 py-2.5 rounded-full text-[13px] font-semibold',
                 'cursor-pointer shadow-md',
                 'active:scale-[0.97] transition-all duration-300 ease-in-out',
+                'disabled:opacity-60 disabled:cursor-not-allowed',
                 isHomeChurch
                   ? 'bg-white text-[#23234F] border-2 border-white hover:bg-gray-100'
                   : 'bg-transparent text-white border-2 border-white/40 hover:border-white/70',
               ].join(' ')}
             >
-              {isHomeChurch ? '✓ Home Church' : 'Set as Home'}
+              {isTogglingHome ? (
+                <span className="inline-flex items-center gap-1.5 justify-center">
+                  <SpinnerIcon />
+                  <span>{isHomeChurch ? 'Leaving...' : 'Joining...'}</span>
+                </span>
+              ) : isHomeChurch ? (
+                '✓ Home Church'
+              ) : (
+                'Set as Home'
+              )}
             </button>
           </div>
         </div>

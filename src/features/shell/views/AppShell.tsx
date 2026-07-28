@@ -311,7 +311,7 @@ const AppShell: React.FC = () => {
         ) : activeTab === 'help' ? (
           <HelpView />
         ) : activeTab === 'church-profile' ? (
-          <ChurchProfileView onBack={navigateToProfile} />
+          <ChurchProfileView onBack={navigateToProfile} churchId={selectedChurch?.id} />
         ) : (
           <ActivePage />
         )}

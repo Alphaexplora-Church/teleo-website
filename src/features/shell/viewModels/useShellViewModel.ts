@@ -129,7 +129,7 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
 
   const selectChurch = useCallback((church: Church) => {
     setSelectedChurch(church);
-    setActiveTabState('profile');
+    setActiveTabState('church-profile');
   }, []);
 
   return {
