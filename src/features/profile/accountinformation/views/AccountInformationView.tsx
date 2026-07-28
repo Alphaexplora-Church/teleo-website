@@ -5,7 +5,6 @@
 
 import React from 'react';
 import { useAccountInformationViewModel } from '../viewModels/useAccountInformationViewModel';
-import type { AccountInformationFormState } from '../models/accountInformationTypes';
 
 // ── User placeholder icon ──────────────────────────────────────────────────────
 const UserPlaceholderIcon: React.FC = () => (
@@ -212,22 +211,14 @@ const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditP
   const {
     isLoadingProfile,
     loadError,
-    isSaving,
     saveError,
     saveSuccess,
     profile,
     form,
-    isDirty,
     genderOptions,
-    handleFieldChange,
-    handleSave,
     handleDismissSuccess,
     handleDismissError,
   } = useAccountInformationViewModel();
-
-  // Creates a stable per-field change handler
-  const onFieldChange = (field: keyof AccountInformationFormState) => (value: string) =>
-    handleFieldChange(field, value);
 
   return (
     <main className="flex flex-col w-full items-center gap-6 relative min-h-screen pt-6 pb-10">
@@ -242,7 +233,7 @@ const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditP
             ) : (
               <ProfileAvatar url={profile?.profile_picture_url ?? null} />
             )}
-            {/* Camera badge */}
+            {/* Camera badge disabled for now until API is ready
             {!isLoadingProfile && (
               <button
                 type="button"
@@ -252,15 +243,15 @@ const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditP
               >
                 <CameraIcon />
               </button>
-            )}
+            )} */}
           </div>
 
           {/* Name under avatar */}
           {isLoadingProfile ? (
             <div className="w-36 h-6 rounded-full bg-gray-200 animate-pulse" />
           ) : (
-            <p className="text-black text-2xl font-bold font-sans leading-6 text-center">
-              {form.displayName || `${form.firstName} ${form.lastName}`.trim() || 'Your Name'}
+            <p className="text-black text-2xl font-bold font-sans leading-6 text-center min-h-[24px]">
+              {form.displayName || `${form.firstName} ${form.lastName}`.trim() || ''}
             </p>
           )}
         </section>
@@ -282,7 +273,7 @@ const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditP
           className="flex flex-col w-full max-w-[371px] gap-2"
         >
           <h2 id="account-info-form-heading" className="sr-only">
-            Edit Account Information
+            Account Information
           </h2>
 
           {/* Username — read-only */}
@@ -323,8 +314,9 @@ const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditP
                   label="First Name"
                   value={form.firstName}
                   placeholder="First name"
-                  disabled={isSaving}
-                  onChange={onFieldChange('firstName')}
+                  readOnly
+                  disabled
+                  onChange={() => { /* read-only */ }}
                   className="flex-1 min-w-0"
                 />
                 <FormField
@@ -332,30 +324,14 @@ const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditP
                   label="Last Name"
                   value={form.lastName}
                   placeholder="Last name"
-                  disabled={isSaving}
-                  onChange={onFieldChange('lastName')}
+                  readOnly
+                  disabled
+                  onChange={() => { /* read-only */ }}
                   className="flex-1 min-w-0"
                 />
               </>
             )}
           </div>
-
-          {/* Display Name */}
-          {isLoadingProfile ? (
-            <div className="flex flex-col gap-[3px]">
-              <SkeletonLabel width="w-24" />
-              <SkeletonField />
-            </div>
-          ) : (
-            <FormField
-              id="account-display-name"
-              label="Display Name"
-              value={form.displayName}
-              placeholder="Display name"
-              disabled={isSaving}
-              onChange={onFieldChange('displayName')}
-            />
-          )}
 
           {/* Location */}
           {isLoadingProfile ? (
@@ -369,8 +345,9 @@ const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditP
               label="Location"
               value={form.location}
               placeholder="e.g. Los Banos, Laguna"
-              disabled={isSaving}
-              onChange={onFieldChange('location')}
+              readOnly
+              disabled
+              onChange={() => { /* read-only */ }}
             />
           )}
 
@@ -395,8 +372,9 @@ const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditP
                   value={form.birthday}
                   type="date"
                   placeholder="MM/DD/YYYY"
-                  disabled={isSaving}
-                  onChange={onFieldChange('birthday')}
+                  readOnly
+                  disabled
+                  onChange={() => { /* read-only */ }}
                   className="flex-1 min-w-0"
                 />
                 <GenderSelect
@@ -404,60 +382,13 @@ const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditP
                   label="Gender"
                   value={form.gender}
                   options={genderOptions}
-                  disabled={isSaving}
-                  onChange={onFieldChange('gender')}
+                  disabled
+                  onChange={() => { /* read-only */ }}
                 />
               </>
             )}
           </div>
         </section>
-
-        {/* ── Save button ───────────────────────────────────── */}
-        <button
-          type="button"
-          id="account-info-save-btn"
-          onClick={handleSave}
-          disabled={isSaving || isLoadingProfile || !isDirty}
-          aria-label="Save changes"
-          className={[
-            'w-full max-w-[320px] h-12 px-12',
-            'bg-[#336ef9] rounded-[10px]',
-            'flex items-center justify-center gap-2.5',
-            'text-white text-xl font-medium font-sans leading-6',
-            'hover:bg-[#2558d8] hover:scale-[1.02] hover:shadow-lg',
-            'active:scale-[0.98]',
-            'transition-all duration-200',
-            isSaving || isLoadingProfile || !isDirty
-              ? 'opacity-50 cursor-not-allowed hover:scale-100 hover:shadow-none'
-              : 'cursor-pointer',
-          ].join(' ')}
-        >
-          {isSaving ? (
-            <span className="flex items-center gap-2">
-              <svg
-                className="animate-spin"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="white"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeDasharray="31.4 62.8"
-                />
-              </svg>
-              Saving…
-            </span>
-          ) : (
-            'Save Changes'
-          )}
-        </button>
 
       </div>
     </main>
@@ -465,3 +396,4 @@ const AccountInformationView: React.FC<AccountInformationViewProps> = ({ onEditP
 };
 
 export default AccountInformationView;
+

@@ -1,6 +1,31 @@
 // features/profile/accountinformation/models/accountInformationTypes.ts
 // Model layer — pure TypeScript definitions only. No functions, hooks, JSX, or side effects.
 
+// ── Live API response shape ─────────────────────────────────────────────────────
+
+/**
+ * Shape returned by GET /api/profile-settings/account-information.
+ * Mirrors vw_user_profile_full (the fields selected in the repository).
+ */
+export interface AccountInformationData {
+  profile_picture_url: string | null;
+  first_name: string;
+  last_name: string;
+  username: string;
+  birthdate: string | null;        // ISO date string "YYYY-MM-DD" or null
+  formatted_address: string | null;
+  gender: string;
+}
+
+/**
+ * Envelope returned by the backend: { data: AccountInformationData, message: string, meta: null }
+ */
+export interface AccountInformationResponse {
+  data: AccountInformationData;
+  message: string;
+  meta: null;
+}
+
 // ── Profile data shape ─────────────────────────────────────────────────────────
 
 /**
