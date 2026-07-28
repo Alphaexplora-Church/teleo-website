@@ -25,10 +25,9 @@ const GospelCard: React.FC<GospelCardProps> = ({ slides, activeIndex, dailyGospe
       <div className="relative flex h-full flex-col p-4 drop-shadow-[0_1px_3px_rgba(0,0,0,0.75)]">
         <p className="flex items-center gap-2 text-[10px] font-semibold uppercase"><Icon size={20}><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h4v8H7zM14 8h3M14 12h3"/></Icon> Gospel of the day</p>
         <h1 className="mt-2 text-[22px] font-bold tracking-tight">{isGospelLoading ? "Loading today's Gospel" : dailyGospel?.reference ?? 'Gospel unavailable'}</h1>
-        <p className="mt-1 line-clamp-3 max-w-[315px] text-[13px] font-medium leading-[21px] text-white/95">
+        <p className="mt-1 pr-2 text-[11px] font-normal leading-[18px] text-white/95">
           {isGospelLoading ? 'Preparing the daily reading...' : dailyGospel?.content ?? gospelError ?? 'Please check again later.'}
         </p>
-        <button aria-label="Save gospel" className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-sm"><Icon size={23}><path d="M6 4h12a1 1 0 0 1 1 1v16l-7-4-7 4V5a1 1 0 0 1 1-1z"/></Icon></button>
       </div>
     </div>
     <div className={`absolute inset-0 transition-opacity duration-500 ${activeIndex === 1 ? 'opacity-100' : 'pointer-events-none opacity-0'}`} aria-hidden={activeIndex !== 1}>

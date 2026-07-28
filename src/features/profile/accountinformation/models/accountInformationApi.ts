@@ -11,18 +11,48 @@
 import type {
   UserProfileResponse,
   UpdateProfilePayload,
+  AccountInformationData,
+  AccountInformationResponse,
 } from './accountInformationTypes';
 import { STATIC_USER_PROFILE } from './accountInformationTypes';
 
 // ── API endpoint constants ─────────────────────────────────────────────────────
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 // Preserved for future use — no fetch calls are made in static mode.
 
 export const ACCOUNT_INFO_ENDPOINTS = {
-  /** GET — fetches full user_profile row */
+  /** GET — fetches account information from vw_user_profile_full */
+  GET_ACCOUNT_INFORMATION: '/api/profile-settings/account-information',
+  /** GET — (legacy) fetches full user_profile row */
   GET_CURRENT_PROFILE: '/api/users/profile',
   /** PUT — updates first_name, last_name, display_name, birthdate, location */
   UPDATE_CURRENT_PROFILE: '/api/users/profile',
 } as const;
+
+// ── Live API calls ──────────────────────────────────────────────────────────────────
+
+/**
+ * Fetches the authenticated user's account information from the live backend.
+ * Auth is handled via httpOnly session cookie (credentials: 'include').
+ * Endpoint: GET /api/profile-settings/account-information
+ */
+export async function fetchAccountInformation(): Promise<AccountInformationData> {
+  const response = await fetch(
+    `${API_BASE_URL}${ACCOUNT_INFO_ENDPOINTS.GET_ACCOUNT_INFORMATION}`,
+    { credentials: 'include' },
+  );
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => null);
+    throw new Error(
+      body?.message ?? `Failed to fetch account information (${response.status})`,
+    );
+  }
+
+  const json: AccountInformationResponse = await response.json();
+  return json.data;
+}
 
 // ── Simulated network delay ────────────────────────────────────────────────────
 
