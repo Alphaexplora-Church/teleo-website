@@ -4,6 +4,7 @@
 import React from 'react';
 import { useProfileViewModel } from '../viewModels/useProfileViewModel';
 import type { SettingsItem } from '../models/profileTypes';
+import type { Church } from '../findmychurch/models/findMyChurchTypes';
 
 // ── Chevron right ─────────────────────────────────────────────
 const ChevronRight: React.FC = () => (
@@ -80,7 +81,7 @@ interface ProfileViewProps {
   /** Called when the user taps the "Find My Church" CTA. Provided by AppShell. */
   onFindMyChurch?: () => void;
   /** The church selected via FindMyChurchView. Null until the user picks one. */
-  selectedChurch?: { id: number; name: string; location: string; imageUrl?: string | null } | null;
+  selectedChurch?: Church | null;
   /** Called when the user taps "Change" inside the My Church section. */
   onChangeChurch?: () => void;
   /** Called when the user taps "Account Information" in General Settings. */
