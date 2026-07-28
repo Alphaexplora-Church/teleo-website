@@ -1,8 +1,9 @@
 // App.tsx — Router shell + lazy-loaded page routes
 // All page-level views are lazy-loaded per MVVM convention
 
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ensureCurrentUserLoaded } from './shared/models/authService';
 
 // ── Lazy-loaded page views ─────────────────────────────────
 const AppShell = lazy(
@@ -21,6 +22,15 @@ const LoginPage = lazy(
 const RegisterPage = lazy(
   () => import('./features/register/views/RegisterPage')
 );
+const CreatePrayerView = lazy(
+  () => import('./features/prayer-wall/views/CreatePrayerView')
+);
+const PrayerDetailsView = lazy(
+  () => import('./features/prayer-wall/views/PrayerDetailsView')
+);
+const PrayerHistoryView = lazy(
+  () => import('./features/prayer-wall/views/PrayerHistoryView')
+);
 
 // ── Minimal loading fallback ───────────────────────────────
 const PageLoader: React.FC = () => (
@@ -33,6 +43,11 @@ const PageLoader: React.FC = () => (
 
 // ── App ────────────────────────────────────────────────────
 function App() {
+  // Rehydrate the in-memory user id from the session cookie after a page reload.
+  useEffect(() => {
+    ensureCurrentUserLoaded();
+  }, []);
+
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
@@ -51,6 +66,11 @@ function App() {
 
           {/* Step 4: Dashboard (post-auth / guest) */}
           <Route path="/dashboard" element={<AppShell />} />
+
+          {/* Prayer request composer */}
+          <Route path="/prayer-request" element={<CreatePrayerView />} />
+          <Route path="/prayer/:prayerId" element={<PrayerDetailsView />} />
+          <Route path="/prayer-history" element={<PrayerHistoryView />} />
 
           {/* Fallback — redirect any unknown route to splash */}
           <Route path="*" element={<Navigate to="/" replace />} />
