@@ -34,7 +34,7 @@ const PrayerHistoryView = lazy(
 
 // ── Minimal loading fallback ───────────────────────────────
 const PageLoader: React.FC = () => (
-  <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
+  <div className="w-full lg:max-w-none max-w-[448px] mx-auto min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
     <div className="flex-1 flex flex-col items-center justify-center py-12 px-6 pb-[calc(3rem+env(safe-area-inset-bottom))] bg-white">
       <div className="inline-block w-9 h-9 border-[3px] border-navy/15 border-t-navy rounded-full animate-spin" aria-label="Loading" />
     </div>

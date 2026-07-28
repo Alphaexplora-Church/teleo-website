@@ -39,12 +39,16 @@ interface BottomNavBarProps {
 }
 
 const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, onTabChange }) => (
-  <nav
-    aria-label="Main navigation"
-    className="w-full border-t border-gray-border/60 bg-white shadow-[0_-2px_12px_rgba(0,23,57,0.07)]"
-    style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-  >
-    <div className="flex h-[64px] items-stretch">
+  <>
+    {/* ── Mobile Floating Pill Nav ─────────────────────────── */}
+    <nav
+      aria-label="Main navigation"
+      className="lg:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] flex h-[64px] w-[calc(100%-40px)] max-w-[400px] items-center justify-between rounded-[32px] bg-white px-2 border border-gray-200/80 shadow-[0_8px_32px_rgba(0,23,57,0.12),0_2px_8px_rgba(0,23,57,0.06)]"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    >
+      {/* Top accent line */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-gradient-to-r from-transparent via-[#001739]/20 to-transparent rounded-full" />
+
       {NAV_TABS.map(({ id, label }) => {
         const isActive = activeTab === id;
         return (
@@ -56,19 +60,110 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, onTabChange }) =
             aria-selected={isActive}
             aria-label={label}
             onClick={() => onTabChange(id)}
-            className="flex min-h-12 flex-1 cursor-pointer select-none flex-col items-center justify-center gap-[2px] border-none bg-transparent transition-all duration-150 hover:bg-[#DBE0E4]/40 active:scale-95"
+            className={[
+              'relative flex h-12 w-12 cursor-pointer select-none items-center justify-center rounded-2xl border-none transition-all duration-200 active:scale-90',
+              isActive
+                ? 'bg-[#001739]/8 shadow-[0_0_0_1px_rgba(0,23,57,0.12)]'
+                : 'bg-transparent hover:bg-[#001739]/5',
+            ].join(' ')}
           >
+            {/* Active indicator ring */}
+            {isActive && (
+              <span className="absolute inset-0 rounded-2xl ring-1 ring-[#001739]/20" />
+            )}
             <img
               src={isActive ? FILLED_ICON_MAP[id] : ICON_MAP[id]}
               alt=""
-              className={`h-[28px] ${id === 'content' ? 'w-[23px]' : 'w-[30px]'} object-contain transition-all duration-150 ${isActive ? 'scale-105 opacity-100' : 'opacity-55'}`}
+              className={[
+                'object-contain transition-all duration-200',
+                id === 'content' ? 'h-[22px] w-[18px]' : 'h-[24px] w-[24px]',
+                isActive
+                  ? 'opacity-100 scale-110'
+                  : 'opacity-40',
+              ].join(' ')}
             />
-            <span className={`text-[10px] font-medium leading-none ${isActive ? 'text-navy' : 'text-[#757575]'}`}>{label}</span>
           </button>
         );
       })}
-    </div>
-  </nav>
+
+      {/* Bottom accent line */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-gradient-to-r from-transparent via-[#001739]/20 to-transparent rounded-full" />
+    </nav>
+
+    {/* ── Desktop Floating Pill Sidebar ─────────────── */}
+    <nav
+      aria-label="Main navigation"
+      className="hidden lg:flex flex-col items-center justify-center py-4 gap-1
+        fixed left-5 top-1/2 -translate-y-1/2 z-[60]
+        w-[64px] rounded-[32px]
+        bg-white
+        border border-gray-200/80
+        shadow-[0_8px_32px_rgba(0,23,57,0.12),0_2px_8px_rgba(0,23,57,0.06)]"
+    >
+      {/* Top accent line */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-gradient-to-r from-transparent via-[#001739]/20 to-transparent rounded-full" />
+
+      {NAV_TABS.map(({ id, label }) => {
+        const isActive = activeTab === id;
+        return (
+          <div key={id} className="relative group flex items-center">
+            <button
+              id={`nav-tab-desktop-${id}`}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-label={label}
+              onClick={() => onTabChange(id)}
+              className={[
+                'relative flex h-12 w-12 cursor-pointer select-none items-center justify-center rounded-2xl border-none transition-all duration-200 active:scale-90',
+                isActive
+                  ? 'bg-[#001739]/8 shadow-[0_0_0_1px_rgba(0,23,57,0.12)]'
+                  : 'bg-transparent hover:bg-[#001739]/5',
+              ].join(' ')}
+            >
+              {/* Active indicator ring */}
+              {isActive && (
+                <span className="absolute inset-0 rounded-2xl ring-1 ring-[#001739]/20" />
+              )}
+              <img
+                src={isActive ? FILLED_ICON_MAP[id] : ICON_MAP[id]}
+                alt=""
+                className={[
+                  'object-contain transition-all duration-200',
+                  id === 'content' ? 'h-[22px] w-[18px]' : 'h-[24px] w-[24px]',
+                  isActive
+                    ? 'opacity-100 scale-110'
+                    : 'opacity-40 group-hover:opacity-65',
+                ].join(' ')}
+              />
+            </button>
+
+            {/* Tooltip label — appears to the right on hover */}
+            <div
+              className="pointer-events-none absolute left-[calc(100%+14px)] flex items-center
+                opacity-0 group-hover:opacity-100
+                translate-x-[-6px] group-hover:translate-x-0
+                transition-all duration-200 ease-out"
+            >
+              <div
+                className="relative whitespace-nowrap rounded-lg px-3 py-1.5 text-[12px] font-semibold text-[#001739]
+                  bg-white
+                  border border-gray-200
+                  shadow-[0_4px_16px_rgba(0,23,57,0.12)]"
+              >
+                {/* Tooltip arrow */}
+                <span className="absolute -left-[5px] top-1/2 -translate-y-1/2 h-[10px] w-[10px] rotate-45 rounded-sm bg-white border-l border-b border-gray-200" />
+                {label}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Bottom accent line */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-gradient-to-r from-transparent via-[#001739]/20 to-transparent rounded-full" />
+    </nav>
+  </>
 );
 
 export default BottomNavBar;

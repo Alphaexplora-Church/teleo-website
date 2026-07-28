@@ -69,11 +69,11 @@ const BackHeader: React.FC<BackHeaderProps> = ({ title, onBack }) => (
       type="button"
       aria-label="Go back"
       onClick={onBack}
-      className="flex items-center justify-center relative cursor-pointer border-none bg-transparent text-[#1f2156] transition-opacity hover:opacity-75"
+      className="flex items-center justify-center relative cursor-pointer border-none bg-transparent text-white transition-opacity hover:opacity-75"
     >
       <BackChevron />
     </button>
-    <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-[0] font-sans">
+    <h1 className="font-medium text-white text-xl leading-6 tracking-[0] font-sans">
       {title}
     </h1>
   </div>
@@ -150,11 +150,12 @@ const AppShell: React.FC = () => {
   ].includes(activeTab);
 
   return (
-    <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
-      <header className="sticky top-0 z-50 w-full bg-[#001739] text-white">
+    <div className="w-full lg:max-w-none max-w-[448px] mx-auto min-h-dvh bg-white flex flex-col relative ring-1 lg:ring-0 ring-black/4 shadow-card lg:shadow-none">
+      <div className="flex-1 flex flex-col lg:ml-[88px] min-w-0 pb-[80px] lg:pb-0">
+        <header className="sticky top-2 lg:top-0 z-50 w-full bg-transparent px-3 pt-1 pb-2 lg:pt-4 lg:px-6 lg:pointer-events-none">
         {isSubPage ? (
           <div
-            className="flex items-center gap-5 px-5 h-[59px] bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
+            className="pointer-events-auto flex items-center gap-5 px-5 h-[64px] bg-[#001739] rounded-[32px] shadow-[0_8px_32px_rgba(0,23,57,0.4),0_0_0_1px_rgba(255,255,255,0.05)] text-white"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
           >
             {activeTab === 'profile' && (
@@ -202,7 +203,7 @@ const AppShell: React.FC = () => {
           </div>
         ) : (
           <div
-            className="flex items-center justify-between px-5 h-[59px]"
+            className="pointer-events-auto flex items-center justify-between px-5 h-[64px] bg-[#001739] rounded-[32px] shadow-[0_8px_32px_rgba(0,23,57,0.4),0_0_0_1px_rgba(255,255,255,0.05)]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
           >
             <div className="flex items-center gap-2">
@@ -221,19 +222,25 @@ const AppShell: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2 text-white">
-              <button
-                type="button"
-                aria-label="Search"
-                className="flex h-10 w-10 items-center justify-center"
-              >
-                <img src={searchIcon} alt="" className="h-[38px] w-9" />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="Search"
+                  className="flex lg:hidden h-10 w-10 items-center justify-center"
+                >
+                  <img src={searchIcon} alt="" className="h-[38px] w-9" />
+                </button>
+                <div className="hidden lg:flex items-center bg-white/10 rounded-[10px] h-9 px-3 border border-white/20 focus-within:border-white/50 transition-colors w-[240px]">
+                  <img src={searchIcon} alt="" className="h-[20px] w-[20px] opacity-70" />
+                  <input type="text" placeholder="Search..." className="ml-2 bg-transparent text-white placeholder:text-white/50 text-sm outline-none w-full" />
+                </div>
+              </div>
 
               <button
                 id="btn-header-notifications"
                 type="button"
                 aria-label="Notifications"
-                className="relative flex h-10 w-8 items-center justify-center rounded-full border-none bg-transparent cursor-pointer"
+                className="relative flex h-10 w-8 items-center justify-center rounded-full border-none bg-transparent cursor-pointer lg:hover:bg-white/10 transition-colors"
               >
                 <img src={notificationIcon} alt="" className="h-[25px] w-[25px]" />
                 <span
@@ -317,9 +324,17 @@ const AppShell: React.FC = () => {
         ) : (
           <ActivePage />
         )}
-      </main>
+        </main>
+      </div>
 
-      <div className="sticky bottom-0 z-50 w-full">
+      {/* Mobile bottom bar is now a floating pill inside BottomNavBar itself */}
+      <div className="lg:hidden sticky bottom-0 z-50 w-full pointer-events-none">
+        <div className="pointer-events-auto">
+          <BottomNavBar activeTab={activeTab} onTabChange={setActiveTab} />
+        </div>
+      </div>
+      {/* Desktop floating pill — rendered unconditionally so it always mounts */}
+      <div className="hidden lg:block">
         <BottomNavBar activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
     </div>

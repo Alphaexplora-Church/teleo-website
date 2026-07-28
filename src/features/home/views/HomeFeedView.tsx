@@ -29,20 +29,50 @@ const HomeFeedView: React.FC<HomeFeedViewProps> = ({ onFindMyChurch }) => {
   } = useHomeViewModel();
 
   return (
-    <div className="bg-white pb-3 text-[#111]">
-      <div className="relative rounded-b-[36px] bg-[#001739] px-1 pb-10 shadow-[0_8px_18px_rgba(0,23,57,0.14)]">
-        <GospelCard
-          slides={heroSlides}
-          activeIndex={activeHeroIndex}
-          dailyGospel={dailyGospel}
-          isGospelLoading={isGospelLoading}
-          gospelError={gospelError}
-          onSlideChange={setActiveHeroIndex}
-          onEventOpen={openEventPost}
-        />
-        {/* Quick actions overlap the hero boundary to visually connect the
-            featured content with the light feed surface below. */}
-        <div className="absolute -bottom-10 left-0 right-0 z-10"><QuickActions /></div>
+    <div className="min-h-full lg:bg-[#f3f4f6]">
+      <div className="bg-white pb-3 text-[#111] lg:bg-transparent lg:flex lg:justify-center lg:gap-8 lg:p-8 lg:max-w-[1024px] lg:mx-auto">
+        
+        {/* Main Feed Column */}
+        <div className="lg:w-full lg:max-w-[600px] lg:shrink-0 lg:bg-white lg:rounded-2xl lg:shadow-[0_4px_24px_rgba(27,50,82,0.06)] lg:overflow-hidden lg:pb-6">
+          {/* Mobile Top Area — navy blue bg with overlapping quick action cards */}
+          <div className="relative lg:hidden mx-2 mt-2 rounded-[24px] bg-[#001739] px-2 pt-2 pb-16 shadow-[0_8px_24px_rgba(0,23,57,0.22)]">
+            <GospelCard
+              slides={heroSlides}
+              activeIndex={activeHeroIndex}
+              dailyGospel={dailyGospel}
+              isGospelLoading={isGospelLoading}
+              gospelError={gospelError}
+              onSlideChange={setActiveHeroIndex}
+              onEventOpen={openEventPost}
+            />
+            {/* QuickActions overlap the bottom edge of the navy section */}
+            <div className="absolute -bottom-10 left-0 right-0 z-10"><QuickActions /></div>
+          </div>
+
+          <div className="bg-white pt-14 lg:pt-0">
+            {posts.map((post, index) => <FeedPost key={post.id} post={post} first={index === 0} onOpen={() => openPost(post)} />)}
+          </div>
+        </div>
+
+        {/* Right Sidebar (Desktop only) */}
+        <div className="hidden lg:flex lg:w-[350px] lg:shrink-0 lg:flex-col lg:gap-8">
+          <div className="rounded-[20px] bg-[#001739] p-2 shadow-[0_8px_24px_rgba(0,23,57,0.15)]">
+            <GospelCard
+              slides={heroSlides}
+              activeIndex={activeHeroIndex}
+              dailyGospel={dailyGospel}
+              isGospelLoading={isGospelLoading}
+              gospelError={gospelError}
+              onSlideChange={setActiveHeroIndex}
+              onEventOpen={openEventPost}
+            />
+          </div>
+          <div className="-mx-3">
+            <QuickActions />
+          </div>
+        </div>
+
+        {selectedPost && <PostDetailView post={selectedPost} onClose={closePost} />}
       </div>
       <div className="bg-white pt-14">
         {isFeedLoading && <p className="px-5 py-8 text-center text-sm text-[#757575]">Loading church updates…</p>}

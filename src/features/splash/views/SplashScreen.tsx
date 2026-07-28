@@ -18,11 +18,12 @@ const SplashScreen: React.FC = () => {
   }, [isReady, navigate]);
 
   return (
-    <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
-      <div className="flex-1 flex flex-col items-center justify-center py-12 px-6 pb-[calc(3rem+env(safe-area-inset-bottom))] bg-white">
-        <div className="animate-splash-pop">
-          <TeleoLogo size={140} />
-        </div>
+    <div className="w-full min-h-dvh flex items-center justify-center bg-[#001739] lg:bg-[#001739]">
+      {/* Subtle radial glow behind the logo */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(255,255,255,0.06) 0%, transparent 70%)' }} />
+      <div className="animate-splash-pop flex flex-col items-center gap-4 relative z-10">
+        <TeleoLogo size={140} />
+        <span className="text-[28px] font-black tracking-[8px] text-white/90 leading-none font-sans">TELEO</span>
       </div>
     </div>
   );
