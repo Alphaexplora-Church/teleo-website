@@ -93,6 +93,11 @@ function App() {
           <Route path="/prayer/:prayerId" element={<PrayerDetailsView />} />
           <Route path="/prayer-history" element={<PrayerHistoryView />} />
 
+          {/* Prayer request composer */}
+          <Route path="/prayer-request" element={<CreatePrayerView />} />
+          <Route path="/prayer/:prayerId" element={<PrayerDetailsView />} />
+          <Route path="/prayer-history" element={<PrayerHistoryView />} />
+
           {/* Fallback — redirect any unknown route to splash */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
