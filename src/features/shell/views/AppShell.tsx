@@ -256,7 +256,9 @@ const AppShell: React.FC = () => {
         aria-live="polite"
         aria-label={`${activeTab} page`}
       >
-        {activeTab === 'profile' ? (
+        {activeTab === 'home' ? (
+          <HomeFeedView onFindMyChurch={navigateToFindMyChurch} />
+        ) : activeTab === 'profile' ? (
           <ProfileView
             onFindMyChurch={navigateToFindMyChurch}
             selectedChurch={selectedChurch}

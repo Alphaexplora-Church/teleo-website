@@ -5,7 +5,11 @@ import QuickActions from './QuickActions';
 import FeedPost from './FeedPost';
 import PostDetailView from './PostDetailView';
 
-const HomeFeedView: React.FC = () => {
+interface HomeFeedViewProps {
+  onFindMyChurch?: () => void;
+}
+
+const HomeFeedView: React.FC<HomeFeedViewProps> = ({ onFindMyChurch }) => {
   // The view consumes a single state/action surface from the ViewModel.
   const {
     activeHeroIndex,
@@ -17,6 +21,7 @@ const HomeFeedView: React.FC = () => {
     posts,
     isFeedLoading,
     feedError,
+    needsChurchMembership,
     selectedPost,
     openPost,
     openEventPost,
@@ -41,8 +46,30 @@ const HomeFeedView: React.FC = () => {
       </div>
       <div className="bg-white pt-14">
         {isFeedLoading && <p className="px-5 py-8 text-center text-sm text-[#757575]">Loading church updates…</p>}
+        {!isFeedLoading && needsChurchMembership && (
+          <section
+            className="mx-auto flex w-full max-w-[371px] flex-col items-center px-5 py-8 text-center"
+            aria-labelledby="find-church-heading"
+          >
+            <h2 id="find-church-heading" className="text-xl font-bold text-[#1f2156]">
+              Let&apos;s find your church
+            </h2>
+            <p className="mt-2 max-w-[310px] text-sm leading-5 text-[#757575]">
+              Connect with your church to see its latest announcements, events, and community updates.
+            </p>
+            <button
+              type="button"
+              onClick={onFindMyChurch}
+              className="mt-5 flex h-[51px] w-[310px] shrink-0 cursor-pointer items-center justify-center gap-2.5 rounded-[10px] bg-[#1f2156] transition-all duration-200 hover:scale-[1.02] hover:bg-[#2c2f6d] hover:shadow-lg active:scale-[0.98]"
+            >
+              <span className="flex items-center justify-center whitespace-nowrap text-center text-xl font-medium leading-6 tracking-[0] text-white">
+                Find My Church
+              </span>
+            </button>
+          </section>
+        )}
         {!isFeedLoading && feedError && <p role="alert" className="mx-5 my-5 rounded-xl bg-[#FFF1F1] px-4 py-3 text-sm text-[#A11]">{feedError}</p>}
-        {!isFeedLoading && !feedError && posts.length === 0 && <p className="px-5 py-8 text-center text-sm text-[#757575]">No announcements or later events yet.</p>}
+        {!isFeedLoading && !feedError && !needsChurchMembership && posts.length === 0 && <p className="px-5 py-8 text-center text-sm text-[#757575]">No announcements or later events yet.</p>}
         {posts.map((post, index) => <FeedPost key={post.id} post={post} first={index === 0} onOpen={() => openPost(post)} />)}
       </div>
       {/* Detail content is mounted on demand while the shared shell remains visible. */}

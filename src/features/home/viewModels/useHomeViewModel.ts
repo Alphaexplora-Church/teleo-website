@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { fetchTodaysGospel } from '../models/gospelApi';
 import {
   buildHeroSlides,
+  ChurchMembershipRequiredError,
   fetchHomeFeed,
   isEventWithinFifteenDays,
 } from '../models/homeApi';
@@ -17,6 +18,7 @@ export const useHomeViewModel = () => {
   const [gospelError, setGospelError] = useState<string | null>(null);
   const [isFeedLoading, setIsFeedLoading] = useState(true);
   const [feedError, setFeedError] = useState<string | null>(null);
+  const [needsChurchMembership, setNeedsChurchMembership] = useState(false);
 
   useEffect(() => {
     let isCurrent = true;
@@ -24,15 +26,20 @@ export const useHomeViewModel = () => {
     const loadFeed = async () => {
       setIsFeedLoading(true);
       setFeedError(null);
+      setNeedsChurchMembership(false);
 
       try {
         const posts = await fetchHomeFeed();
         if (isCurrent) setFeedPosts(posts);
       } catch (error) {
         if (isCurrent) {
-          setFeedError(
-            error instanceof Error ? error.message : 'Unable to load the home feed.',
-          );
+          if (error instanceof ChurchMembershipRequiredError) {
+            setNeedsChurchMembership(true);
+          } else {
+            setFeedError(
+              error instanceof Error ? error.message : 'Unable to load the home feed.',
+            );
+          }
         }
       } finally {
         if (isCurrent) setIsFeedLoading(false);
@@ -105,6 +112,7 @@ export const useHomeViewModel = () => {
     posts,
     isFeedLoading,
     feedError,
+    needsChurchMembership,
     selectedPost,
     openPost: (post: FeedPostModel) => setSelectedPost(post),
     openEventPost: (postId: string) =>

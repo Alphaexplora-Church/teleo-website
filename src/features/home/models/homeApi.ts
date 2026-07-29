@@ -9,6 +9,13 @@ import {
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
+export class ChurchMembershipRequiredError extends Error {
+  constructor() {
+    super('A church membership is required to load the home feed.');
+    this.name = 'ChurchMembershipRequiredError';
+  }
+}
+
 const formatTimeAgo = (value: string) => {
   const timestamp = new Date(value).getTime();
   if (Number.isNaN(timestamp)) return 'Recently';
@@ -151,9 +158,15 @@ export const fetchHomeFeed = async (): Promise<FeedPostModel[]> => {
   const json = (await response.json().catch(() => null)) as ContentFeedResponse | null;
 
   if (!response.ok) {
+    const errorMessage =
+      (json as { error?: { message?: string } } | null)?.error?.message;
+
+    if (errorMessage?.toLowerCase().includes('church id not found')) {
+      throw new ChurchMembershipRequiredError();
+    }
+
     throw new Error(
-      (json as { error?: { message?: string } } | null)?.error?.message ||
-        `Unable to load the home feed (${response.status}).`,
+      errorMessage || `Unable to load the home feed (${response.status}).`,
     );
   }
 
