@@ -6,69 +6,48 @@ import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout } from '../../../shared/models/authService';
 import { fetchProfileSettingsView } from '../models/profileApi';
-import type { ProfileSettingsView, RecentActivityItem, SettingsItem } from '../models/profileTypes';
+import type {
+  ProfileSettingsView,
+  RecentActivityItem,
+  SettingsItem,
+  QuickActionItem,
+} from '../models/profileTypes';
 
 // ── Static design data ────────────────────────
-// Kept in ViewModel (not Model) because they may later be replaced by API calls.
-
-const RECENT_ACTIVITIES: RecentActivityItem[] = [
-  {
-    id: 'activity-1',
-    title: 'Attended Sunday Service',
-    date: 'Yesterday, 10:00 AM',
-    type: 'service',
-  },
-  {
-    id: 'activity-2',
-    title: 'Prayed for Sarah K.',
-    date: 'June 9, 2026',
-    type: 'prayer-1',
-  },
-  {
-    id: 'activity-3',
-    title: 'Prayed for Sarah K.',
-    date: 'June 9, 2026',
-    type: 'prayer-2',
-  },
+const QUICK_ACTIONS: QuickActionItem[] = [
+  { id: 'qa-giving', label: 'Giving', iconType: 'giving' },
+  { id: 'qa-prayers', label: 'Prayers', iconType: 'prayers' },
+  { id: 'qa-history', label: 'History', iconType: 'history' },
 ];
 
 const GENERAL_SETTINGS: SettingsItem[] = [
   {
     id: 'general-1',
-    label: 'Account Information',
-    iconType: 'account',
-    hasArrow: true,
-  },
-  {
-    id: 'general-2',
     label: 'Security & Privacy',
     iconType: 'security',
     hasArrow: true,
   },
-];
-
-const PREFERENCES: SettingsItem[] = [
   {
-    id: 'pref-1',
-    label: 'Notifications',
+    id: 'general-2',
+    label: 'Notification Preferences',
     iconType: 'notifications',
     hasArrow: true,
   },
   {
-    id: 'pref-2',
+    id: 'general-3',
     label: 'Help & FAQ',
     iconType: 'help',
     hasArrow: true,
   },
   {
-    id: 'pref-3',
+    id: 'general-4',
     label: 'Log Out',
     iconType: 'logout',
     destructive: true,
   },
 ];
 
-// ── ViewModel return type ──────────────────────────────────────────────────────
+// ── ViewModel options & return interface ──────────────────────────────────────
 
 export interface ProfileViewModelOptions {
   /** Optional callback invoked when the user navigates to Account Information. */
@@ -79,37 +58,61 @@ export interface ProfileViewModelOptions {
   onNotifications?: () => void;
   /** Optional callback invoked when the user navigates to Help & FAQ. */
   onHelp?: () => void;
+  /** Optional callback invoked for Giving. */
+  onGiving?: () => void;
+  /** Optional callback invoked for Prayers. */
+  onPrayers?: () => void;
+  /** Optional callback invoked for History. */
+  onHistory?: () => void;
+  /** Optional callback invoked for Services. */
+  onServices?: () => void;
+  /** Optional callback invoked for Back action. */
+  onBack?: () => void;
 }
 
 export interface ProfileViewModelReturn {
-  // Profile header data (from API)
+  // Profile API state
   profileView: ProfileSettingsView | null;
   isLoadingProfile: boolean;
   profileError: string | null;
 
-  // Read-only email
+  // Derived user details
+  displayName: string;
   email: string;
+  friendsCount: number;
+  churchFollowingCount: number;
 
   // Guest mode
   isGuest: boolean;
 
-  // Static design data
-  recentActivities: RecentActivityItem[];
+  // Design data lists
+  quickActions: QuickActionItem[];
   generalSettings: SettingsItem[];
   preferences: SettingsItem[];
 
-  // Session
+  // Session state & actions
   isLoggingOut: boolean;
   logoutError: string | null;
   handleLogout: () => Promise<void>;
   handleSettingsItemPress: (item: SettingsItem) => Promise<void>;
-  /** Called when a guest taps "Find My Church" — redirects to login. */
+  handleQuickActionPress: (item: QuickActionItem) => void;
   handleFindMyChurchGuestPress: () => void;
+  handleBackPress: () => void;
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
-export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifications, onHelp }: ProfileViewModelOptions = {}): ProfileViewModelReturn => {
+export const useProfileViewModel = ({
+  onAccountInformation,
+  onSecurity,
+  onNotifications,
+  onHelp,
+  onGiving,
+  onPrayers,
+  onHistory,
+  onServices,
+  onBack,
+}: ProfileViewModelOptions = {}): ProfileViewModelReturn => {
   // ── Profile API state ──────────────────────────────────────────
   const [profileView, setProfileView] = useState<ProfileSettingsView | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -119,9 +122,7 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifi
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState<string | null>(null);
 
-  // ── Guest detection ────────────────────────────────────────
-  // Session lives in an httpOnly cookie now, so guest status is derived from
-  // whether the profile fetch actually succeeds rather than a local flag.
+  // ── Guest status ───────────────────────────────────────────────
   const [isGuest, setIsGuest] = useState(true);
 
   const navigate = useNavigate();
@@ -144,15 +145,41 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifi
     loadProfile();
   }, []);
 
-  // Derived read-only email with fallback
+  // Derived data with fallbacks matching D-new-profile.jsx & teleo-brand
+  const displayName = profileView?.username || 'Display Name';
   const email = profileView?.email || 'email@gmail.com';
+  const friendsCount = profileView?.friends_count ?? 10;
+  const churchFollowingCount = profileView?.church_following_count ?? 10;
 
   // ── Guest Find My Church → navigate to login ──────────────
   const handleFindMyChurchGuestPress = useCallback(() => {
     navigate('/login');
   }, [navigate]);
 
-  // ── Logout ────────────────────────────────────────────────────
+  // ── Top Header Back Action ──────────────
+  const handleBackPress = useCallback(() => {
+    onBack?.();
+  }, [onBack]);
+
+  // ── Quick Action Press Handler ─────────────
+  const handleQuickActionPress = useCallback(
+    (item: QuickActionItem) => {
+      if (item.iconType === 'giving') {
+        onGiving?.();
+      } else if (item.iconType === 'prayers') {
+        onPrayers?.();
+      } else if (item.iconType === 'history') {
+        if (onHistory) {
+          onHistory();
+        } else {
+          onServices?.();
+        }
+      }
+    },
+    [onGiving, onPrayers, onHistory, onServices],
+  );
+
+  // ── Logout Handler ────────────────────────────────────────────
   const handleLogout = useCallback(async () => {
     setIsLoggingOut(true);
     setLogoutError(null);
@@ -168,7 +195,6 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifi
   }, [navigate]);
 
   // ── Settings item press dispatcher ────────────────────────────
-  // Routes each settings row action to the appropriate handler.
   const handleSettingsItemPress = useCallback(
     async (item: SettingsItem) => {
       if (item.iconType === 'logout') {
@@ -187,25 +213,25 @@ export const useProfileViewModel = ({ onAccountInformation, onSecurity, onNotifi
   );
 
   return {
-    // Profile API
     profileView,
     isLoadingProfile,
     profileError,
+    displayName,
     email,
-
-    // Guest mode
+    friendsCount,
+    churchFollowingCount,
     isGuest,
-
-    // Static design data
-    recentActivities: RECENT_ACTIVITIES,
+    quickActions: QUICK_ACTIONS,
     generalSettings: GENERAL_SETTINGS,
-    preferences: PREFERENCES,
-
-    // Session
+    preferences: GENERAL_SETTINGS.filter(
+      (i) => i.destructive || i.iconType === 'notifications' || i.iconType === 'help',
+    ),
     isLoggingOut,
     logoutError,
     handleLogout,
     handleSettingsItemPress,
+    handleQuickActionPress,
     handleFindMyChurchGuestPress,
+    handleBackPress,
   };
 };
