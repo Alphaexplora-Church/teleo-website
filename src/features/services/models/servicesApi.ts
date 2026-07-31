@@ -1,7 +1,9 @@
 // features/services/models/servicesApi.ts
 // Model Layer — API endpoint contracts and request/response type definitions.
 // No functions, hooks, or side effects. Strictly declarative.
-// TODO: Replace these stubs with real endpoint contracts once the backend is available.
+
+import type { ChurchApiRecord } from '../select-church/models/selectChurchTypes';
+import { fetchChurches } from '../select-church/models/selectChurchApi';
 
 /** Base endpoint path for the services resource */
 export const SERVICES_ENDPOINT = '/api/v1/services' as const;
@@ -10,7 +12,9 @@ export const SERVICES_ENDPOINT = '/api/v1/services' as const;
 export const BOOKINGS_ENDPOINT = '/api/v1/bookings' as const;
 
 /** Base endpoint path for affiliated churches resource */
-export const CHURCHES_ENDPOINT = '/api/v1/churches/affiliated' as const;
+export const CHURCHES_ENDPOINT = '/api/churches' as const;
+
+export { fetchChurches };
 
 // ── Request Types ─────────────────────────────────────────────────────────────
 
@@ -39,10 +43,4 @@ export interface BookingApiItem {
   venue: string;
 }
 
-export interface ChurchApiItem {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-  imageUrl: string;
-}
+export type ChurchApiItem = ChurchApiRecord;

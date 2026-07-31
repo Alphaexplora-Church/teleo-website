@@ -9,6 +9,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import type { Church } from '../../profile/findmychurch/models/findMyChurchTypes';
+import type { ChurchProfileTab } from '../../profile/churchprofile/models/churchProfileTypes';
 
 export type ShellDestination =
   | DashboardTab
@@ -49,7 +50,8 @@ export interface DashboardViewModelReturn {
   navigateToNotifications: () => void;
   navigateToHelp: () => void;
   navigateToHistory: () => void;
-  navigateToChurchProfile: () => void;
+  navigateToChurchProfile: (tab?: ChurchProfileTab) => void;
+  churchProfileTab: ChurchProfileTab;
   navigateToServices: () => void;
   navigateToSelectChurch: (serviceName?: string) => void;
   navigateToBooking: (church?: { id: string | number; name: string }) => void;
@@ -76,6 +78,7 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
   const [selectedChurch, setSelectedChurch] = useState<Church | null>(null);
   const [selectedServiceName, setSelectedServiceName] = useState<string>('');
   const [selectedChurchForBooking, setSelectedChurchForBooking] = useState<{ id: string | number; name: string } | null>(null);
+  const [churchProfileTab, setChurchProfileTab] = useState<ChurchProfileTab>('overview');
 
   useEffect(() => {
     const timer = window.setTimeout(() => setShowBrandText(false), 2200);
@@ -140,7 +143,8 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('history');
   }, []);
 
-  const navigateToChurchProfile = useCallback(() => {
+  const navigateToChurchProfile = useCallback((tab?: ChurchProfileTab) => {
+    setChurchProfileTab(tab ?? 'overview');
     setActiveTabState('church-profile');
   }, []);
 
@@ -190,6 +194,7 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     navigateToHelp,
     navigateToHistory,
     navigateToChurchProfile,
+    churchProfileTab,
     navigateToServices,
     navigateToSelectChurch,
     navigateToBooking,

@@ -63,7 +63,7 @@ const ChurchCard: React.FC<ChurchCardProps> = ({ church, onClick }) => {
       {/* Church name */}
       <div className="w-full flex flex-col justify-center items-center">
         <p className="w-full text-center">
-          <span className="text-black text-sm font-normal font-['Roboto'] leading-4 block break-words">
+          <span className="text-black text-sm font-normal font-['Roboto'] leading-4 block wrap-break-word">
             {church.name}
           </span>
         </p>

@@ -2,6 +2,9 @@
 // Model Layer — pure declarative types and static data only.
 // No functions, hooks, JSX, or side effects are allowed here.
 
+import type { Church } from '../select-church/models/selectChurchTypes';
+import type { ChurchProfileTab } from '../../profile/churchprofile/models/churchProfileTypes';
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export type BookingStatus = 'CONFIRMED' | 'PENDING' | 'CANCELLED';
@@ -23,24 +26,25 @@ export interface UpcomingBooking {
   venue: string;
 }
 
-export interface AffiliatedChurch {
-  id: string;
-  name: string;
-  address: string;
-  phone: string;
-  imageUrl: string;
+export type AffiliatedChurch = Church;
+
+export interface ServicesViewProps {
+  /** Injected by AppShell — triggers navigation to SelectChurchView. */
+  onNavigateToSelectChurch?: (serviceName?: string) => void;
+  /** Injected by AppShell — triggers navigation to Church Profile. */
+  onNavigateToChurchProfile?: (tab?: ChurchProfileTab) => void;
 }
 
 // ── Static Data ──────────────────────────────────────────────────────────────
 // TODO: Replace with API-fetched data when backend endpoints are available.
 
 export const QUICK_SERVICES: QuickServiceItem[] = [
-  { id: 'baptism',          label: 'Baptism'          },
-  { id: 'house-blessing',   label: 'House Blessing'   },
-  { id: 'counseling',       label: 'Counseling'       },
-  { id: 'prayers',          label: 'Prayers'          },
-  { id: 'funeral',          label: 'Funeral'          },
-  { id: 'dedication',       label: 'Dedication'       },
+  { id: 'baptism', label: 'Baptism' },
+  { id: 'house-blessing', label: 'House Blessing' },
+  { id: 'counseling', label: 'Counseling' },
+  { id: 'prayers', label: 'Prayers' },
+  { id: 'funeral', label: 'Funeral' },
+  { id: 'dedication', label: 'Dedication' },
 ];
 
 export const UPCOMING_BOOKINGS: UpcomingBooking[] = [
@@ -61,22 +65,5 @@ export const UPCOMING_BOOKINGS: UpcomingBooking[] = [
     serviceName: 'Baptism Service',
     time: '2:00 PM',
     venue: 'Community Chapel',
-  },
-];
-
-export const AFFILIATED_CHURCHES: AffiliatedChurch[] = [
-  {
-    id: 'church-1',
-    name: "St. Jude's Cathedral",
-    address: 'P. Sherman, 42 Wallaby Way, Sydney',
-    phone: '0928 382 9329',
-    imageUrl: 'https://images.unsplash.com/photo-1548625149-fc4a29cf7092?auto=format&fit=crop&w=720&q=80',
-  },
-  {
-    id: 'church-2',
-    name: 'Grace Community Church',
-    address: '7th Avenue, BGC, Taguig City',
-    phone: '0932 411 2290',
-    imageUrl: 'https://images.unsplash.com/photo-1554732578-20f0d6b17f1c?auto=format&fit=crop&w=720&q=80',
   },
 ];

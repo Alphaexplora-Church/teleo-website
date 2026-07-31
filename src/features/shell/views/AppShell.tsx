@@ -129,6 +129,7 @@ const AppShell: React.FC = () => {
     navigateToHelp,
     navigateToHistory,
     navigateToChurchProfile,
+    churchProfileTab,
     navigateToServices,
     navigateToSelectChurch,
     navigateToBooking,
@@ -283,7 +284,7 @@ const AppShell: React.FC = () => {
       </header>
 
       <main
-        className="flex-1 w-full pb-16 overflow-y-auto"
+        className="flex-1 w-full overflow-y-auto"
         id="dashboard-content-area"
         aria-live="polite"
         aria-label={`${activeTab} page`}
@@ -374,7 +375,11 @@ const AppShell: React.FC = () => {
         ) : activeTab === 'history' ? (
           <HistoryView />
         ) : activeTab === 'church-profile' ? (
-          <ChurchProfileView onBack={navigateToProfile} churchId={selectedChurch?.id} />
+          <ChurchProfileView
+            onBack={navigateToProfile}
+            churchId={selectedChurch?.id}
+            initialTab={churchProfileTab}
+          />
         ) : (
           <ActivePage />
         )}

@@ -142,6 +142,7 @@ export interface ChurchProfileViewModelReturn {
 export const useChurchProfileViewModel = (
   churchId?: number,
   userHomeChurchId?: number | null,
+  initialTab: ChurchProfileTab = 'overview',
 ): ChurchProfileViewModelReturn => {
   // ── API state ──────────────────────────────────────────────
   const [church, setChurch] = useState<ChurchProfileData | null>(null);
@@ -152,7 +153,7 @@ export const useChurchProfileViewModel = (
   const [isFollowing, setIsFollowing] = useState(false);
   const [isHomeChurch, setIsHomeChurch] = useState(false);
   const [isTogglingHome, setIsTogglingHome] = useState(false);
-  const [activeTab, setActiveTab] = useState<ChurchProfileTab>('overview');
+  const [activeTab, setActiveTab] = useState<ChurchProfileTab>(initialTab);
 
   // ── Fetch church details on mount / when churchId changes ──
   useEffect(() => {

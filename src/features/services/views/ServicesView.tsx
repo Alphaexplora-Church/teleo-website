@@ -4,23 +4,10 @@
 
 import React from 'react';
 import { useServicesViewModel } from '../viewModels/useServicesViewModel';
-import type { UpcomingBooking, AffiliatedChurch, QuickServiceItem } from '../models/servicesTypes';
+import type { UpcomingBooking, AffiliatedChurch, QuickServiceItem, ServicesViewProps } from '../models/servicesTypes';
 
 // ── Inline SVG Icon Primitives ────────────────────────────────────────────────
 // Stroke-based icons following Teleo brand spec: stroke-width 1.3–1.9px.
-
-const MapPinIcon: React.FC = () => (
-  <svg width="10" height="14" viewBox="0 0 24 24" fill="none" stroke="#52525b" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-);
-
-const PhoneIcon: React.FC = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#52525b" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11.1 19.79 19.79 0 0 1 1.61 2.48 2 2 0 0 1 3.58.5h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.05A16 16 0 0 0 13.9 14l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.5 15.5z" />
-  </svg>
-);
 
 const ClockIcon: React.FC = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#52525b" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -213,7 +200,7 @@ const BookingCard: React.FC<BookingCardProps> = ({ booking }) => {
 
 interface ChurchCardProps {
   church: AffiliatedChurch;
-  onViewServices: (id: string) => void;
+  onViewServices: (id: string | number) => void;
 }
 
 const ChurchCard: React.FC<ChurchCardProps> = ({ church, onViewServices }) => (
@@ -244,31 +231,23 @@ const ChurchCard: React.FC<ChurchCardProps> = ({ church, onViewServices }) => (
         No image available
       </div>
     )}
-    <div className="p-4 flex flex-col gap-2">
-      <p className="text-black text-base font-bold font-['Poppins'] leading-5">
-        {church.name}
-      </p>
+    <div className="p-4 flex flex-col gap-1.5">
+      <h3 className="text-black text-base font-bold font-['Poppins'] leading-5">
+        {church.name}{church.shortName ? ` (${church.shortName})` : ''}
+      </h3>
 
-      <div className="inline-flex items-start gap-2">
-        <span className="pt-0.5 shrink-0"><MapPinIcon /></span>
-        <span className="text-black/60 text-xs font-normal font-['Roboto'] leading-4">
-          {church.address}
-        </span>
-      </div>
-
-      <div className="inline-flex items-center gap-2">
-        <PhoneIcon />
-        <span className="text-black/60 text-xs font-normal font-['Roboto'] leading-4">
-          {church.phone}
-        </span>
-      </div>
+      {church.description && (
+        <p className="text-black/60 text-xs font-normal font-['Roboto'] leading-4">
+          {church.description}
+        </p>
+      )}
 
       <div className="pt-2">
         <button
           type="button"
           id={`btn-view-services-${church.id}`}
-          onClick={() => onViewServices(church.id)}
-          className="w-full py-2 bg-[#1f2156] hover:bg-[#2c2f6d] active:scale-[0.98] rounded-lg flex justify-center items-center transition-all duration-200 shadow-sm hover:shadow-lg"
+          disabled
+          className="w-full py-2 bg-[#1f2156] rounded-lg flex justify-center items-center border-none cursor-default"
         >
           <span className="text-white text-xs font-semibold font-['Poppins'] leading-4 tracking-wide">
             View Services Offered
@@ -303,21 +282,14 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({ title, onViewAll, viewAll
 
 // ── ServicesView (Root View) ───────────────────────────────────────────────────
 
-import type { ChurchProfileTab } from '../../profile/churchprofile/models/churchProfileTypes';
-
-interface ServicesViewProps {
-  /** Injected by AppShell — triggers navigation to SelectChurchView. */
-  onNavigateToSelectChurch?: (serviceName?: string) => void;
-  /** Injected by AppShell — triggers navigation to Church Profile. */
-  onNavigateToChurchProfile?: (tab?: ChurchProfileTab) => void;
-}
-
 const ServicesView: React.FC<ServicesViewProps> = ({ onNavigateToSelectChurch, onNavigateToChurchProfile }) => {
   // All state, data, and handlers come exclusively from the ViewModel.
   const {
     quickServicePages,
     upcomingBookings,
     affiliatedChurches,
+    isLoadingChurches,
+    churchesError,
     selectedServiceId,
     scrollRef,
     activeDot,
@@ -372,11 +344,10 @@ const ServicesView: React.FC<ServicesViewProps> = ({ onNavigateToSelectChurch, o
                     type="button"
                     onClick={() => scrollToPage(index)}
                     aria-label={`Scroll to quick services page ${index + 1}`}
-                    className={`transition-all duration-300 rounded-full cursor-pointer border-none p-0 ${
-                      isActive
-                        ? 'w-4 h-1.5 bg-white shadow-sm'
-                        : 'w-1.5 h-1.5 bg-white/30 hover:bg-white/60'
-                    }`}
+                    className={`transition-all duration-300 rounded-full cursor-pointer border-none p-0 ${isActive
+                      ? 'w-4 h-1.5 bg-white shadow-sm'
+                      : 'w-1.5 h-1.5 bg-white/30 hover:bg-white/60'
+                      }`}
                   />
                 );
               })}
@@ -393,9 +364,14 @@ const ServicesView: React.FC<ServicesViewProps> = ({ onNavigateToSelectChurch, o
           viewAllId="btn-view-all-bookings"
         />
         <div className="flex flex-col gap-4">
+          <p className="text-black/60 text-xs font-normal font-['Roboto'] py-4 text-center">
+            No upcoming bookings yet.
+          </p>
+          {/*
           {upcomingBookings.map((booking) => (
             <BookingCard key={booking.id} booking={booking} />
           ))}
+          */}
         </div>
       </section>
 
@@ -407,13 +383,27 @@ const ServicesView: React.FC<ServicesViewProps> = ({ onNavigateToSelectChurch, o
           viewAllId="btn-view-all-churches"
         />
         <div className="flex flex-col gap-4">
-          {affiliatedChurches.map((church) => (
-            <ChurchCard
-              key={church.id}
-              church={church}
-              onViewServices={onViewChurchServices}
-            />
-          ))}
+          {isLoadingChurches ? (
+            <p className="text-black/60 text-xs font-normal font-['Roboto'] py-4 text-center">
+              Loading affiliated churches…
+            </p>
+          ) : churchesError ? (
+            <p className="text-red-500 text-xs font-normal font-['Roboto'] py-4 text-center">
+              {churchesError}
+            </p>
+          ) : affiliatedChurches.length === 0 ? (
+            <p className="text-black/60 text-xs font-normal font-['Roboto'] py-4 text-center">
+              No affiliated churches available.
+            </p>
+          ) : (
+            affiliatedChurches.slice(0, 2).map((church) => (
+              <ChurchCard
+                key={church.id}
+                church={church}
+                onViewServices={onViewChurchServices}
+              />
+            ))
+          )}
         </div>
       </section>
     </div>

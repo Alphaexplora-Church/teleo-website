@@ -2,23 +2,26 @@
 // ViewModel Layer — owns all state, handlers, and derived data.
 // The View imports ONLY from this hook; no business logic lives in the View.
 
-import { useState, useRef, useCallback, useMemo } from 'react';
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import {
   QUICK_SERVICES,
   UPCOMING_BOOKINGS,
-  AFFILIATED_CHURCHES,
 } from '../models/servicesTypes';
 import type {
   QuickServiceItem,
   UpcomingBooking,
   AffiliatedChurch,
 } from '../models/servicesTypes';
+import { fetchChurches } from '../select-church/models/selectChurchApi';
+import { toChurch } from '../select-church/models/selectChurchTypes';
 
 export interface ServicesViewState {
   quickServices: QuickServiceItem[];
   quickServicePages: QuickServiceItem[][];
   upcomingBookings: UpcomingBooking[];
   affiliatedChurches: AffiliatedChurch[];
+  isLoadingChurches: boolean;
+  churchesError: string | null;
   selectedServiceId: string | null;
   scrollRef: React.RefObject<HTMLDivElement | null>;
   activeDot: number;
@@ -28,7 +31,7 @@ export interface ServicesViewState {
   onSelectService: (id: string) => void;
   onViewAllBookings: () => void;
   onViewAllChurches: () => void;
-  onViewChurchServices: (churchId: string) => void;
+  onViewChurchServices: (churchId: string | number) => void;
 }
 
 import type { ChurchProfileTab } from '../../profile/churchprofile/models/churchProfileTypes';
@@ -45,6 +48,29 @@ export const useServicesViewModel = (
 ): ServicesViewState => {
   // Tracks the active quick-service selection for future detail routing.
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
+  const [affiliatedChurches, setAffiliatedChurches] = useState<AffiliatedChurch[]>([]);
+  const [isLoadingChurches, setIsLoadingChurches] = useState(true);
+  const [churchesError, setChurchesError] = useState<string | null>(null);
+
+  // Fetch real affiliated churches on mount
+  useEffect(() => {
+    const loadChurches = async () => {
+      try {
+        setIsLoadingChurches(true);
+        setChurchesError(null);
+        const res = await fetchChurches(null, 2);
+        if (res.data && res.data.length > 0) {
+          setAffiliatedChurches(res.data.slice(0, 2).map(toChurch));
+        }
+      } catch (err) {
+        console.error('Failed to fetch affiliated churches:', err);
+        setChurchesError('Could not load affiliated churches. Please try again.');
+      } finally {
+        setIsLoadingChurches(false);
+      }
+    };
+    loadChurches();
+  }, []);
 
   // Chunk quick services into pages of 6 items (2 rows x 3 columns per page)
   const ITEMS_PER_PAGE = 6;
@@ -92,7 +118,7 @@ export const useServicesViewModel = (
     // TODO: Navigate to full affiliated churches screen.
   };
 
-  const onViewChurchServices = (_churchId: string) => {
+  const onViewChurchServices = (_churchId: string | number) => {
     props?.onNavigateToChurchProfile?.('services');
   };
 
@@ -100,7 +126,9 @@ export const useServicesViewModel = (
     quickServices: QUICK_SERVICES,
     quickServicePages,
     upcomingBookings: UPCOMING_BOOKINGS,
-    affiliatedChurches: AFFILIATED_CHURCHES,
+    affiliatedChurches,
+    isLoadingChurches,
+    churchesError,
     selectedServiceId,
     scrollRef,
     activeDot,

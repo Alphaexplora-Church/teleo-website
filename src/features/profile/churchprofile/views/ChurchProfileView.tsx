@@ -41,12 +41,14 @@ interface ChurchProfileViewProps {
   churchId?: number;
   /** The user's current home_church_id from profile settings. */
   userHomeChurchId?: number | null;
+  /** Initial active tab. Defaults to 'overview'. */
+  initialTab?: ChurchProfileTab;
   /** Called when user taps back. */
   onBack?: () => void;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
-const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ churchId, userHomeChurchId }) => {
+const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ churchId, userHomeChurchId, initialTab = 'overview' }) => {
   const {
     church,
     isLoading,
@@ -59,7 +61,7 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ churchId, userHom
     tabs,
     activeTab,
     setActiveTab,
-  } = useChurchProfileViewModel(churchId, userHomeChurchId);
+  } = useChurchProfileViewModel(churchId, userHomeChurchId, initialTab);
 
   // UI-only state: image error fallback
   const [bannerError, setBannerError] = React.useState(false);
@@ -69,14 +71,14 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ churchId, userHom
   if (isLoading) {
     return (
       <div className="flex flex-col w-full min-h-screen bg-gray-50 animate-pulse">
-        <div className="w-full h-[200px] bg-gray-200" />
+        <div className="w-full h-50 bg-gray-200" />
         <div className="relative -mt-16 mx-4 z-20">
           <div className="bg-[#23234F] rounded-[20px] pt-16 pb-6 px-5 flex flex-col items-center">
             <div className="absolute -top-10 left-1/2 -translate-x-1/2">
-              <div className="w-24 h-24 rounded-full border-[4px] border-white bg-gray-300" />
+              <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-300" />
             </div>
             <div className="w-48 h-6 bg-white/20 rounded mt-1" />
-            <div className="mt-4 flex w-full max-w-[300px] gap-2.5">
+            <div className="mt-4 flex w-full max-w-75 gap-2.5">
               <div className="flex-1 h-10 bg-white/10 rounded-full" />
               <div className="flex-1 h-10 bg-white/10 rounded-full" />
             </div>
@@ -89,7 +91,7 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ churchId, userHom
   // ── Error state ──────────────────────────────────────────
   if (error || !church) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[300px] px-4">
+      <div className="flex flex-col items-center justify-center min-h-75 px-4">
         <p className="text-red-500 text-sm text-center">{error || 'Church not found.'}</p>
       </div>
     );
@@ -101,7 +103,7 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ churchId, userHom
       {/* ═══════════════════════════════════════════════════════════
           1. Hero Banner
           ═══════════════════════════════════════════════════════════ */}
-      <section className="relative w-full h-[200px] shrink-0 overflow-hidden">
+      <section className="relative w-full h-50 shrink-0 overflow-hidden">
         {/* Banner image */}
         {church.bannerUrl && !bannerError ? (
           <img
@@ -111,11 +113,11 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ churchId, userHom
             className="absolute inset-0 w-full h-full object-cover"
           />
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-600 to-amber-800" />
+          <div className="absolute inset-0 bg-linear-to-br from-amber-600 to-amber-800" />
         )}
 
         {/* Dark gradient overlay at bottom */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent" />
 
         {/* Top-right: "Joined" badge */}
         {church.joinedDate && (
@@ -133,7 +135,7 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ churchId, userHom
 
           {/* Profile picture — overflows upward */}
           <div className="absolute -top-10 left-1/2 -translate-x-1/2">
-            <div className="w-24 h-24 rounded-full border-[4px] border-white shadow-lg overflow-hidden bg-white">
+            <div className="w-24 h-24 rounded-full border-4 border-white shadow-lg overflow-hidden bg-white">
               {church.logoUrl && !logoError ? (
                 <img
                   src={church.logoUrl}
@@ -155,7 +157,7 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({ churchId, userHom
           </h1>
 
           {/* Action buttons row */}
-          <div className="mt-4 flex w-full max-w-[300px] gap-2.5">
+          <div className="mt-4 flex w-full max-w-75 gap-2.5">
             {/* Follow / Unfollow button */}
             <button
               type="button"
