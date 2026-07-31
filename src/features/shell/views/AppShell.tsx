@@ -67,7 +67,7 @@ interface BackHeaderProps {
 }
 
 const BackHeader: React.FC<BackHeaderProps> = ({ title, onBack }) => (
-  <div className="flex items-center gap-5 h-[60px]">
+  <div className="flex items-center gap-5 h-15">
     <button
       type="button"
       aria-label="Go back"
@@ -76,7 +76,7 @@ const BackHeader: React.FC<BackHeaderProps> = ({ title, onBack }) => (
     >
       <BackChevron />
     </button>
-    <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-[0] font-sans">
+    <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-normal font-sans">
       {title}
     </h1>
   </div>
@@ -103,7 +103,7 @@ const HeaderAvatar: React.FC<HeaderAvatarProps> = ({
           className="w-8 h-8 rounded-full object-cover ring-2 ring-white/30"
         />
       ) : (
-        <img src={profileIcon} alt="" className="h-[25px] w-[25px]" />
+        <img src={profileIcon} alt="" className="h-6.25 w-6.25" />
       )}
     </button>
   );
@@ -162,11 +162,11 @@ const AppShell: React.FC = () => {
   ].includes(activeTab);
 
   return (
-    <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
-      <header className="sticky top-0 z-50 w-full bg-[#001739] text-white">
+    <div className="w-full max-w-md min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
+      <header className="sticky top-0 z-50 w-full bg-navy text-white">
         {activeTab === 'profile' ? null : isSubPage ? (
           <div
-            className="flex items-center gap-5 px-5 h-[59px] bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
+            className="flex items-center gap-5 px-5 h-14.75 bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
           >
             {activeTab === 'find-my-church' && (
@@ -229,7 +229,7 @@ const AppShell: React.FC = () => {
           </div>
         ) : (
           <div
-            className="flex items-center justify-between px-5 h-[59px]"
+            className="flex items-center justify-between px-5 h-14.75"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
           >
             <div className="flex items-center gap-2">
@@ -239,7 +239,7 @@ const AppShell: React.FC = () => {
                   'overflow-hidden whitespace-nowrap text-[24px] font-black leading-none tracking-[5px] text-white',
                   'transition-all duration-700 ease-in-out',
                   showBrandText
-                    ? 'max-w-[135px] translate-x-0 opacity-100'
+                    ? 'max-w-33.75 translate-x-0 opacity-100'
                     : 'max-w-0 -translate-x-2 opacity-0',
                 ].join(' ')}
               >
@@ -253,7 +253,7 @@ const AppShell: React.FC = () => {
                 aria-label="Search"
                 className="flex h-10 w-10 items-center justify-center"
               >
-                <img src={searchIcon} alt="" className="h-[38px] w-9" />
+                <img src={searchIcon} alt="" className="h-9.5 w-9" />
               </button>
 
               <button
@@ -262,9 +262,9 @@ const AppShell: React.FC = () => {
                 aria-label="Notifications"
                 className="relative flex h-10 w-8 items-center justify-center rounded-full border-none bg-transparent cursor-pointer"
               >
-                <img src={notificationIcon} alt="" className="h-[25px] w-[25px]" />
+                <img src={notificationIcon} alt="" className="h-6.25 w-6.25" />
                 <span
-                  className="absolute top-0 right-0 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FFAF00] px-1 text-[10px] font-bold text-[#001739]"
+                  className="absolute top-0 right-0 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-[#FFAF00] px-1 text-[10px] font-bold text-navy"
                   aria-hidden="true"
                 >
                   3

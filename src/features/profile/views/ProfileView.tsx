@@ -192,18 +192,17 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           type="button"
           aria-label="Go back"
           onClick={handleBackPress}
-          className="size-8 bg-neutral-50/20 hover:bg-neutral-50/30 active:scale-95 transition-all flex items-center justify-center border-none cursor-pointer text-white rounded-[10px]"
+          className="size-8 bg-neutral-50/20 hover:bg-neutral-50/30 active:scale-95 transition-all flex items-center justify-center border-none cursor-pointer text-white rounded-input"
         >
           <BackChevronIcon />
         </button>
       </header>
 
-      {/* ── White Box Section: Top Rounded Corners (20px), No Bottom Rounded Corners ── */}
       <section className="w-full flex-1 bg-white rounded-tl-[20px] rounded-tr-[20px] rounded-b-none pt-0 px-4 pb-4 flex flex-col items-center gap-4 relative">
 
-        {/* ── 2 & 3. Profile Picture Overlapping Top Left (half in/out, direct picture without border) & Profile Button Top Right aligned to bottom of picture ── */}
-        <div className="w-full max-w-[420px] flex justify-between items-end -mt-10">
-          {/* Top Left Picture: half inside, half outside white box, no border ring */}
+        {/* Profile*/}
+        <div className="w-full max-w-105 flex justify-between items-end -mt-10">
+          {/* Top Left Picture*/}
           {isGuest ? (
             <ProfileAvatar url={null} />
           ) : isLoadingProfile ? (
@@ -212,16 +211,20 @@ const ProfileView: React.FC<ProfileViewProps> = ({
             <ProfileAvatar url={profileView?.profile_picture_url ?? null} />
           )}
 
-          {/* Top Right Profile Button aligned to bottom of profile picture */}
-          <div className="w-24 h-8 py-1 bg-amber-500/0 rounded-[20px] outline -outline-offset-1 outline-amber-500 flex justify-center items-center">
+          {/* Profile Button */}
+          <button
+            type="button"
+            onClick={onAccountInformation}
+            className="w-24 h-8 py-1 bg-transparent rounded-[20px] outline -outline-offset-1 outline-amber-500 flex justify-center items-center cursor-pointer border-none hover:bg-amber-500/10 active:scale-95 transition-all"
+          >
             <span className="text-center text-amber-500 text-sm font-medium font-roboto leading-6">
               Profile
             </span>
-          </div>
+          </button>
         </div>
 
-        {/* ── 4. Display Name & Email aligned with Friends & Church Following ── */}
-        <div className="w-full max-w-[420px] flex justify-between items-start gap-4">
+        {/*  Display Name & Email aligned with Friends & Church Following  */}
+        <div className="w-full max-w-105 flex justify-between items-start gap-4">
           {/* Left Column: Display Name & Email */}
           <div className="flex-1 flex flex-col justify-start min-w-0">
             {isGuest ? (
@@ -269,7 +272,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
 
         {/* ── Find My Church CTA ── */}
-        <div className="w-full max-w-[420px]">
+        <div className="w-full max-w-105">
           {isGuest ? (
             <button
               type="button"
@@ -322,8 +325,8 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           )}
         </div>
 
-        {/* ── Quick Action Buttons Row (Giving, Prayers, History) ── */}
-        <div className="w-full max-w-[420px] flex justify-between items-center gap-3">
+        {/* Quick Action Buttons Row (Giving, Prayers, History) */}
+        <div className="w-full max-w-105 flex justify-between items-center gap-3">
           {quickActions.map((action) => (
             <button
               key={action.id}
@@ -331,7 +334,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
               onClick={() => handleQuickActionPress(action)}
               className="size-24 rounded-[20px] border border-solid border-gray-400 bg-transparent flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 active:scale-95 transition-all duration-200 text-black"
             >
-              <div className="size-8 rounded-[10px] flex items-center justify-center">
+              <div className="size-8 rounded-input flex items-center justify-center">
                 {QUICK_ACTION_ICON_MAP[action.iconType]}
               </div>
               <span className="text-black text-sm font-normal font-roboto leading-4 text-center">
@@ -342,7 +345,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
 
         {/* ── General Settings Section ── */}
-        <div className="w-full max-w-[420px] flex flex-col gap-3" aria-labelledby="general-settings-heading">
+        <div className="w-full max-w-105 flex flex-col gap-3" aria-labelledby="general-settings-heading">
           <h3
             id="general-settings-heading"
             className="text-neutral-500 font-bold text-base font-['Poppins'] font-poppins leading-6"
@@ -357,11 +360,11 @@ const ProfileView: React.FC<ProfileViewProps> = ({
                 type="button"
                 disabled={isLoggingOut && item.iconType === 'logout'}
                 onClick={() => handleSettingsItemPress(item)}
-                className={`w-full flex items-center gap-2.5 py-1.5 px-2 rounded-[8px] border-none bg-transparent text-left cursor-pointer hover:bg-black/5 active:scale-[0.99] transition-all duration-150 ${isLoggingOut && item.iconType === 'logout' ? 'opacity-50 cursor-not-allowed' : ''
+                className={`w-full flex items-center gap-2.5 py-1.5 px-2 rounded-lg border-none bg-transparent text-left cursor-pointer hover:bg-black/5 active:scale-[0.99] transition-all duration-150 ${isLoggingOut && item.iconType === 'logout' ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
               >
                 <div
-                  className={`size-8 rounded-[10px] flex items-center justify-center shrink-0 ${item.destructive ? 'text-red-600' : 'text-black'
+                  className={`size-8 rounded-input flex items-center justify-center shrink-0 ${item.destructive ? 'text-red-600' : 'text-black'
                     }`}
                 >
                   {SETTINGS_ICON_MAP[item.iconType]}
