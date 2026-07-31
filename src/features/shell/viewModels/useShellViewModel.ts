@@ -25,6 +25,7 @@ export type ShellDestination =
   | 'privacy-policy'
   | 'notifications'
   | 'help'
+  | 'history'
   | 'church-profile'
   | 'select-church'
   | 'booking'
@@ -47,6 +48,7 @@ export interface DashboardViewModelReturn {
   navigateToPrivacyPolicy: () => void;
   navigateToNotifications: () => void;
   navigateToHelp: () => void;
+  navigateToHistory: () => void;
   navigateToChurchProfile: () => void;
   navigateToServices: () => void;
   navigateToSelectChurch: (serviceName?: string) => void;
@@ -134,6 +136,10 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('help');
   }, []);
 
+  const navigateToHistory = useCallback(() => {
+    setActiveTabState('history');
+  }, []);
+
   const navigateToChurchProfile = useCallback(() => {
     setActiveTabState('church-profile');
   }, []);
@@ -182,6 +188,7 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     navigateToPrivacyPolicy,
     navigateToNotifications,
     navigateToHelp,
+    navigateToHistory,
     navigateToChurchProfile,
     navigateToServices,
     navigateToSelectChurch,

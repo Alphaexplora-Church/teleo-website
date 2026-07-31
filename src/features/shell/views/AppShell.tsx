@@ -31,6 +31,7 @@ import ChangePasswordView from '../../profile/security/change-password/views/Cha
 import PrivacyPolicyView from '../../profile/security/views/PrivacyPolicyView';
 import NotificationView from '../../profile/views/NotificationView';
 import HelpView from '../../profile/views/HelpView';
+import HistoryView from '../../profile/views/HistoryView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
@@ -126,6 +127,7 @@ const AppShell: React.FC = () => {
     navigateToPrivacyPolicy,
     navigateToNotifications,
     navigateToHelp,
+    navigateToHistory,
     navigateToChurchProfile,
     navigateToServices,
     navigateToSelectChurch,
@@ -155,6 +157,7 @@ const AppShell: React.FC = () => {
     'privacy-policy',
     'notifications',
     'help',
+    'history',
     'church-profile',
     'select-church',
     'booking',
@@ -205,6 +208,9 @@ const AppShell: React.FC = () => {
             {activeTab === 'help' && (
               <BackHeader title="Help & FAQs" onBack={navigateToProfile} />
             )}
+            {activeTab === 'history' && (
+              <BackHeader title="History" onBack={navigateToProfile} />
+            )}
             {activeTab === 'church-profile' && (
               <BackHeader title="Church Profile" onBack={navigateToProfile} />
             )}
@@ -247,7 +253,7 @@ const AppShell: React.FC = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-white">
+            <div className="flex items-center gap-3 text-white">
               <button
                 type="button"
                 aria-label="Search"
@@ -257,7 +263,6 @@ const AppShell: React.FC = () => {
               </button>
 
               <button
-                id="btn-header-notifications"
                 type="button"
                 aria-label="Notifications"
                 className="relative flex h-10 w-8 items-center justify-center rounded-full border-none bg-transparent cursor-pointer"
@@ -278,7 +283,7 @@ const AppShell: React.FC = () => {
       </header>
 
       <main
-        className="flex-1 overflow-y-auto"
+        className="flex-1 w-full pb-16 overflow-y-auto"
         id="dashboard-content-area"
         aria-live="polite"
         aria-label={`${activeTab} page`}
@@ -319,7 +324,7 @@ const AppShell: React.FC = () => {
             onChurchProfile={navigateToChurchProfile}
             onGiving={() => setActiveTab('giving')}
             onPrayers={() => setActiveTab('prayer-wall')}
-            onHistory={() => setActiveTab('services')}
+            onHistory={navigateToHistory}
             onServices={() => setActiveTab('services')}
             onBack={() => setActiveTab('home')}
           />
@@ -366,6 +371,8 @@ const AppShell: React.FC = () => {
           <NotificationView onSuccess={() => setTimeout(navigateToProfile, 2000)} />
         ) : activeTab === 'help' ? (
           <HelpView />
+        ) : activeTab === 'history' ? (
+          <HistoryView />
         ) : activeTab === 'church-profile' ? (
           <ChurchProfileView onBack={navigateToProfile} churchId={selectedChurch?.id} />
         ) : (
