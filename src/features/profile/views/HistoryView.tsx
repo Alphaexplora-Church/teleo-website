@@ -19,7 +19,7 @@ const HistoryView: React.FC = () => {
         </section>
 
         {/* ── Coming Soon Container ───────────────────────────────── */}
-        <div className="w-full p-8 bg-[#336ef90d] rounded-[20px] border border-[#1f2156] flex flex-col items-center justify-center gap-3 text-center min-h-[220px]">
+        <div className="w-full p-8 bg-[#336ef90d] rounded-[20px] border border-[#1f2156] flex flex-col items-center justify-center gap-3 text-center min-h-55">
           <div className="size-12 rounded-full bg-[#1f2156]/10 flex items-center justify-center text-[#1f2156]">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10" />
@@ -29,7 +29,7 @@ const HistoryView: React.FC = () => {
           <h2 className="text-[#1f2156] text-lg font-bold font-sans leading-6">
             History feature is coming soon
           </h2>
-          <p className="text-black/60 text-sm font-normal font-sans leading-5 max-w-[280px]">
+          <p className="text-black/60 text-sm font-normal font-sans leading-5 max-w-70">
             We are working on bringing your activity history here. Stay tuned for future updates!
           </p>
         </div>

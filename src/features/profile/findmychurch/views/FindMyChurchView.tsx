@@ -106,14 +106,16 @@ const FindMyChurchView: React.FC<FindMyChurchViewProps> = ({ onChurchSelect }) =
   return (
     <main className="flex flex-col w-full items-center gap-6 relative min-h-screen pt-6 px-4 pb-10 bg-neutral-50">
 
-      {/* ── Search bar ──────────────────────────────────────── */}
+      {/* ── Search bar ───────────────────────────────────────────── */}
       <section
         aria-label="Search churches"
-        className="w-full max-w-[371px] h-14 flex flex-col items-center justify-center gap-2.5 pl-[18px] pr-[13px] pt-[9px] pb-2.5 bg-blue-500/5 rounded-[20px] border border-solid border-[#1f2156] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] shrink-0"
+        className="w-full h-10 px-3.5 bg-blue-500/5 rounded-xl border border-blue-950/30 flex items-center"
       >
-        <div className="flex w-full items-center gap-2 relative">
+        <div className="w-full inline-flex items-center gap-2">
           <SearchIcon />
-          <label htmlFor="church-search" className="sr-only">Search for Churches</label>
+          <label htmlFor="church-search" className="sr-only">
+            Search for Churches
+          </label>
           <input
             id="church-search"
             type="search"
@@ -121,20 +123,20 @@ const FindMyChurchView: React.FC<FindMyChurchViewProps> = ({ onChurchSelect }) =
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Search for Churches"
             aria-label="Search for Churches"
-            className="flex-1 font-normal text-black text-xs leading-[14px] tracking-[0] placeholder:text-black/40 bg-transparent border-none outline-none"
+            className="flex-1 text-black text-xs font-normal font-['Roboto'] leading-4 placeholder:text-black/40 bg-transparent border-none outline-none"
           />
         </div>
       </section>
 
       {/* ── Churches near me ────────────────────────────────── */}
       <section
-        className="flex flex-col w-full max-w-[371px] items-start gap-5 relative"
+        className="w-full flex flex-col items-start gap-3"
         aria-labelledby="churches-near-me-heading"
       >
-        <div className="self-stretch inline-flex justify-between items-center">
+        <div className="self-stretch inline-flex justify-between items-center h-6">
           <h2
             id="churches-near-me-heading"
-            className="text-black text-2xl font-medium leading-6"
+            className="text-black text-xl font-bold font-['Poppins'] leading-6"
           >
             Churches near me
           </h2>
@@ -142,7 +144,7 @@ const FindMyChurchView: React.FC<FindMyChurchViewProps> = ({ onChurchSelect }) =
 
         {/* Loading state */}
         {isLoading ? (
-          <div className="self-stretch flex justify-start items-center gap-1.5">
+          <div className="w-full grid grid-cols-3 justify-items-center items-start gap-2">
             {[1, 2, 3].map((i) => (
               <ChurchCardSkeleton key={i} />
             ))}
@@ -153,15 +155,15 @@ const FindMyChurchView: React.FC<FindMyChurchViewProps> = ({ onChurchSelect }) =
             <p className="text-red-500 text-sm text-center">{error}</p>
           </div>
         ) : churchRows.length === 0 ? (
-          <p className="text-neutral-400 text-sm py-6 text-center w-full">
-            No churches found{searchQuery ? ` for "${searchQuery}"` : ''}.
+          <p className="text-black/60 text-sm font-normal font-['Roboto'] py-6 text-center w-full">
+            No churches found for "{searchQuery}".
           </p>
         ) : (
           <>
             {churchRows.map((row, rowIndex) => (
               <div
                 key={`row-${rowIndex}`}
-                className="self-stretch flex justify-start items-center gap-1.5"
+                className="w-full grid grid-cols-3 justify-items-center items-start gap-2"
               >
                 {row.map((church) => (
                   <ChurchCard
