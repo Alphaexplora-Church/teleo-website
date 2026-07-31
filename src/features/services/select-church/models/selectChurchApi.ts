@@ -1,20 +1,38 @@
 // features/profile/findmychurch/models/findMyChurchApi.ts
-// Model layer: API contract definitions. No functions, no hooks — type declarations only.
-// When a real backend endpoint exists, add the fetch call in the ViewModel.
+// Model layer: pure API calls. No React, no hooks — fetch functions only.
 
-import type { Church } from './selectChurchTypes';
+import type { ChurchApiRecord, ChurchListMeta } from './selectChurchTypes';
 
-// Shape of the API response (future-ready)
-export interface FindMyChurchApiResponse {
-  churches: Church[];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+
+/** Response shape from GET /api/churches/ */
+export interface FetchChurchesResponse {
+  data: ChurchApiRecord[];
+  meta: ChurchListMeta;
 }
 
-// Placeholder static data used by the ViewModel until the API is ready.
-// Kept here (not in ViewModel) because it defines the shape of expected API data.
-export const PLACEHOLDER_CHURCHES: Church[] = [
-  { id: 1, name: 'Sunday Church Philippines', location: 'Marikina City' },
-  { id: 2, name: 'Monday Church Philippines', location: 'Marikina City' },
-  { id: 3, name: 'Tuesday Church Philippines', location: 'Marikina City' },
-  { id: 4, name: 'Wednesday Church Philippines', location: 'Marikina City' },
-  { id: 5, name: 'Sunday Church Philippines', location: 'Marikina City' },
-];
+/**
+ * Fetches a paginated list of active churches.
+ * Auth is carried by the httpOnly session cookie.
+ *
+ * GET /api/churches/?cursor=...&limit=...
+ */
+export const fetchChurches = async (
+  cursor?: string | null,
+  limit: number = 20,
+): Promise<FetchChurchesResponse> => {
+  const params = new URLSearchParams({ limit: String(limit) });
+  if (cursor) params.set('cursor', cursor);
+
+  const response = await fetch(`${API_BASE_URL}/api/churches/?${params.toString()}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch churches (${response.status})`);
+  }
+
+  return response.json();
+};

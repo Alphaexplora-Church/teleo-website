@@ -54,18 +54,17 @@ const ChurchCard: React.FC<ChurchCardProps> = ({ church, onClick }) => {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-zinc-300" aria-hidden="true" />
+          <div className="w-full h-full bg-zinc-300 flex items-center justify-center text-zinc-500 text-xl font-bold" aria-hidden="true">
+            {church.name.charAt(0)}
+          </div>
         )}
       </div>
 
-      {/* Church name + location */}
+      {/* Church name */}
       <div className="w-full flex flex-col justify-center items-center">
         <p className="w-full text-center">
-          <span className="text-black text-sm font-normal font-['Roboto'] leading-4 block">
+          <span className="text-black text-sm font-normal font-['Roboto'] leading-4 block break-words">
             {church.name}
-          </span>
-          <span className="text-neutral-400 text-[10px] font-normal font-['Roboto'] leading-4">
-            {church.location}
           </span>
         </p>
       </div>
@@ -85,7 +84,7 @@ interface SelectChurchViewProps {
 // ── SelectChurchView ──────────────────────────────────────────────────────────
 
 const SelectChurchView: React.FC<SelectChurchViewProps> = ({ serviceName, onChurchSelect }) => {
-  const { searchQuery, handleSearchChange, churchRows, handleChurchSelect } =
+  const { searchQuery, handleSearchChange, churchRows, handleChurchSelect, isLoading, error } =
     useFindMyChurchViewModel(onChurchSelect);
 
   return (
@@ -127,9 +126,17 @@ const SelectChurchView: React.FC<SelectChurchViewProps> = ({ serviceName, onChur
         </div>
 
         {/* Church grid — 3 cards per row */}
-        {churchRows.length === 0 ? (
+        {isLoading ? (
           <p className="text-black/60 text-sm font-normal font-['Roboto'] py-6 text-center w-full">
-            No churches found for "{searchQuery}".
+            Loading churches…
+          </p>
+        ) : error ? (
+          <p className="text-red-500 text-sm font-normal font-['Roboto'] py-6 text-center w-full">
+            {error}
+          </p>
+        ) : churchRows.length === 0 ? (
+          <p className="text-black/60 text-sm font-normal font-['Roboto'] py-6 text-center w-full">
+            {searchQuery.trim() ? `No churches found for "${searchQuery}".` : 'No churches available.'}
           </p>
         ) : (
           churchRows.map((row, rowIndex) => (
