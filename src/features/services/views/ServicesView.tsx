@@ -5,6 +5,7 @@
 import React from 'react';
 import { useServicesViewModel } from '../viewModels/useServicesViewModel';
 import type { UpcomingBooking, AffiliatedChurch, QuickServiceItem, ServicesViewProps } from '../models/servicesTypes';
+import prayWhiteIcon from '../../../assets/icons/pray-white.svg';
 
 // ── Inline SVG Icon Primitives ────────────────────────────────────────────────
 // Stroke-based icons following Teleo brand spec: stroke-width 1.3–1.9px.
@@ -48,11 +49,7 @@ const CounselingIcon: React.FC = () => (
 );
 
 const PrayersIcon: React.FC = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M12 2.5L10.5 8c-.5 1.8-1.5 3-3 4l1.5 7.5h6l1.5-7.5c-1.5-1-2.5-2.2-3-4L12 2.5z" strokeWidth="1.7" />
-    <path d="M12 2.5v12" strokeWidth="1.5" />
-    <path d="M8 4.5l.8.8M16 4.5l-.8.8M12 1v1" strokeWidth="1.4" />
-  </svg>
+  <img src={prayWhiteIcon} alt="" className="size-5.5 object-contain" aria-hidden="true" />
 );
 
 const FuneralIcon: React.FC = () => (
@@ -142,7 +139,7 @@ const QuickServiceCard: React.FC<QuickServiceCardProps> = ({ item, isSelected, o
   </button>
 );
 
-// ── Booking Card ─────────────────────────────────────────────────────────────
+// ── Booking Card (temporarily unavailable)─────────────────────────────────────────────────────────────
 
 interface BookingCardProps {
   booking: UpcomingBooking;
