@@ -20,6 +20,7 @@ export interface ServicesViewState {
   quickServicePages: QuickServiceItem[][];
   upcomingBookings: UpcomingBooking[];
   affiliatedChurches: AffiliatedChurch[];
+  isLoading: boolean;
   isLoadingChurches: boolean;
   churchesError: string | null;
   selectedServiceId: string | null;
@@ -127,6 +128,7 @@ export const useServicesViewModel = (
     quickServicePages,
     upcomingBookings: UPCOMING_BOOKINGS,
     affiliatedChurches,
+    isLoading: isLoadingChurches,
     isLoadingChurches,
     churchesError,
     selectedServiceId,

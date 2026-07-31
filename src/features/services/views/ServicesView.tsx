@@ -288,6 +288,7 @@ const ServicesView: React.FC<ServicesViewProps> = ({ onNavigateToSelectChurch, o
     quickServicePages,
     upcomingBookings,
     affiliatedChurches,
+    isLoading,
     isLoadingChurches,
     churchesError,
     selectedServiceId,
@@ -301,6 +302,17 @@ const ServicesView: React.FC<ServicesViewProps> = ({ onNavigateToSelectChurch, o
     onViewAllChurches,
     onViewChurchServices,
   } = useServicesViewModel({ onNavigateToSelectChurch, onNavigateToChurchProfile });
+
+  if (isLoading) {
+    return (
+      <section className="fixed inset-0 z-10 flex min-h-dvh items-center justify-center bg-[#faf9f7]">
+        <div className="text-center text-navy">
+          <div className="mx-auto size-10 animate-spin rounded-full border-[3px] border-navy/15 border-t-navy" />
+          <p className="mt-4 text-sm font-semibold">Loading services...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div className="flex flex-col w-full bg-white min-h-full">

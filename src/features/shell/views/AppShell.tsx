@@ -177,7 +177,7 @@ const AppShell: React.FC = () => {
               <BackHeader title="Find My Church" onBack={navigateToProfile} />
             )}
             {activeTab === 'account-information' && (
-              <BackHeader title="Account Information" onBack={navigateToProfile} />
+              <BackHeader title="Profile" onBack={navigateToProfile} />
             )}
             {activeTab === 'edit-profile-picture' && (
               <BackHeader title="Edit Profile Picture" onBack={navigateToAccountInformation} />

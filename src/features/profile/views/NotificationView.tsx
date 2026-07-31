@@ -17,10 +17,10 @@ const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ type, message, onDismis
     aria-live="polite"
     className={[
       'flex items-center justify-between gap-2 w-full px-4 py-3',
-      'rounded-[10px] text-sm font-sans transition-all duration-300',
+      'rounded-input text-sm font-sans transition-all duration-300',
       type === 'success'
-        ? 'bg-green-50 text-green-800 outline outline-1 outline-green-300'
-        : 'bg-red-50 text-red-800 outline outline-1 outline-red-300',
+        ? 'bg-green-50 text-green-800 outline-1 outline-green-300'
+        : 'bg-red-50 text-red-800 outline-1 outline-red-300',
     ].join(' ')}
   >
     <span>{message}</span>
@@ -73,7 +73,7 @@ const ToggleRow: React.FC<ToggleRowProps> = ({ id, title, description, checked, 
       <span
         className={[
           'w-5 h-5 rounded-full bg-white transition-transform absolute left-0 top-0.5 shadow-sm',
-          checked ? 'translate-x-[22px]' : 'translate-x-0.5',
+          checked ? 'translate-x-5.5' : 'translate-x-0.5',
         ].join(' ')}
       />
     </button>
@@ -102,7 +102,7 @@ const NotificationView: React.FC<NotificationViewProps> = ({ onSuccess }) => {
 
   if (isLoading) {
     return (
-      <main className="flex flex-col w-full items-center justify-center min-h-[400px]">
+      <main className="flex flex-col w-full items-center justify-center min-h-100">
         <div className="w-8 h-8 rounded-full border-4 border-solid border-[#336ef9]/35 border-t-[#336ef9] animate-spin" />
         <p className="text-black/50 text-sm font-sans mt-3">Loading settings…</p>
       </main>
@@ -113,7 +113,7 @@ const NotificationView: React.FC<NotificationViewProps> = ({ onSuccess }) => {
 
   return (
     <main className="flex flex-col w-full items-center gap-6 relative min-h-full pt-6 pb-10">
-      <div className="flex flex-col w-full gap-5 px-4 max-w-[448px]">
+      <div className="flex flex-col w-full gap-5 px-4 max-w-md">
 
         {/* ── Title Header ───────────────────────────────────────── */}
         <section className="flex flex-col gap-1 w-full">
@@ -200,7 +200,7 @@ const NotificationView: React.FC<NotificationViewProps> = ({ onSuccess }) => {
           <h2 className="text-[#1f2156] text-lg font-bold font-sans leading-5">
             Frequency Options
           </h2>
-          <div className="flex flex-col gap-[3px] w-full">
+          <div className="flex flex-col gap-0.75 w-full">
             <label
               htmlFor="sel-frequency"
               className="text-black text-xs font-medium font-sans leading-4"
@@ -215,8 +215,8 @@ const NotificationView: React.FC<NotificationViewProps> = ({ onSuccess }) => {
                 onChange={(e) => handleFrequencyChange(e.target.value as NotificationFrequency)}
                 className={[
                   'w-full h-11 px-4 py-2.5 appearance-none',
-                  'bg-blue-500/5 rounded-[10px]',
-                  'outline outline-1 outline-offset-[-1px] outline-[#1f2156]',
+                  'bg-blue-500/5 rounded-input',
+                  'outline-1 -outline-offset-1 outline-[#1f2156]',
                   'text-black text-xs font-normal font-sans leading-4',
                   'focus:outline-2 focus:outline-[#336ef9]',
                   'transition-all duration-150 cursor-pointer',
@@ -252,7 +252,7 @@ const NotificationView: React.FC<NotificationViewProps> = ({ onSuccess }) => {
           {settings.quietHoursEnabled && (
             <div className="flex gap-4 w-full animate-fade-in">
               {/* Start Time */}
-              <div className="flex-1 flex flex-col gap-[3px]">
+              <div className="flex-1 flex flex-col gap-0.75">
                 <label
                   htmlFor="inp-quiet-start"
                   className="text-black text-xs font-medium font-sans leading-4"
@@ -267,8 +267,8 @@ const NotificationView: React.FC<NotificationViewProps> = ({ onSuccess }) => {
                   onChange={(e) => handleQuietHoursChange('quietHoursStart', e.target.value)}
                   className={[
                     'w-full h-11 px-4 py-2.5',
-                    'bg-blue-500/5 rounded-[10px]',
-                    'outline outline-1 outline-offset-[-1px] outline-[#1f2156]',
+                    'bg-blue-500/5 rounded-input',
+                    'outline-1 -outline-offset-1 outline-[#1f2156]',
                     'text-black text-xs font-normal font-sans leading-4',
                     'focus:outline-2 focus:outline-[#336ef9]',
                     'transition-all duration-150 cursor-pointer',
@@ -277,7 +277,7 @@ const NotificationView: React.FC<NotificationViewProps> = ({ onSuccess }) => {
               </div>
 
               {/* End Time */}
-              <div className="flex-1 flex flex-col gap-[3px]">
+              <div className="flex-1 flex flex-col gap-0.75">
                 <label
                   htmlFor="inp-quiet-end"
                   className="text-black text-xs font-medium font-sans leading-4"
@@ -292,8 +292,8 @@ const NotificationView: React.FC<NotificationViewProps> = ({ onSuccess }) => {
                   onChange={(e) => handleQuietHoursChange('quietHoursEnd', e.target.value)}
                   className={[
                     'w-full h-11 px-4 py-2.5',
-                    'bg-blue-500/5 rounded-[10px]',
-                    'outline outline-1 outline-offset-[-1px] outline-[#1f2156]',
+                    'bg-blue-500/5 rounded-input',
+                    'outline-1 -outline-offset-1 outline-[#1f2156]',
                     'text-black text-xs font-normal font-sans leading-4',
                     'focus:outline-2 focus:outline-[#336ef9]',
                     'transition-all duration-150 cursor-pointer',

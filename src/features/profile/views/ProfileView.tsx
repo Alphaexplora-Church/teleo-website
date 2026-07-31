@@ -184,6 +184,44 @@ const ProfileView: React.FC<ProfileViewProps> = ({
     onBack,
   });
 
+  if (isLoadingProfile) {
+    return (
+      <main className="w-full bg-[#1f2156] text-black flex flex-col items-center font-roboto relative min-h-screen">
+        <header className="w-full px-4 pt-5 pb-14 flex justify-between items-center">
+          <button
+            type="button"
+            aria-label="Go back"
+            onClick={handleBackPress}
+            className="size-8 bg-neutral-50/20 hover:bg-neutral-50/30 active:scale-95 transition-all flex items-center justify-center border-none cursor-pointer text-white rounded-input"
+          >
+            <BackChevronIcon />
+          </button>
+        </header>
+
+        <section className="w-full flex-1 bg-[#ffffff] rounded-tl-[20px] rounded-tr-[20px] rounded-b-none pt-0 px-4 pb-10 flex flex-col items-center gap-4 relative animate-pulse min-h-125">
+          <div className="w-full max-w-105 flex justify-between items-end -mt-10">
+            <div className="size-20 rounded-full bg-neutral-200 shrink-0 border-4 border-white" />
+            <div className="w-24 h-9 bg-neutral-200 rounded-full" />
+          </div>
+          <div className="w-full max-w-105 flex flex-col gap-2 mt-2">
+            <div className="w-48 h-6 bg-neutral-200 rounded" />
+            <div className="w-36 h-4 bg-neutral-200 rounded" />
+          </div>
+          <div className="w-full max-w-105 grid grid-cols-3 gap-3 my-4">
+            <div className="h-16 bg-neutral-100 rounded-xl" />
+            <div className="h-16 bg-neutral-100 rounded-xl" />
+            <div className="h-16 bg-neutral-100 rounded-xl" />
+          </div>
+          <div className="w-full max-w-105 flex flex-col gap-3">
+            <div className="h-12 bg-neutral-100 rounded-xl" />
+            <div className="h-12 bg-neutral-100 rounded-xl" />
+            <div className="h-12 bg-neutral-100 rounded-xl" />
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="w-full bg-[#1f2156] text-black flex flex-col items-center font-roboto relative">
       {/* ── 1. Main Background in #1f2156 with Top Header Back Button ── */}
@@ -251,7 +289,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
 
           {/* Right Column: Friends & Church Following Stats */}
-          <div className="flex justify-end items-start gap-3 shrink-0">
+          <div className="flex justify-end items-start gap-1 shrink-0">
             <div className="w-20 flex flex-col items-center text-center">
               <span className="text-black text-xl font-bold font-roboto leading-6">
                 {friendsCount}

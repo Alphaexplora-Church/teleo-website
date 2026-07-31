@@ -1,6 +1,5 @@
 // features/profile/views/HistoryView.tsx
 // View layer — static page for History feature.
-// Dumb UI following Teleo branding guidelines.
 
 import React from 'react';
 
