@@ -13,6 +13,9 @@ import teleoMini from '../../../assets/icons/teleo-mini.svg';
 
 import HomeFeedView from '../../home/views/HomeFeedView';
 import ServicesView from '../../services/views/ServicesView';
+import SelectChurchView from '../../services/select-church/views/SelectChurchView';
+import BookingView from '../../services/booking/views/BookingView';
+import BookingScheduleView from '../../services/booking/views/BookingScheduleView';
 import PrayerWallView from '../../prayer-wall/views/PrayerWallView';
 import ContentView from '../../content/views/ContentView';
 import ProfileView from '../../profile/views/ProfileView';
@@ -124,6 +127,12 @@ const AppShell: React.FC = () => {
     navigateToNotifications,
     navigateToHelp,
     navigateToChurchProfile,
+    navigateToServices,
+    navigateToSelectChurch,
+    navigateToBooking,
+    navigateToBookingSchedule,
+    selectedServiceName,
+    selectedChurchForBooking,
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,
@@ -147,6 +156,9 @@ const AppShell: React.FC = () => {
     'notifications',
     'help',
     'church-profile',
+    'select-church',
+    'booking',
+    'booking-schedule',
   ].includes(activeTab);
 
   return (
@@ -198,6 +210,24 @@ const AppShell: React.FC = () => {
             )}
             {activeTab === 'church-profile' && (
               <BackHeader title="Church Profile" onBack={navigateToProfile} />
+            )}
+            {activeTab === 'select-church' && (
+              <BackHeader
+                title={selectedServiceName ? `Select Church (${selectedServiceName})` : 'Select Church'}
+                onBack={navigateToServices}
+              />
+            )}
+            {activeTab === 'booking' && (
+              <BackHeader
+                title={selectedServiceName ? `${selectedServiceName} Overview` : 'Service Overview'}
+                onBack={() => navigateToSelectChurch(selectedServiceName)}
+              />
+            )}
+            {activeTab === 'booking-schedule' && (
+              <BackHeader
+                title="Schedule Booking"
+                onBack={() => navigateToBooking(selectedChurchForBooking ?? undefined)}
+              />
             )}
           </div>
         ) : (
@@ -256,7 +286,29 @@ const AppShell: React.FC = () => {
         aria-live="polite"
         aria-label={`${activeTab} page`}
       >
-        {activeTab === 'home' ? (
+        {activeTab === 'services' ? (
+          <ServicesView
+            onNavigateToSelectChurch={navigateToSelectChurch}
+            onNavigateToChurchProfile={navigateToChurchProfile}
+          />
+        ) : activeTab === 'select-church' ? (
+          <SelectChurchView
+            serviceName={selectedServiceName}
+            onChurchSelect={(church) => navigateToBooking(church)}
+          />
+        ) : activeTab === 'booking' ? (
+          <BookingView
+            serviceName={selectedServiceName}
+            churchName={selectedChurchForBooking?.name}
+            onProceedToSchedule={navigateToBookingSchedule}
+          />
+        ) : activeTab === 'booking-schedule' ? (
+          <BookingScheduleView
+            serviceName={selectedServiceName}
+            churchName={selectedChurchForBooking?.name}
+            onBookingComplete={navigateToServices}
+          />
+        ) : activeTab === 'home' ? (
           <HomeFeedView onFindMyChurch={navigateToFindMyChurch} />
         ) : activeTab === 'profile' ? (
           <ProfileView

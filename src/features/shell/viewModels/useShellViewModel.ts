@@ -25,7 +25,10 @@ export type ShellDestination =
   | 'privacy-policy'
   | 'notifications'
   | 'help'
-  | 'church-profile';
+  | 'church-profile'
+  | 'select-church'
+  | 'booking'
+  | 'booking-schedule';
 
 export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
@@ -45,6 +48,12 @@ export interface DashboardViewModelReturn {
   navigateToNotifications: () => void;
   navigateToHelp: () => void;
   navigateToChurchProfile: () => void;
+  navigateToServices: () => void;
+  navigateToSelectChurch: (serviceName?: string) => void;
+  navigateToBooking: (church?: { id: string | number; name: string }) => void;
+  navigateToBookingSchedule: () => void;
+  selectedServiceName: string;
+  selectedChurchForBooking: { id: string | number; name: string } | null;
   verifyEmailTarget: string;
   verifyNumberTarget: string;
   selectedChurch: Church | null;
@@ -63,6 +72,8 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
   const [verifyEmailTarget, setVerifyEmailTarget] = useState('');
   const [verifyNumberTarget, setVerifyNumberTarget] = useState('');
   const [selectedChurch, setSelectedChurch] = useState<Church | null>(null);
+  const [selectedServiceName, setSelectedServiceName] = useState<string>('');
+  const [selectedChurchForBooking, setSelectedChurchForBooking] = useState<{ id: string | number; name: string } | null>(null);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setShowBrandText(false), 2200);
@@ -127,6 +138,28 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('church-profile');
   }, []);
 
+  const navigateToServices = useCallback(() => {
+    setActiveTabState('services');
+  }, []);
+
+  const navigateToSelectChurch = useCallback((serviceName?: string) => {
+    if (serviceName) {
+      setSelectedServiceName(serviceName);
+    }
+    setActiveTabState('select-church');
+  }, []);
+
+  const navigateToBooking = useCallback((church?: { id: string | number; name: string }) => {
+    if (church) {
+      setSelectedChurchForBooking(church);
+    }
+    setActiveTabState('booking');
+  }, []);
+
+  const navigateToBookingSchedule = useCallback(() => {
+    setActiveTabState('booking-schedule');
+  }, []);
+
   const selectChurch = useCallback((church: Church) => {
     setSelectedChurch(church);
     setActiveTabState('church-profile');
@@ -150,6 +183,12 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     navigateToNotifications,
     navigateToHelp,
     navigateToChurchProfile,
+    navigateToServices,
+    navigateToSelectChurch,
+    navigateToBooking,
+    navigateToBookingSchedule,
+    selectedServiceName,
+    selectedChurchForBooking,
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,
