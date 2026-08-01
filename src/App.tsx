@@ -64,8 +64,29 @@ function App() {
           {/* Step 3b: Registration */}
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* Step 4: Dashboard (post-auth / guest) */}
-          <Route path="/dashboard" element={<AppShell />} />
+          {/* Dashboard and Main Navigation */}
+          <Route path="/home" element={<AppShell />} />
+          <Route path="/services" element={<AppShell />} />
+          <Route path="/prayer-wall" element={<AppShell />} />
+          <Route path="/content" element={<AppShell />} />
+          <Route path="/giving" element={<AppShell />} />
+          <Route path="/chat" element={<AppShell />} />
+
+          {/* Profile and Sub-pages */}
+          <Route path="/profile" element={<AppShell />} />
+          <Route path="/find-my-church" element={<AppShell />} />
+          <Route path="/account-information" element={<AppShell />} />
+          <Route path="/edit-profile-picture" element={<AppShell />} />
+          <Route path="/security" element={<AppShell />} />
+          <Route path="/change-email" element={<AppShell />} />
+          <Route path="/verify-email" element={<AppShell />} />
+          <Route path="/change-number" element={<AppShell />} />
+          <Route path="/verify-number" element={<AppShell />} />
+          <Route path="/change-password" element={<AppShell />} />
+          <Route path="/privacy-policy" element={<AppShell />} />
+          <Route path="/notifications" element={<AppShell />} />
+          <Route path="/help" element={<AppShell />} />
+          <Route path="/church-profile" element={<AppShell />} />
 
           {/* Prayer request composer */}
           <Route path="/prayer-request" element={<CreatePrayerView />} />

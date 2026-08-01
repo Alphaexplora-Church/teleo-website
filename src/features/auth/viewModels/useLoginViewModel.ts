@@ -65,7 +65,7 @@ export const useLoginViewModel = (): LoginViewModel => {
       const result = await loginWithEmail(credentials);
 
       if (result.success) {
-        navigate('/dashboard', { replace: true });
+        navigate('/home', { replace: true });
       } else {
         setError(result.error ?? 'Login failed. Please try again.');
       }

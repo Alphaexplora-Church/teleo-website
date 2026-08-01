@@ -23,5 +23,5 @@ export type AppRoute =
   | '/welcome'
   | '/login'
   | '/register'
-  | '/dashboard'
+  | '/home'
   | '/approval-status';
