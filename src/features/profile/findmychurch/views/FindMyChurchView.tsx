@@ -51,24 +51,37 @@ const ChurchCard: React.FC<ChurchCardProps> = ({ church, onClick }) => {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full bg-zinc-300" aria-hidden="true" />
+          <div className="w-full h-full bg-zinc-300 flex items-center justify-center text-zinc-500 text-xl font-bold" aria-hidden="true">
+            {church.name.charAt(0)}
+          </div>
         )}
       </div>
 
-      {/* Church name + location */}
+      {/* Church name */}
       <div className="self-stretch flex flex-col justify-center items-center gap-2">
         <p className="w-28 text-center">
           <span className="text-black text-sm font-normal leading-4 block">
             {church.name}
           </span>
           <span className="text-neutral-400 text-[10px] font-normal leading-4">
-            {church.location}
+            {church.shortName}
           </span>
         </p>
       </div>
     </article>
   );
 };
+
+// ── Loading skeleton ──────────────────────────────────────────
+const ChurchCardSkeleton: React.FC = () => (
+  <div className="w-28 flex flex-col justify-center items-center gap-5 p-2 animate-pulse">
+    <div className="size-24 rounded-full bg-zinc-200" />
+    <div className="flex flex-col items-center gap-1">
+      <div className="w-20 h-3 bg-zinc-200 rounded" />
+      <div className="w-14 h-2 bg-zinc-200 rounded" />
+    </div>
+  </div>
+);
 
 // ── View props ───────────────────────────────────────────────────
 interface FindMyChurchViewProps {
@@ -78,8 +91,17 @@ interface FindMyChurchViewProps {
 
 // ── Component ───────────────────────────────────────────────────
 const FindMyChurchView: React.FC<FindMyChurchViewProps> = ({ onChurchSelect }) => {
-  const { searchQuery, handleSearchChange, churchRows, handleChurchSelect } =
-    useFindMyChurchViewModel(onChurchSelect);
+  const {
+    searchQuery,
+    handleSearchChange,
+    churchRows,
+    handleChurchSelect,
+    isLoading,
+    error,
+    hasMore,
+    loadMore,
+    isLoadingMore,
+  } = useFindMyChurchViewModel(onChurchSelect);
 
   return (
     <main className="flex flex-col w-full items-center gap-6 relative min-h-screen pt-6 px-4 pb-10 bg-neutral-50">
@@ -118,25 +140,53 @@ const FindMyChurchView: React.FC<FindMyChurchViewProps> = ({ onChurchSelect }) =
           </h2>
         </div>
 
-        {churchRows.length === 0 ? (
+        {/* Loading state */}
+        {isLoading ? (
+          <div className="self-stretch flex justify-start items-center gap-1.5">
+            {[1, 2, 3].map((i) => (
+              <ChurchCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : error ? (
+          /* Error state */
+          <div className="w-full flex flex-col items-center gap-3 py-6">
+            <p className="text-red-500 text-sm text-center">{error}</p>
+          </div>
+        ) : churchRows.length === 0 ? (
           <p className="text-neutral-400 text-sm py-6 text-center w-full">
-            No churches found for "{searchQuery}".
+            No churches found{searchQuery ? ` for "${searchQuery}"` : ''}.
           </p>
         ) : (
-          churchRows.map((row, rowIndex) => (
-            <div
-              key={`row-${rowIndex}`}
-              className="self-stretch flex justify-start items-center gap-1.5"
-            >
-              {row.map((church) => (
-                <ChurchCard
-                  key={church.id}
-                  church={church}
-                  onClick={() => handleChurchSelect(church)}
-                />
-              ))}
-            </div>
-          ))
+          <>
+            {churchRows.map((row, rowIndex) => (
+              <div
+                key={`row-${rowIndex}`}
+                className="self-stretch flex justify-start items-center gap-1.5"
+              >
+                {row.map((church) => (
+                  <ChurchCard
+                    key={church.id}
+                    church={church}
+                    onClick={() => handleChurchSelect(church)}
+                  />
+                ))}
+              </div>
+            ))}
+
+            {/* Load More button */}
+            {hasMore && (
+              <div className="w-full flex justify-center pt-2">
+                <button
+                  type="button"
+                  onClick={loadMore}
+                  disabled={isLoadingMore}
+                  className="px-6 py-2.5 bg-[#1f2156] text-white text-sm font-medium rounded-full cursor-pointer hover:bg-[#2c2f6d] active:scale-[0.97] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoadingMore ? 'Loading...' : 'Load More'}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
 

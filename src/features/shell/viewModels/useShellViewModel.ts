@@ -6,7 +6,7 @@
 // They are extended shell destinations reachable via header/profile interactions.
 
 import { useState, useCallback, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import type { Church } from '../../profile/findmychurch/models/findMyChurchTypes';
 
@@ -24,7 +24,8 @@ export type ShellDestination =
   | 'change-password'
   | 'privacy-policy'
   | 'notifications'
-  | 'help';
+  | 'help'
+  | 'church-profile';
 
 export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
@@ -43,6 +44,7 @@ export interface DashboardViewModelReturn {
   navigateToPrivacyPolicy: () => void;
   navigateToNotifications: () => void;
   navigateToHelp: () => void;
+  navigateToChurchProfile: () => void;
   verifyEmailTarget: string;
   verifyNumberTarget: string;
   selectedChurch: Church | null;
@@ -51,11 +53,16 @@ export interface DashboardViewModelReturn {
 
 export const useShellViewModel = (): DashboardViewModelReturn => {
   const location = useLocation();
-  const requestedTab = (
-    location.state as { activeTab?: DashboardTab } | null
-  )?.activeTab;
-  const [activeTab, setActiveTabState] = useState<ShellDestination>(
-    requestedTab ?? 'home',
+  const navigate = useNavigate();
+
+  const currentPath = location.pathname.split('/')[1];
+  const activeTab = (currentPath || 'home') as ShellDestination;
+
+  const setActiveTabState = useCallback(
+    (tab: ShellDestination | string) => {
+      navigate(`/${tab}`);
+    },
+    [navigate]
   );
   const [showBrandText, setShowBrandText] = useState(true);
   const [verifyEmailTarget, setVerifyEmailTarget] = useState('');
@@ -121,9 +128,13 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('help');
   }, []);
 
+  const navigateToChurchProfile = useCallback(() => {
+    setActiveTabState('church-profile');
+  }, []);
+
   const selectChurch = useCallback((church: Church) => {
     setSelectedChurch(church);
-    setActiveTabState('profile');
+    setActiveTabState('church-profile');
   }, []);
 
   return {
@@ -143,6 +154,7 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     navigateToPrivacyPolicy,
     navigateToNotifications,
     navigateToHelp,
+    navigateToChurchProfile,
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,

@@ -3,9 +3,7 @@ import type { FeedPostModel, PostCategory } from '../models/homeTypes';
 
 const TAG_STYLES: Record<PostCategory, string> = {
   Announcement: 'bg-[#E8F1FF] text-[#1D4ED8] ring-[#BFDBFE]',
-  Services: 'bg-[#EAF8EF] text-[#167C3A] ring-[#BDE8CC]',
   Events: 'bg-[#E6F7F5] text-[#0F766E] ring-[#A7E3DC]',
-  Discussion: 'bg-[#E6F8FC] text-[#0E7490] ring-[#A5E4F0]',
 };
 
 interface FeedPostProps { post: FeedPostModel; first?: boolean; onOpen: () => void; }
@@ -22,7 +20,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, first, onOpen }) => (
     {post.details && <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-[#666]">{post.details.map((detail) => <span key={detail}>{detail}</span>)}</p>}
     <p className="mt-2 text-[11px] leading-[17px]">{post.body}</p>
     {post.schedule && <p className="mt-4 whitespace-pre-line text-[11px] leading-[17px]">{post.schedule}</p>}
-    {post.imageUrl && <img src={post.imageUrl} alt={post.imageAlt ?? ''} className={`mt-2 w-full rounded-lg object-cover ${post.imageTall ? 'h-[385px]' : 'h-[170px]'}`} />}</button>
+    {post.imageUrl && <img src={post.imageUrl} alt={post.imageAlt ?? ''} className="mt-2 h-[170px] w-full rounded-lg object-cover" />}</button>
   </article>
 );
 

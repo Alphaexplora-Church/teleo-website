@@ -130,8 +130,8 @@ export const usePrayerDetailsViewModel = () => {
 
     try {
       await deletePrayer(prayer.id);
-      navigate('/dashboard', {
-        state: { activeTab: 'prayer-wall', prayerWallRefresh: Date.now() },
+      navigate('/prayer-wall', {
+        state: { prayerWallRefresh: Date.now() },
       });
     } catch (error) {
       setErrorMessage(
@@ -206,6 +206,6 @@ export const usePrayerDetailsViewModel = () => {
     deleteCurrentPrayer,
     goBack: () => navigate(-1),
     navigateToTab: (tab: DashboardTab) =>
-      navigate('/dashboard', { state: { activeTab: tab } }),
+      navigate(`/${tab}`),
   };
 };

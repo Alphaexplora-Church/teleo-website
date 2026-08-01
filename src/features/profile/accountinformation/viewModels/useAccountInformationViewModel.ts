@@ -3,11 +3,13 @@
 // NO JSX. Returns only what the View needs.
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { fetchCurrentUserProfile, updateUserProfile } from '../models/accountInformationApi';
+import {
+  fetchAccountInformation,
+  updateUserProfile,
+} from '../models/accountInformationApi';
 import type {
   AccountInformationFormState,
-  UserProfileDetails,
-  UserProfileResponse,
+  AccountInformationData,
   UpdateProfilePayload,
 } from '../models/accountInformationTypes';
 import { GENDER_OPTIONS } from '../models/accountInformationTypes';
@@ -23,7 +25,7 @@ export interface AccountInformationViewModelReturn {
   saveSuccess: boolean;
 
   // Current profile (read-only header / avatar data)
-  profile: UserProfileDetails | null;
+  profile: AccountInformationData | null;
 
   // Form state
   form: AccountInformationFormState;
@@ -41,18 +43,17 @@ export interface AccountInformationViewModelReturn {
 
 // ── Helper ─────────────────────────────────────────────────────────────────────
 
-/** Maps a UserProfileDetails object into the editable form state. */
-function profileToFormState(profile: UserProfileDetails): AccountInformationFormState {
+/** Maps an AccountInformationData object (live API) into the editable form state. */
+function profileToFormState(data: AccountInformationData): AccountInformationFormState {
   return {
-    username: profile.username ?? '',
-    firstName: profile.first_name ?? '',
-    lastName: profile.last_name ?? '',
-    // Use the dedicated display_name if available, otherwise fall back to full name
-    displayName: profile.display_name?.trim()
-      || `${profile.first_name ?? ''} ${profile.last_name ?? ''}`.trim(),
-    location: profile.location ?? '',
-    birthday: profile.birthdate ?? '',
-    gender: profile.gender ?? '',
+    username: data.username ?? '',
+    firstName: data.first_name ?? '',
+    lastName: data.last_name ?? '',
+    // The live endpoint doesn't return display_name; fall back to full name.
+    displayName: `${data.first_name ?? ''} ${data.last_name ?? ''}`.trim(),
+    location: data.formatted_address ?? '',
+    birthday: data.birthdate ?? '',
+    gender: data.gender ?? '',
   };
 }
 
@@ -78,8 +79,8 @@ export const useAccountInformationViewModel = (): AccountInformationViewModelRet
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // ── Profile data ───────────────────────────────────────────────
-  const [profile, setProfile] = useState<UserProfileDetails | null>(null);
+  // ── Profile data (for profile picture & header) ────────────────
+  const [profile, setProfile] = useState<AccountInformationData | null>(null);
 
   // ── Form state ─────────────────────────────────────────────────
   const [form, setForm] = useState<AccountInformationFormState>({
@@ -103,10 +104,10 @@ export const useAccountInformationViewModel = (): AccountInformationViewModelRet
       setIsLoadingProfile(true);
       setLoadError(null);
       try {
-        const result: UserProfileResponse = await fetchCurrentUserProfile();
+        const data: AccountInformationData = await fetchAccountInformation();
         if (cancelled) return;
-        setProfile(result.profile);
-        const initialForm = profileToFormState(result.profile);
+        setProfile(data);
+        const initialForm = profileToFormState(data);
         setForm(initialForm);
         originalFormRef.current = initialForm;
       } catch (err) {
@@ -152,11 +153,21 @@ export const useAccountInformationViewModel = (): AccountInformationViewModelRet
 
     try {
       const payload = formStateToPayload(form);
-      const result: UserProfileResponse = await updateUserProfile(payload);
+      const result = await updateUserProfile(payload);
 
-      // Sync local state with server response
-      setProfile(result.profile);
-      const refreshedForm = profileToFormState(result.profile);
+      // Sync local state with server response (map legacy stub response to new type)
+      const updatedProfile: AccountInformationData = {
+        profile_picture_url: result.profile.profile_picture_url,
+        first_name: result.profile.first_name,
+        last_name: result.profile.last_name,
+        username: result.profile.username,
+        birthdate: result.profile.birthdate,
+        formatted_address: result.profile.location,
+        gender: result.profile.gender,
+      };
+
+      setProfile(updatedProfile);
+      const refreshedForm = profileToFormState(updatedProfile);
       setForm(refreshedForm);
       originalFormRef.current = refreshedForm;
 

@@ -250,7 +250,7 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
         return;
       }
 
-      navigate('/dashboard', { replace: true });
+      navigate('/home', { replace: true });
     } catch {
       setErrors({ general: 'An unexpected error occurred. Please try again.' });
     } finally {

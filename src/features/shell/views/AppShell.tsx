@@ -30,6 +30,7 @@ import NotificationView from '../../profile/views/NotificationView';
 import HelpView from '../../profile/views/HelpView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
+import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
 
 const TAB_PAGES: Record<string, React.FC> = {
   home: HomeFeedView,
@@ -122,6 +123,7 @@ const AppShell: React.FC = () => {
     navigateToPrivacyPolicy,
     navigateToNotifications,
     navigateToHelp,
+    navigateToChurchProfile,
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,
@@ -144,6 +146,7 @@ const AppShell: React.FC = () => {
     'privacy-policy',
     'notifications',
     'help',
+    'church-profile',
   ].includes(activeTab);
 
   return (
@@ -192,6 +195,9 @@ const AppShell: React.FC = () => {
             )}
             {activeTab === 'help' && (
               <BackHeader title="Help & FAQs" onBack={navigateToProfile} />
+            )}
+            {activeTab === 'church-profile' && (
+              <BackHeader title="Church Profile" onBack={navigateToProfile} />
             )}
           </div>
         ) : (
@@ -250,7 +256,9 @@ const AppShell: React.FC = () => {
         aria-live="polite"
         aria-label={`${activeTab} page`}
       >
-        {activeTab === 'profile' ? (
+        {activeTab === 'home' ? (
+          <HomeFeedView onFindMyChurch={navigateToFindMyChurch} />
+        ) : activeTab === 'profile' ? (
           <ProfileView
             onFindMyChurch={navigateToFindMyChurch}
             selectedChurch={selectedChurch}
@@ -259,6 +267,7 @@ const AppShell: React.FC = () => {
             onSecurity={navigateToSecurity}
             onNotifications={navigateToNotifications}
             onHelp={navigateToHelp}
+            onChurchProfile={navigateToChurchProfile}
           />
         ) : activeTab === 'find-my-church' ? (
           <FindMyChurchView onChurchSelect={selectChurch} />
@@ -303,6 +312,8 @@ const AppShell: React.FC = () => {
           <NotificationView onSuccess={() => setTimeout(navigateToProfile, 2000)} />
         ) : activeTab === 'help' ? (
           <HelpView />
+        ) : activeTab === 'church-profile' ? (
+          <ChurchProfileView onBack={navigateToProfile} churchId={selectedChurch?.id} />
         ) : (
           <ActivePage />
         )}
