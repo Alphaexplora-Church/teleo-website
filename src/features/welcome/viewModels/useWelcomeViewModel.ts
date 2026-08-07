@@ -30,7 +30,7 @@ export const useWelcomeViewModel = (): WelcomeViewModel => {
     try {
       const result = await loginWithGoogle();
       if (result.success) {
-        navigate('/dashboard');
+        navigate('/home');
       }
     } catch (error) {
       console.error('Google OAuth failed:', error);
@@ -41,7 +41,7 @@ export const useWelcomeViewModel = (): WelcomeViewModel => {
     try {
       const result = await continueAsGuest();
       if (result.success) {
-        navigate('/dashboard');
+        navigate('/home');
       }
     } catch (error) {
       console.error('Guest login failed:', error);

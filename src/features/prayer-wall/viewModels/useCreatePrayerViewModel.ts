@@ -79,7 +79,7 @@ export const useCreatePrayerViewModel = () => {
         prayer_tag: prayerTag || undefined,
       });
 
-      navigate('/dashboard', { state: { activeTab: 'prayer-wall', prayerWallRefresh: Date.now() } });
+      navigate('/prayer-wall', { state: { prayerWallRefresh: Date.now() } });
       return true;
     } catch (error) {
       setErrorMessage(
@@ -100,6 +100,6 @@ export const useCreatePrayerViewModel = () => {
     errorMessage,
     submitPrayer,
     navigateToTab: (tab: DashboardTab) =>
-      navigate('/dashboard', { state: { activeTab: tab } }),
+      navigate(`/${tab}`),
   };
 };

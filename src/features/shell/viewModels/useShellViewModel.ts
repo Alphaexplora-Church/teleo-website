@@ -6,7 +6,7 @@
 // They are extended shell destinations reachable via header/profile interactions.
 
 import { useState, useCallback, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import type { Church } from '../../profile/findmychurch/models/findMyChurchTypes';
 import type { ChurchProfileTab } from '../../profile/churchprofile/models/churchProfileTypes';
@@ -66,11 +66,16 @@ export interface DashboardViewModelReturn {
 
 export const useShellViewModel = (): DashboardViewModelReturn => {
   const location = useLocation();
-  const requestedTab = (
-    location.state as { activeTab?: DashboardTab } | null
-  )?.activeTab;
-  const [activeTab, setActiveTabState] = useState<ShellDestination>(
-    requestedTab ?? 'home',
+  const navigate = useNavigate();
+
+  const currentPath = location.pathname.split('/')[1];
+  const activeTab = (currentPath || 'home') as ShellDestination;
+
+  const setActiveTabState = useCallback(
+    (tab: ShellDestination | string) => {
+      navigate(`/${tab}`);
+    },
+    [navigate]
   );
   const [showBrandText, setShowBrandText] = useState(true);
   const [verifyEmailTarget, setVerifyEmailTarget] = useState('');

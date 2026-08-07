@@ -63,7 +63,7 @@ const CreatePrayerView: React.FC = () => {
       <header className="sticky top-0 z-10 border-b border-gray-border/60 bg-white/95 backdrop-blur">
         <div className="flex h-[60px] items-center gap-3 px-4">
           <Link
-            to="/dashboard"
+            to="/home"
             aria-label="Back to prayer wall"
             className="flex size-9 items-center justify-center rounded-lg bg-navy text-white transition hover:bg-navy-hover active:scale-95"
           >

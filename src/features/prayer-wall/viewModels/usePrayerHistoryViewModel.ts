@@ -87,7 +87,6 @@ export const usePrayerHistoryViewModel = () => {
     setHistoryFilter,
     loadMorePrayers,
     goBack: () => navigate(-1),
-    navigateToTab: (tab: DashboardTab) =>
-      navigate('/dashboard', { state: { activeTab: tab } }),
+    navigateToTab: (tab: DashboardTab) => navigate(`/${tab}`),
   };
 };
