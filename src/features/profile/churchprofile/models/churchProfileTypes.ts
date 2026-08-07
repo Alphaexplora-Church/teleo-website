@@ -1,9 +1,5 @@
 // features/profile/churchprofile/models/churchProfileTypes.ts
 // Model layer: pure TypeScript. No React, no hooks, no JSX.
-//
-// NOTE: FeedPostModel is imported from the home feature because announcements
-// and events share the same shape. If a third feature also needs it, promote
-// FeedPostModel to shared/models/ per the 80/20 rule.
 
 import type { FeedPostModel } from '../../../home/models/homeTypes';
 
@@ -28,11 +24,17 @@ export interface ChurchService {
 export interface ChurchProfileData {
   id: number;
   name: string;
-  logoUrl: string;
-  bannerUrl: string;
-  joinedDate: string;
-  overview: string;
-  announcements: FeedPostModel[];
-  events: FeedPostModel[];
-  services: ChurchService[];
+  logoUrl?: string;
+  bannerUrl?: string;
+  joinedDate?: string;
+  location?: string;
+  churchCategory?: 'Main Church' | 'Sister Church' | string | null;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  youtubeUrl?: string;
+  websiteUrl?: string;
+  overview?: string;
+  announcements?: FeedPostModel[];
+  events?: FeedPostModel[];
+  services?: ChurchService[];
 }
