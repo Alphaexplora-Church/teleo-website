@@ -168,7 +168,7 @@ const AppShell: React.FC = () => {
   return (
     <div className="w-full max-w-md min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
       <header className="sticky top-0 z-50 w-full bg-navy text-white">
-        {activeTab === 'profile' ? null : isSubPage ? (
+        {activeTab === 'profile' || activeTab === 'church-profile' ? null : isSubPage ? (
           <div
             className="flex items-center gap-5 px-5 h-14.75 bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
@@ -211,9 +211,6 @@ const AppShell: React.FC = () => {
             )}
             {activeTab === 'history' && (
               <BackHeader title="History" onBack={navigateToProfile} />
-            )}
-            {activeTab === 'church-profile' && (
-              <BackHeader title="Church Profile" onBack={navigateToProfile} />
             )}
             {activeTab === 'select-church' && (
               <BackHeader
@@ -376,7 +373,7 @@ const AppShell: React.FC = () => {
           <HistoryView />
         ) : activeTab === 'church-profile' ? (
           <ChurchProfileView
-            onBack={navigateToProfile}
+            onBack={navigateToFindMyChurch}
             churchId={selectedChurch?.id}
             initialTab={churchProfileTab}
           />

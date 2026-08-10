@@ -42,7 +42,7 @@ const ChurchCard: React.FC<ChurchCardProps> = ({ church, onClick }) => {
       aria-label={`Select ${church.name}`}
       onClick={onClick}
       onKeyDown={(e) => e.key === 'Enter' && onClick()}
-      className="group w-full max-w-[112px] flex flex-col items-center gap-3 p-2 rounded-2xl cursor-pointer hover:bg-white hover:shadow-md hover:shadow-black/5 active:scale-95 transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:bg-white"
+      className="group w-full max-w-28 flex flex-col items-center gap-3 p-2 rounded-2xl cursor-pointer hover:bg-white hover:shadow-md hover:shadow-black/5 active:scale-95 transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:bg-white"
     >
       {/* Circular church avatar with hover pop */}
       <div className="relative size-20 sm:size-24 rounded-full overflow-hidden shrink-0 shadow-sm border border-black/5 group-hover:shadow-md group-hover:scale-105 transition-all duration-300">
@@ -55,7 +55,7 @@ const ChurchCard: React.FC<ChurchCardProps> = ({ church, onClick }) => {
           />
         ) : (
           <div
-            className="w-full h-full bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center text-indigo-600 text-2xl font-bold"
+            className="w-full h-full bg-linear-to-br from-blue-50 to-indigo-100 flex items-center justify-center text-indigo-600 text-2xl font-bold"
             aria-hidden="true"
           >
             {church.name.charAt(0).toUpperCase()}
@@ -81,7 +81,7 @@ const ChurchCard: React.FC<ChurchCardProps> = ({ church, onClick }) => {
 // ── Skeleton Loader ──────────────────────────────────────────────────────────
 
 const ChurchCardSkeleton: React.FC = () => (
-  <div className="flex flex-col items-center gap-3 p-2 w-full max-w-[112px]">
+  <div className="flex flex-col items-center gap-3 p-2 w-full max-w-28">
     <div className="size-20 sm:size-24 rounded-full bg-gray-200 animate-pulse" />
     <div className="flex flex-col items-center gap-2 w-full">
       <div className="w-3/4 h-3.5 rounded bg-gray-200 animate-pulse" />
