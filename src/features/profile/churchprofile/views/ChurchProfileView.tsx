@@ -63,13 +63,14 @@ const SpinnerIcon: React.FC = () => (
   </svg>
 );
 
-// ── Component Props ──────────────────────────────────────────────────────────
+import type { Church } from '../../findmychurch/models/findMyChurchTypes';
 
 interface ChurchProfileViewProps {
   churchId?: number;
   userHomeChurchId?: number | null;
   initialTab?: ChurchProfileTab;
   onBack?: () => void;
+  onHomeChurchChange?: (isHome: boolean, churchData?: Church | null) => void;
 }
 
 // ── Component ────────────────────────────────────────────────────────────────
@@ -79,20 +80,24 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({
   userHomeChurchId,
   initialTab = 'overview',
   onBack,
+  onHomeChurchChange,
 }) => {
   const {
     church,
     isLoading,
     error,
     isFollowing,
-    toggleFollow,
     isHomeChurch,
-    toggleHomeChurch,
     isTogglingHome,
+    confirmationModal,
+    requestSetHomeChurch,
+    requestFollowChurch,
+    confirmModalAction,
+    cancelModalAction,
     tabs,
     activeTab,
     setActiveTab,
-  } = useChurchProfileViewModel(churchId, userHomeChurchId, initialTab);
+  } = useChurchProfileViewModel(churchId, userHomeChurchId, initialTab, onHomeChurchChange);
 
   const [bannerError, setBannerError] = useState(false);
 
@@ -211,7 +216,7 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({
           <div className="flex items-center justify-center gap-3 w-full max-w-sm mx-auto mt-1">
             <button
               type="button"
-              onClick={toggleHomeChurch}
+              onClick={requestSetHomeChurch}
               disabled={isTogglingHome}
               className="flex-1 min-w-32.5 h-11 bg-white text-navy rounded-full shadow-lg flex items-center justify-center gap-2 text-sm font-bold tracking-wide active:scale-95 transition-all disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
             >
@@ -226,7 +231,7 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({
 
             <button
               type="button"
-              onClick={toggleFollow}
+              onClick={requestFollowChurch}
               className="flex-1 min-w-32.5 h-11 bg-white/10 outline-1 outline-white/30 backdrop-blur-md text-white rounded-full flex items-center justify-center text-sm font-bold tracking-wide hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
             >
               {isFollowing ? 'Following' : 'Follow Church'}
@@ -234,6 +239,49 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({
           </div>
         </div>
       </section>
+
+      {/* Confirmation Modal */}
+      {confirmationModal && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="confirm-modal-title"
+        >
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-xl flex flex-col items-center text-center gap-4 border border-gray-100">
+            <div className="flex flex-col gap-1.5 items-center">
+              <h3 id="confirm-modal-title" className="text-gray-900 text-lg font-bold">
+                {confirmationModal.title}
+              </h3>
+              <p className="text-gray-600 text-sm font-normal leading-relaxed">
+                {confirmationModal.message}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 w-full mt-2">
+              <button
+                type="button"
+                onClick={cancelModalAction}
+                className="flex-1 py-2.5 rounded-full border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 active:scale-95 transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmModalAction}
+                className={[
+                  'flex-1 py-2.5 rounded-full text-white text-sm font-semibold active:scale-95 transition-all shadow-md cursor-pointer',
+                  confirmationModal.confirmVariant === 'danger'
+                    ? 'bg-red-600 hover:bg-red-700'
+                    : 'bg-navy hover:bg-navy-hover',
+                ].join(' ')}
+              >
+                {confirmationModal.confirmText}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════
           2. Tab Navigation (Overview, Announcements, Events, Services)

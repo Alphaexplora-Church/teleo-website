@@ -123,6 +123,14 @@ const DEFAULT_STATIC_CHURCH: ChurchProfileData = {
   services: MOCK_SERVICES,
 };
 
+export interface ChurchProfileConfirmationModal {
+  type: 'set_home' | 'leave_home' | 'unfollow';
+  title: string;
+  message: string;
+  confirmText: string;
+  confirmVariant: 'primary' | 'danger';
+}
+
 // ── Return type ───────────────────────────────────────────────────────────────
 
 export interface ChurchProfileViewModelReturn {
@@ -138,17 +146,32 @@ export interface ChurchProfileViewModelReturn {
   /** Whether the user is following this church. */
   isFollowing: boolean;
 
-  /** Toggle the follow state. */
+  /** Toggle the follow state directly. */
   toggleFollow: () => void;
 
   /** Whether this church is set as the user's home church. */
   isHomeChurch: boolean;
 
-  /** Toggle the home church state (calls join/leave API). */
+  /** Toggle the home church state directly. */
   toggleHomeChurch: () => void;
 
   /** Whether a join/leave API call is in progress. */
   isTogglingHome: boolean;
+
+  /** Active confirmation modal state, if any. */
+  confirmationModal: ChurchProfileConfirmationModal | null;
+
+  /** Request setting or removing home church with confirmation check. */
+  requestSetHomeChurch: () => void;
+
+  /** Request follow/unfollow with confirmation check on unfollow. */
+  requestFollowChurch: () => void;
+
+  /** Confirm the pending modal action. */
+  confirmModalAction: () => void;
+
+  /** Cancel and close the confirmation modal. */
+  cancelModalAction: () => void;
 
   /** All available tab definitions. */
   tabs: ChurchProfileTabDef[];
@@ -162,10 +185,13 @@ export interface ChurchProfileViewModelReturn {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
+import type { Church } from '../../findmychurch/models/findMyChurchTypes';
+
 export const useChurchProfileViewModel = (
   churchId?: number,
   userHomeChurchId?: number | null,
   initialTab: ChurchProfileTab = 'overview',
+  onHomeChurchChange?: (isHome: boolean, churchData?: Church | null) => void,
 ): ChurchProfileViewModelReturn => {
   // ── API state ──────────────────────────────────────────────
   const [church, setChurch] = useState<ChurchProfileData | null>(null);
@@ -177,10 +203,12 @@ export const useChurchProfileViewModel = (
   const [isHomeChurch, setIsHomeChurch] = useState(false);
   const [isTogglingHome, setIsTogglingHome] = useState(false);
   const [activeTab, setActiveTab] = useState<ChurchProfileTab>(initialTab);
+  const [confirmationModal, setConfirmationModal] = useState<ChurchProfileConfirmationModal | null>(null);
+  const [existingHomeChurchId, setExistingHomeChurchId] = useState<number | null>(userHomeChurchId ?? null);
+  const [existingHomeChurchName, setExistingHomeChurchName] = useState<string | null>(null);
 
   // ── Fetch church details on mount / when churchId changes ──
   useEffect(() => {
-    // If no churchId supplied, fallback to default static church for design testing
     if (!churchId) {
       setChurch(DEFAULT_STATIC_CHURCH);
       setIsLoading(false);
@@ -196,7 +224,7 @@ export const useChurchProfileViewModel = (
           fetchChurchById(churchId),
           userHomeChurchId === undefined
             ? fetchProfileSettingsView().catch(() => null)
-            : Promise.resolve({ home_church_id: userHomeChurchId }),
+            : Promise.resolve({ home_church_id: userHomeChurchId, home_church_name: null }),
         ]);
 
         setChurch({
@@ -206,7 +234,7 @@ export const useChurchProfileViewModel = (
           bannerUrl: data.cover_photo_url || DEFAULT_STATIC_CHURCH.bannerUrl,
           joinedDate: 'January 2024',
           location: DEFAULT_STATIC_CHURCH.location,
-          churchCategory: 'Main Church', // Default category for testing
+          churchCategory: 'Main Church',
           facebookUrl: 'https://facebook.com',
           instagramUrl: 'https://instagram.com',
           youtubeUrl: 'https://youtube.com',
@@ -220,9 +248,15 @@ export const useChurchProfileViewModel = (
         const currentHomeChurchId =
           userHomeChurchId !== undefined ? userHomeChurchId : profile?.home_church_id;
         setIsHomeChurch(currentHomeChurchId === data.church_id);
+
+        if (profile?.home_church_id) {
+          setExistingHomeChurchId(profile.home_church_id);
+          if ('home_church_name' in profile && profile.home_church_name) {
+            setExistingHomeChurchName(profile.home_church_name as string);
+          }
+        }
       } catch (err) {
         console.error('Failed to fetch church details:', err);
-        // On error, fallback to static test data to ensure UI design can be evaluated
         setChurch(DEFAULT_STATIC_CHURCH);
         setError(null);
       } finally {
@@ -245,16 +279,90 @@ export const useChurchProfileViewModel = (
       if (isHomeChurch) {
         await leaveChurch();
         setIsHomeChurch(false);
+        setExistingHomeChurchId(null);
+        setExistingHomeChurchName(null);
+        onHomeChurchChange?.(false, null);
       } else {
         await joinChurch(churchId);
         setIsHomeChurch(true);
+        if (church) {
+          setExistingHomeChurchId(church.id);
+          setExistingHomeChurchName(church.name);
+          onHomeChurchChange?.(true, {
+            id: church.id,
+            name: church.name,
+            shortName: '',
+            description: church.overview || null,
+            imageUrl: church.logoUrl || null,
+          });
+        }
       }
     } catch (err) {
       console.error('Failed to toggle home church:', err);
     } finally {
       setIsTogglingHome(false);
     }
-  }, [churchId, isHomeChurch, isTogglingHome]);
+  }, [church, churchId, isHomeChurch, isTogglingHome, onHomeChurchChange]);
+
+  const requestSetHomeChurch = useCallback(() => {
+    const churchName = church?.name || 'this church';
+    if (isHomeChurch) {
+      setConfirmationModal({
+        type: 'leave_home',
+        title: 'Leave Home Church',
+        message: `Are you sure you want to remove ${churchName} as your home church?`,
+        confirmText: 'Leave Home',
+        confirmVariant: 'danger',
+      });
+    } else if (existingHomeChurchId && existingHomeChurchId !== churchId) {
+      setConfirmationModal({
+        type: 'set_home',
+        title: 'Replace Home Church?',
+        message: `You currently have ${existingHomeChurchName ? `"${existingHomeChurchName}"` : 'a home church'} set as your home church. Would you like to replace it with ${churchName}?`,
+        confirmText: 'Replace',
+        confirmVariant: 'primary',
+      });
+    } else {
+      setConfirmationModal({
+        type: 'set_home',
+        title: 'Set as Home Church',
+        message: `Are you sure you want to set ${churchName} as your home church?`,
+        confirmText: 'Set as Home',
+        confirmVariant: 'primary',
+      });
+    }
+  }, [church?.name, churchId, existingHomeChurchId, existingHomeChurchName, isHomeChurch]);
+
+  const requestFollowChurch = useCallback(() => {
+    const churchName = church?.name || 'this church';
+    if (isFollowing) {
+      setConfirmationModal({
+        type: 'unfollow',
+        title: 'Unfollow Church',
+        message: `Are you sure you want to unfollow ${churchName}?`,
+        confirmText: 'Unfollow',
+        confirmVariant: 'danger',
+      });
+    } else {
+      toggleFollow();
+    }
+  }, [church?.name, isFollowing, toggleFollow]);
+
+  const confirmModalAction = useCallback(() => {
+    if (!confirmationModal) return;
+
+    if (confirmationModal.type === 'set_home' || confirmationModal.type === 'leave_home') {
+      toggleHomeChurch();
+    } else if (confirmationModal.type === 'unfollow') {
+      toggleFollow();
+    }
+
+    setConfirmationModal(null);
+  }, [confirmationModal, toggleFollow, toggleHomeChurch]);
+
+  const cancelModalAction = useCallback(() => {
+    setConfirmationModal(null);
+  }, []);
 
   return {
     church,
@@ -265,6 +373,11 @@ export const useChurchProfileViewModel = (
     isHomeChurch,
     toggleHomeChurch,
     isTogglingHome,
+    confirmationModal,
+    requestSetHomeChurch,
+    requestFollowChurch,
+    confirmModalAction,
+    cancelModalAction,
     tabs: TABS,
     activeTab,
     setActiveTab,

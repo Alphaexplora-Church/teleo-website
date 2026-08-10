@@ -198,7 +198,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
           </button>
         </header>
 
-        <section className="w-full flex-1 bg-[#ffffff] rounded-tl-[20px] rounded-tr-[20px] rounded-b-none pt-0 px-4 pb-10 flex flex-col items-center gap-4 relative animate-pulse min-h-125">
+        <section className="w-full flex-1 bg-white rounded-tl-[20px] rounded-tr-[20px] rounded-b-none pt-0 px-4 pb-10 flex flex-col items-center gap-4 relative animate-pulse min-h-125">
           <div className="w-full max-w-105 flex justify-between items-end -mt-10">
             <div className="size-20 rounded-full bg-neutral-200 shrink-0 border-4 border-white" />
             <div className="w-24 h-9 bg-neutral-200 rounded-full" />
@@ -319,7 +319,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
             >
               Find My Church
             </button>
-          ) : selectedChurch ? (
+          ) : selectedChurch || profileView?.home_church_id ? (
             <div className="w-full flex flex-col gap-2">
               <div className="flex justify-between items-center px-1">
                 <span className="text-neutral-500 text-base font-bold font-['Poppins']">
@@ -338,7 +338,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
                 onClick={onChurchProfile}
                 className="w-full h-14 px-4 bg-transparent rounded-[20px] border border-solid border-gray-400 flex items-center gap-3 cursor-pointer hover:bg-gray-100/50 active:scale-[0.98] transition-all text-left"
               >
-                {selectedChurch.imageUrl ? (
+                {selectedChurch?.imageUrl ? (
                   <img
                     src={selectedChurch.imageUrl}
                     alt={selectedChurch.name}
@@ -348,7 +348,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
                   <div className="size-7 rounded-full bg-neutral-300 shrink-0" />
                 )}
                 <span className="text-black text-xs font-medium font-roboto truncate flex-1">
-                  {selectedChurch.name}
+                  {selectedChurch?.name || profileView?.home_church_name || 'My Church'}
                 </span>
               </button>
             </div>

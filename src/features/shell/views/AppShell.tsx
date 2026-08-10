@@ -139,7 +139,9 @@ const AppShell: React.FC = () => {
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,
+    viewingChurch,
     selectChurch,
+    updateSelectedChurch,
     showBrandText,
   } = useShellViewModel();
 
@@ -374,8 +376,11 @@ const AppShell: React.FC = () => {
         ) : activeTab === 'church-profile' ? (
           <ChurchProfileView
             onBack={navigateToFindMyChurch}
-            churchId={selectedChurch?.id}
+            churchId={viewingChurch?.id ?? selectedChurch?.id}
             initialTab={churchProfileTab}
+            onHomeChurchChange={(isHome, churchData) =>
+              updateSelectedChurch(isHome ? (churchData ?? null) : null)
+            }
           />
         ) : (
           <ActivePage />

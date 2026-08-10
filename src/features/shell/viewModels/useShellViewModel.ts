@@ -61,7 +61,9 @@ export interface DashboardViewModelReturn {
   verifyEmailTarget: string;
   verifyNumberTarget: string;
   selectedChurch: Church | null;
+  viewingChurch: Church | null;
   selectChurch: (church: Church) => void;
+  updateSelectedChurch: (church: Church | null) => void;
 }
 
 export const useShellViewModel = (): DashboardViewModelReturn => {
@@ -80,7 +82,8 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
   const [showBrandText, setShowBrandText] = useState(true);
   const [verifyEmailTarget, setVerifyEmailTarget] = useState('');
   const [verifyNumberTarget, setVerifyNumberTarget] = useState('');
-  const [selectedChurch, setSelectedChurch] = useState<Church | null>(null);
+  const [homeChurch, setHomeChurch] = useState<Church | null>(null);
+  const [viewingChurch, setViewingChurch] = useState<Church | null>(null);
   const [selectedServiceName, setSelectedServiceName] = useState<string>('');
   const [selectedChurchForBooking, setSelectedChurchForBooking] = useState<{ id: string | number; name: string } | null>(null);
   const [churchProfileTab, setChurchProfileTab] = useState<ChurchProfileTab>('overview');
@@ -175,9 +178,15 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('booking-schedule');
   }, []);
 
+  // Selecting a church card in Find My Church to VIEW its profile (does NOT set as home)
   const selectChurch = useCallback((church: Church) => {
-    setSelectedChurch(church);
+    setViewingChurch(church);
     setActiveTabState('church-profile');
+  }, []);
+
+  // Explicitly setting or unsetting home church from ChurchProfileView
+  const updateSelectedChurch = useCallback((church: Church | null) => {
+    setHomeChurch(church);
   }, []);
 
   return {
@@ -208,7 +217,9 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     selectedChurchForBooking,
     verifyEmailTarget,
     verifyNumberTarget,
-    selectedChurch,
+    selectedChurch: homeChurch,
+    viewingChurch,
     selectChurch,
+    updateSelectedChurch,
   };
 };
