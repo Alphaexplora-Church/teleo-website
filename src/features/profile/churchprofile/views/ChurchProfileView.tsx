@@ -142,7 +142,7 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({
   }
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-gray-50 relative pb-10">
+    <div className="flex flex-col w-full min-h-screen bg-gray-50 relative">
       {/* ═══════════════════════════════════════════════════════════
           1. Hero Banner Section
           ═══════════════════════════════════════════════════════════ */}
@@ -370,31 +370,46 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({
 
         {/* ── Services Tab ────────────────────────────────────── */}
         {activeTab === 'services' && (
-          <div className="flex flex-col gap-3">
-            {church.services?.map((svc) => (
-              <article
-                key={svc.id}
-                className="flex items-center gap-4 bg-white border border-gray-200 rounded-2xl px-4 py-4 shadow-sm"
-              >
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-navy/5 text-navy shrink-0">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl font-semibold text-gray-900 px-0.5">
+              Available Services
+            </h2>
+
+            <div className="grid grid-cols-2 gap-3">
+              {church.services?.map((svc) => (
+                <div
+                  key={svc.id}
+                  className="relative rounded-2xl overflow-hidden shadow-sm h-48 flex flex-col justify-end bg-navy group cursor-pointer"
+                >
+                  {/* Background Image */}
+                  {svc.image && (
+                    <img
+                      src={svc.image}
+                      alt={svc.name}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  )}
+
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-linear-to-t from-navy/90 via-navy/30 to-transparent" />
+
+                  {/* Service Info Content */}
+                  <div className="relative p-3.5 flex flex-col justify-end gap-0.5 z-10">
+                    <h3 className="text-white text-sm font-bold leading-tight">
+                      {svc.name}
+                    </h3>
+                    {svc.subtitle && (
+                      <p className="text-white/80 text-xs font-medium">
+                        {svc.subtitle}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-bold text-gray-900 leading-snug">
-                    {svc.name}
-                  </h3>
-                  <p className="text-sm font-medium text-gray-500 mt-0.5">
-                    {svc.day} &middot; {svc.time}
-                  </p>
-                </div>
-              </article>
-            ))}
-            {(!church.services || church.services.length === 0) && (
-              <p className="text-center text-gray-500 py-8">No service schedules available.</p>
-            )}
+              ))}
+              {(!church.services || church.services.length === 0) && (
+                <p className="col-span-2 text-center text-gray-500 py-8">No services available.</p>
+              )}
+            </div>
           </div>
         )}
       </section>

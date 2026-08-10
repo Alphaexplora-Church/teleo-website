@@ -16,12 +16,14 @@ export interface ChurchProfileTabDef {
   label: string;
 }
 
-/** Service schedule data. */
+/** Service schedule / available service data. */
 export interface ChurchService {
   id: string;
-  day: string;
   name: string;
-  time: string;
+  subtitle?: string;
+  image?: string;
+  day?: string;
+  time?: string;
 }
 
 /** Church profile page data. */
@@ -32,7 +34,7 @@ export interface ChurchProfileData {
   bannerUrl?: string;
   joinedDate?: string;
   location?: string;
-  churchCategory?: 'Main Church' | 'Sister Church' | string | null;
+  churchCategory?: 'Main Church' | 'Daugther Church' | string | null;
   facebookUrl?: string;
   instagramUrl?: string;
   youtubeUrl?: string;

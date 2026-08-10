@@ -7,7 +7,17 @@ import type {
   ChurchProfileTab,
   ChurchProfileTabDef,
   ChurchProfileData,
+  ChurchService,
 } from '../models/churchProfileTypes';
+
+const MOCK_SERVICES: ChurchService[] = [
+  { id: 'svc-1', name: 'Baptism', subtitle: 'Sacred Initiation', image: 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=600&q=80' },
+  { id: 'svc-2', name: 'House Blessing', subtitle: 'Sanctify Your Home', image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80' },
+  { id: 'svc-3', name: 'Prayers', subtitle: 'Spiritual Support', image: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&w=600&q=80' },
+  { id: 'svc-4', name: 'Funeral', subtitle: 'Memorial Services', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80' },
+  { id: 'svc-5', name: 'Dedication', subtitle: 'Commitment Rituals', image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=600&q=80' },
+  { id: 'svc-6', name: 'Counseling', subtitle: 'Spiritual Guidance', image: 'https://images.unsplash.com/photo-1527689368864-3a821dbccc34?auto=format&fit=crop&w=600&q=80' },
+];
 import { fetchChurchById, joinChurch, leaveChurch } from '../models/churchProfileApi';
 import { fetchProfileSettingsView } from '../../models/profileApi';
 
@@ -94,11 +104,6 @@ const MOCK_EVENTS: FeedPostModel[] = [
   },
 ];
 
-const MOCK_SERVICES = [
-  { id: 'svc-1', day: 'Sunday', name: 'Morning Worship', time: '9:00 AM' },
-  { id: 'svc-2', day: 'Sunday', name: 'Evening Service', time: '6:00 PM' },
-  { id: 'svc-3', day: 'Wednesday', name: 'Midweek Prayer', time: '7:00 PM' },
-];
 
 const DEFAULT_STATIC_CHURCH: ChurchProfileData = {
   id: 1,
