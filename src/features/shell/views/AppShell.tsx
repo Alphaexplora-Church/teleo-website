@@ -35,6 +35,7 @@ import HistoryView from '../../profile/views/HistoryView';
 import GivingView from '../../giving/views/GivingView';
 import ChatView from '../../chat/views/ChatView';
 import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
+import FriendsView from '../../profile/views/FriendsView';
 
 const TAB_PAGES: Record<string, React.FC> = {
   home: HomeFeedView,
@@ -129,7 +130,9 @@ const AppShell: React.FC = () => {
     navigateToHelp,
     navigateToHistory,
     navigateToChurchProfile,
+    navigateToFriends,
     churchProfileTab,
+    friendsInitialTab,
     navigateToServices,
     navigateToSelectChurch,
     navigateToBooking,
@@ -165,12 +168,13 @@ const AppShell: React.FC = () => {
     'select-church',
     'booking',
     'booking-schedule',
+    'friends',
   ].includes(activeTab);
 
   return (
     <div className="w-full max-w-md min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
       <header className="sticky top-0 z-50 w-full bg-navy text-white">
-        {activeTab === 'profile' || activeTab === 'church-profile' ? null : isSubPage ? (
+        {activeTab === 'profile' || activeTab === 'church-profile' || activeTab === 'friends' ? null : isSubPage ? (
           <div
             className="flex items-center gap-5 px-5 h-14.75 bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
@@ -326,6 +330,8 @@ const AppShell: React.FC = () => {
             onPrayers={() => setActiveTab('prayer-wall')}
             onHistory={navigateToHistory}
             onServices={() => setActiveTab('services')}
+            onFriends={() => navigateToFriends('Teleo Friends')}
+            onFollowing={() => navigateToFriends('Church Following')}
             onBack={() => setActiveTab('home')}
           />
         ) : activeTab === 'find-my-church' ? (
@@ -373,6 +379,11 @@ const AppShell: React.FC = () => {
           <HelpView />
         ) : activeTab === 'history' ? (
           <HistoryView />
+        ) : activeTab === 'friends' ? (
+          <FriendsView
+            initialTab={friendsInitialTab}
+            onBack={navigateToProfile}
+          />
         ) : activeTab === 'church-profile' ? (
           <ChurchProfileView
             onBack={navigateToFindMyChurch}

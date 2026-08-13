@@ -30,7 +30,8 @@ export type ShellDestination =
   | 'church-profile'
   | 'select-church'
   | 'booking'
-  | 'booking-schedule';
+  | 'booking-schedule'
+  | 'friends';
 
 export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
@@ -56,6 +57,8 @@ export interface DashboardViewModelReturn {
   navigateToSelectChurch: (serviceName?: string) => void;
   navigateToBooking: (church?: { id: string | number; name: string }) => void;
   navigateToBookingSchedule: () => void;
+  navigateToFriends: (initialTab?: string) => void;
+  friendsInitialTab: string;
   selectedServiceName: string;
   selectedChurchForBooking: { id: string | number; name: string } | null;
   verifyEmailTarget: string;
@@ -178,6 +181,15 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('booking-schedule');
   }, []);
 
+  const [friendsInitialTab, setFriendsInitialTab] = useState<string>('Suggestions');
+
+  const navigateToFriends = useCallback((initialTab?: string) => {
+    if (initialTab) {
+      setFriendsInitialTab(initialTab);
+    }
+    setActiveTabState('friends');
+  }, []);
+
   // Selecting a church card in Find My Church to VIEW its profile (does NOT set as home)
   const selectChurch = useCallback((church: Church) => {
     setViewingChurch(church);
@@ -213,6 +225,8 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     navigateToSelectChurch,
     navigateToBooking,
     navigateToBookingSchedule,
+    navigateToFriends,
+    friendsInitialTab,
     selectedServiceName,
     selectedChurchForBooking,
     verifyEmailTarget,

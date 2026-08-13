@@ -96,26 +96,79 @@ const QUICK_ACTION_ICON_MAP: Record<QuickActionItem['iconType'], React.ReactNode
 };
 
 // ── Pure Avatar Component ─────────────────────────────────────────────────────
-const ProfileAvatar: React.FC<{ url?: string | null }> = ({ url }) => {
+const ProfileAvatar: React.FC<{ url?: string | null; altText?: string }> = ({
+  url,
+  altText = 'Profile avatar',
+}) => {
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
   if (url) {
     return (
-      <img
-        src={url}
-        alt="Profile avatar"
-        onError={(e) => {
-          (e.currentTarget as HTMLImageElement).onerror = null;
-          (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/88x88?text=User';
-        }}
-        className="size-20 rounded-full object-cover shrink-0"
-      />
+      <div className="size-20 rounded-full bg-neutral-200 shrink-0 overflow-hidden relative border-4 border-white shadow-sm">
+        <img
+          src={url}
+          alt={altText}
+          onLoad={() => setIsLoaded(true)}
+          onError={(e) => {
+            (e.currentTarget as HTMLImageElement).onerror = null;
+            (e.currentTarget as HTMLImageElement).src = 'https://placehold.co/88x88?text=User';
+            setIsLoaded(true);
+          }}
+          className={`size-20 rounded-full object-cover shrink-0 transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
+        />
+      </div>
     );
   }
   return (
-    <div className="size-20 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-500 shrink-0">
+    <div
+      className="size-20 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-500 shrink-0 border-4 border-white shadow-sm"
+      aria-label={altText}
+    >
       <UserIcon />
     </div>
   );
 };
+
+// ── Reusable Container Class Constant ─────────────────────────────────────────
+const CONTAINER_CLASS = 'w-full max-w-105';
+
+// ── Profile Skeleton Component ────────────────────────────────────────────────
+const ProfileSkeleton: React.FC<{ onBackPress?: () => void }> = ({ onBackPress }) => (
+  <main className="w-full bg-[#1f2156] text-black flex flex-col items-center font-sans relative min-h-screen">
+    <header className="w-full px-4 pt-5 pb-14 flex justify-between items-center">
+      <button
+        type="button"
+        aria-label="Go back"
+        onClick={onBackPress}
+        className="size-8 bg-neutral-50/20 hover:bg-neutral-50/30 active:scale-95 transition-all flex items-center justify-center border-none cursor-pointer text-white rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+      >
+        <BackChevronIcon />
+      </button>
+    </header>
+
+    <section className="w-full flex-1 bg-white rounded-tl-[20px] rounded-tr-[20px] rounded-b-none pt-0 px-4 pb-10 flex flex-col items-center gap-4 relative animate-pulse min-h-125">
+      <div className={`${CONTAINER_CLASS} flex justify-between items-end -mt-10`}>
+        <div className="size-20 rounded-full bg-neutral-200 shrink-0 border-4 border-white" />
+        <div className="w-24 h-9 bg-neutral-200 rounded-full" />
+      </div>
+      <div className={`${CONTAINER_CLASS} flex flex-col gap-2 mt-2`}>
+        <div className="w-48 h-6 bg-neutral-200 rounded" />
+        <div className="w-36 h-4 bg-neutral-200 rounded" />
+      </div>
+      <div className={`${CONTAINER_CLASS} grid grid-cols-3 gap-3 my-4`}>
+        <div className="h-16 bg-neutral-100 rounded-xl" />
+        <div className="h-16 bg-neutral-100 rounded-xl" />
+        <div className="h-16 bg-neutral-100 rounded-xl" />
+      </div>
+      <div className={`${CONTAINER_CLASS} flex flex-col gap-3`}>
+        <div className="h-12 bg-neutral-100 rounded-xl" />
+        <div className="h-12 bg-neutral-100 rounded-xl" />
+        <div className="h-12 bg-neutral-100 rounded-xl" />
+      </div>
+    </section>
+  </main>
+);
 
 // ── Component Props ───────────────────────────────────────────────────────────
 export interface ProfileViewProps {
@@ -136,12 +189,14 @@ export interface ProfileViewProps {
   onPrayers?: () => void;
   onHistory?: () => void;
   onServices?: () => void;
+  onFriends?: () => void;
+  onFollowing?: () => void;
   /** Header back action */
   onBack?: () => void;
 }
 
-// ── View Component ────────────────────────────────────────────────────────────
-const ProfileView: React.FC<ProfileViewProps> = ({
+// ── Main View Component ───────────────────────────────────────────────────────
+export const ProfileView: React.FC<ProfileViewProps> = ({
   onFindMyChurch,
   selectedChurch,
   onChangeChurch,
@@ -154,6 +209,8 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   onPrayers,
   onHistory,
   onServices,
+  onFriends,
+  onFollowing,
   onBack,
 }) => {
   const {
@@ -185,52 +242,18 @@ const ProfileView: React.FC<ProfileViewProps> = ({
   });
 
   if (isLoadingProfile) {
-    return (
-      <main className="w-full bg-[#1f2156] text-black flex flex-col items-center font-roboto relative min-h-screen">
-        <header className="w-full px-4 pt-5 pb-14 flex justify-between items-center">
-          <button
-            type="button"
-            aria-label="Go back"
-            onClick={handleBackPress}
-            className="size-8 bg-neutral-50/20 hover:bg-neutral-50/30 active:scale-95 transition-all flex items-center justify-center border-none cursor-pointer text-white rounded-input"
-          >
-            <BackChevronIcon />
-          </button>
-        </header>
-
-        <section className="w-full flex-1 bg-white rounded-tl-[20px] rounded-tr-[20px] rounded-b-none pt-0 px-4 pb-10 flex flex-col items-center gap-4 relative animate-pulse min-h-125">
-          <div className="w-full max-w-105 flex justify-between items-end -mt-10">
-            <div className="size-20 rounded-full bg-neutral-200 shrink-0 border-4 border-white" />
-            <div className="w-24 h-9 bg-neutral-200 rounded-full" />
-          </div>
-          <div className="w-full max-w-105 flex flex-col gap-2 mt-2">
-            <div className="w-48 h-6 bg-neutral-200 rounded" />
-            <div className="w-36 h-4 bg-neutral-200 rounded" />
-          </div>
-          <div className="w-full max-w-105 grid grid-cols-3 gap-3 my-4">
-            <div className="h-16 bg-neutral-100 rounded-xl" />
-            <div className="h-16 bg-neutral-100 rounded-xl" />
-            <div className="h-16 bg-neutral-100 rounded-xl" />
-          </div>
-          <div className="w-full max-w-105 flex flex-col gap-3">
-            <div className="h-12 bg-neutral-100 rounded-xl" />
-            <div className="h-12 bg-neutral-100 rounded-xl" />
-            <div className="h-12 bg-neutral-100 rounded-xl" />
-          </div>
-        </section>
-      </main>
-    );
+    return <ProfileSkeleton onBackPress={handleBackPress} />;
   }
 
   return (
-    <main className="w-full bg-[#1f2156] text-black flex flex-col items-center font-roboto relative">
+    <main className="w-full bg-[#1f2156] text-black flex flex-col items-center font-sans relative">
       {/* ── 1. Main Background in #1f2156 with Top Header Back Button ── */}
       <header className="w-full px-4 pt-5 pb-14 flex justify-between items-center">
         <button
           type="button"
           aria-label="Go back"
           onClick={handleBackPress}
-          className="size-8 bg-neutral-50/20 hover:bg-neutral-50/30 active:scale-95 transition-all flex items-center justify-center border-none cursor-pointer text-white rounded-input"
+          className="size-8 bg-neutral-50/20 hover:bg-neutral-50/30 active:scale-95 transition-all flex items-center justify-center border-none cursor-pointer text-white rounded-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
         >
           <BackChevronIcon />
         </button>
@@ -238,35 +261,37 @@ const ProfileView: React.FC<ProfileViewProps> = ({
 
       <section className="w-full flex-1 bg-white rounded-tl-[20px] rounded-tr-[20px] rounded-b-none pt-0 px-4 pb-4 flex flex-col items-center gap-4 relative">
 
-        {/* Profile*/}
-        <div className="w-full max-w-105 flex justify-between items-end -mt-10">
-          {/* Top Left Picture*/}
+        {/* Profile Avatar & Header Action */}
+        <div className={`${CONTAINER_CLASS} flex justify-between items-end -mt-10`}>
           {isGuest ? (
-            <ProfileAvatar url={null} />
+            <ProfileAvatar url={null} altText="Guest avatar" />
           ) : isLoadingProfile ? (
-            <div className="size-20 rounded-full bg-neutral-200 animate-pulse shrink-0" />
+            <div className="size-20 rounded-full bg-neutral-200 animate-pulse shrink-0 border-4 border-white" />
           ) : (
-            <ProfileAvatar url={profileView?.profile_picture_url ?? null} />
+            <ProfileAvatar
+              url={profileView?.profile_picture_url ?? null}
+              altText={displayName ? `${displayName}'s avatar` : 'Profile avatar'}
+            />
           )}
 
           {/* Profile Button */}
           <button
             type="button"
             onClick={onAccountInformation}
-            className="w-24 h-8 py-1 bg-transparent rounded-[20px] outline -outline-offset-1 outline-amber-500 flex justify-center items-center cursor-pointer border-none hover:bg-amber-500/10 active:scale-95 transition-all"
+            className="w-24 h-8 py-1 bg-transparent rounded-[20px] outline -outline-offset-1 outline-amber-500 flex justify-center items-center cursor-pointer border-none hover:bg-amber-500/10 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
           >
-            <span className="text-center text-amber-500 text-sm font-medium font-roboto leading-6">
+            <span className="text-center text-amber-500 text-sm font-medium font-sans leading-6">
               Profile
             </span>
           </button>
         </div>
 
-        {/*  Display Name & Email aligned with Friends & Church Following  */}
-        <div className="w-full max-w-105 flex justify-between items-start gap-4">
+        {/* Display Name & Email aligned with Friends & Church Following */}
+        <div className={`${CONTAINER_CLASS} flex justify-between items-start gap-4`}>
           {/* Left Column: Display Name & Email */}
           <div className="flex-1 flex flex-col justify-start min-w-0">
             {isGuest ? (
-              <h2 id="profile-heading" className="text-black text-xl font-bold font-roboto leading-5 truncate">
+              <h2 id="profile-heading" className="text-black text-xl font-bold font-sans leading-5 truncate">
                 Guest
               </h2>
             ) : isLoadingProfile ? (
@@ -278,10 +303,10 @@ const ProfileView: React.FC<ProfileViewProps> = ({
               <p className="text-xs text-red-600">{profileError}</p>
             ) : (
               <>
-                <h2 id="profile-heading" className="text-black text-xl font-bold font-roboto leading-5 truncate">
+                <h2 id="profile-heading" className="text-black text-xl font-bold font-sans leading-5 truncate">
                   {displayName}
                 </h2>
-                <p className="text-black/60 text-sm font-normal font-roboto leading-5 truncate">
+                <p className="text-black text-xs font-normal font-sans leading-5 truncate">
                   {email}
                 </p>
               </>
@@ -290,45 +315,53 @@ const ProfileView: React.FC<ProfileViewProps> = ({
 
           {/* Right Column: Friends & Church Following Stats */}
           <div className="flex justify-end items-start gap-1 shrink-0">
-            <div className="w-20 flex flex-col items-center text-center">
-              <span className="text-black text-xl font-bold font-roboto leading-6">
+            <button
+              type="button"
+              onClick={onFriends}
+              className="w-20 flex flex-col items-center text-center bg-transparent border-none cursor-pointer hover:opacity-75 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded p-1"
+            >
+              <span className="text-black text-xl font-bold font-sans leading-6">
                 {friendsCount}
               </span>
-              <span className="text-black text-xs font-normal font-roboto leading-4">
+              <span className="text-black text-xs font-normal font-sans leading-4">
                 Friends
               </span>
-            </div>
-            <div className="w-20 flex flex-col items-center text-center">
-              <span className="text-black text-xl font-bold font-roboto leading-6">
+            </button>
+            <button
+              type="button"
+              onClick={onFollowing}
+              className="w-20 flex flex-col items-center text-center bg-transparent border-none cursor-pointer hover:opacity-75 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded p-1"
+            >
+              <span className="text-black text-xl font-bold font-sans leading-6">
                 {churchFollowingCount}
               </span>
-              <span className="text-black text-xs font-normal font-roboto leading-4">
+              <span className="text-black text-xs font-normal font-sans leading-4">
                 Church Following
               </span>
-            </div>
+            </button>
           </div>
         </div>
 
         {/* ── Find My Church CTA ── */}
-        <div className="w-full max-w-105">
+        <div className={CONTAINER_CLASS}>
           {isGuest ? (
             <button
               type="button"
               onClick={handleFindMyChurchGuestPress}
-              className="w-full h-11 rounded-[20px] border border-solid border-gray-400 bg-transparent text-zinc-600 text-sm font-medium font-roboto flex items-center justify-center hover:bg-gray-100/50 active:scale-95 transition-all cursor-pointer"
+              className="w-full h-11 rounded-[20px] border border-solid border-gray-400 bg-transparent text-zinc-600 text-sm font-medium font-sans flex items-center justify-center hover:bg-gray-100/50 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
             >
               Find My Church
             </button>
           ) : selectedChurch || profileView?.home_church_id ? (
             <div className="w-full flex flex-col gap-2">
               <div className="flex justify-between items-center px-1">
-                <span className="text-neutral-500 text-base font-bold font-['Poppins']">
+                <span className="text-neutral-500 text-base font-bold font-sans">
                   My Church
                 </span>
                 <button
                   type="button"
                   onClick={onChangeChurch}
-                  className="text-[#336ef9] text-xs font-medium bg-transparent border-none cursor-pointer hover:opacity-75"
+                  className="text-[#336ef9] text-xs font-medium bg-transparent border-none cursor-pointer hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded px-1"
                 >
                   Change
                 </button>
@@ -336,7 +369,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
               <button
                 type="button"
                 onClick={onChurchProfile}
-                className="w-full h-14 px-4 bg-transparent rounded-[20px] border border-solid border-gray-400 flex items-center gap-3 cursor-pointer hover:bg-gray-100/50 active:scale-[0.98] transition-all text-left"
+                className="w-full h-14 px-4 bg-transparent rounded-[20px] border border-solid border-gray-400 flex items-center gap-3 cursor-pointer hover:bg-gray-100/50 active:scale-[0.98] transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
                 {selectedChurch?.imageUrl ? (
                   <img
@@ -347,7 +380,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
                 ) : (
                   <div className="size-7 rounded-full bg-neutral-300 shrink-0" />
                 )}
-                <span className="text-black text-xs font-medium font-roboto truncate flex-1">
+                <span className="text-black text-xs font-medium font-sans truncate flex-1">
                   {selectedChurch?.name || profileView?.home_church_name || 'My Church'}
                 </span>
               </button>
@@ -356,7 +389,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({
             <button
               type="button"
               onClick={onFindMyChurch}
-              className="w-full h-11 rounded-[20px] border border-solid border-gray-400 bg-transparent text-zinc-600 text-sm font-medium font-roboto flex items-center justify-center hover:bg-gray-100/50 active:scale-95 transition-all cursor-pointer"
+              className="w-full h-11 rounded-[20px] border border-solid border-gray-400 bg-transparent text-zinc-600 text-sm font-medium font-sans flex items-center justify-center hover:bg-gray-100/50 active:scale-95 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
             >
               Find My Church
             </button>
@@ -364,18 +397,18 @@ const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
 
         {/* Quick Action Buttons Row (Giving, Prayers, History) */}
-        <div className="w-full max-w-105 flex justify-between items-center gap-3">
+        <div className={`${CONTAINER_CLASS} flex justify-between items-center gap-3`}>
           {quickActions.map((action) => (
             <button
               key={action.id}
               type="button"
               onClick={() => handleQuickActionPress(action)}
-              className="size-24 rounded-[20px] border border-solid border-gray-400 bg-transparent flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 active:scale-95 transition-all duration-200 text-black"
+              className="size-24 rounded-[20px] border border-solid border-gray-400 bg-transparent flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-gray-50 active:scale-95 transition-all duration-200 text-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
             >
               <div className="size-8 rounded-input flex items-center justify-center">
                 {QUICK_ACTION_ICON_MAP[action.iconType]}
               </div>
-              <span className="text-black text-sm font-normal font-roboto leading-4 text-center">
+              <span className="text-black text-sm font-normal font-sans leading-4 text-center">
                 {action.label}
               </span>
             </button>
@@ -383,46 +416,47 @@ const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
 
         {/* ── General Settings Section ── */}
-        <div className="w-full max-w-105 flex flex-col gap-3" aria-labelledby="general-settings-heading">
+        <div className={`${CONTAINER_CLASS} flex flex-col gap-3`} aria-labelledby="general-settings-heading">
           <h3
             id="general-settings-heading"
-            className="text-neutral-500 font-bold text-base font-['Poppins'] font-poppins leading-6"
+            className="text-neutral-500 font-bold text-base font-sans leading-6"
           >
             General Settings
           </h3>
 
-          <div className="w-full px-3.5 py-3 rounded-[20px] border border-solid border-gray-400 bg-transparent flex flex-col gap-2.5">
+          <ul className="w-full px-3.5 py-3 rounded-[20px] border border-solid border-gray-400 bg-transparent flex flex-col gap-2.5 list-none m-0 p-0">
             {generalSettings.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                disabled={isLoggingOut && item.iconType === 'logout'}
-                onClick={() => handleSettingsItemPress(item)}
-                className={`w-full flex items-center gap-2.5 py-1.5 px-2 rounded-lg border-none bg-transparent text-left cursor-pointer hover:bg-black/5 active:scale-[0.99] transition-all duration-150 ${isLoggingOut && item.iconType === 'logout' ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-              >
-                <div
-                  className={`size-8 rounded-input flex items-center justify-center shrink-0 ${item.destructive ? 'text-red-600' : 'text-black'
+              <li key={item.id} className="w-full">
+                <button
+                  type="button"
+                  disabled={isLoggingOut && item.iconType === 'logout'}
+                  onClick={() => handleSettingsItemPress(item)}
+                  className={`w-full flex items-center gap-2.5 py-1.5 px-2 rounded-lg border-none bg-transparent text-left cursor-pointer hover:bg-black/5 active:scale-[0.99] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${isLoggingOut && item.iconType === 'logout' ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                 >
-                  {SETTINGS_ICON_MAP[item.iconType]}
-                </div>
-
-                <span
-                  className={`flex-1 text-xs font-normal font-roboto leading-6 ${item.destructive ? 'text-red-600' : 'text-black'
-                    }`}
-                >
-                  {item.iconType === 'logout' && isLoggingOut ? 'Signing out…' : item.label}
-                </span>
-
-                {item.hasArrow && (
-                  <div className="text-black/70 shrink-0">
-                    <ChevronRightIcon />
+                  <div
+                    className={`size-8 rounded-input flex items-center justify-center shrink-0 ${item.destructive ? 'text-red-600' : 'text-black'
+                      }`}
+                  >
+                    {SETTINGS_ICON_MAP[item.iconType]}
                   </div>
-                )}
-              </button>
+
+                  <span
+                    className={`flex-1 text-xs font-normal font-sans leading-6 ${item.destructive ? 'text-red-600' : 'text-black'
+                      }`}
+                  >
+                    {item.iconType === 'logout' && isLoggingOut ? 'Signing out…' : item.label}
+                  </span>
+
+                  {item.hasArrow && (
+                    <div className="text-black/70 shrink-0">
+                      <ChevronRightIcon />
+                    </div>
+                  )}
+                </button>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
     </main>

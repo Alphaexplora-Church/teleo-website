@@ -90,6 +90,7 @@ function App() {
           <Route path="/select-church" element={<AppShell />} />
           <Route path="/booking" element={<AppShell />} />
           <Route path="/booking-schedule" element={<AppShell />} />
+          <Route path="/friends" element={<AppShell />} />
 
           {/* Prayer request composer */}
           <Route path="/prayer-request" element={<CreatePrayerView />} />
