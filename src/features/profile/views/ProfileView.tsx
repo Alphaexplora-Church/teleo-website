@@ -5,6 +5,7 @@ import React from 'react';
 import { useProfileViewModel } from '../viewModels/useProfileViewModel';
 import type { SettingsItem, QuickActionItem } from '../models/profileTypes';
 import type { Church } from '../findmychurch/models/findMyChurchTypes';
+import type { ChurchProfileTab } from '../churchprofile/models/churchProfileTypes';
 
 import prayIcon from '../../../assets/icons/pray-black.svg';
 import givingIcon from '../../../assets/icons/giving-black.svg';
@@ -183,7 +184,7 @@ export interface ProfileViewProps {
   onSecurity?: () => void;
   onNotifications?: () => void;
   onHelp?: () => void;
-  onChurchProfile?: () => void;
+  onChurchProfile?: (tab?: ChurchProfileTab) => void;
   /** Quick action callbacks */
   onGiving?: () => void;
   onPrayers?: () => void;
@@ -368,7 +369,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </div>
               <button
                 type="button"
-                onClick={onChurchProfile}
+                onClick={() => onChurchProfile?.('overview')}
                 className="w-full h-14 px-4 bg-transparent rounded-[20px] border border-solid border-gray-400 flex items-center gap-3 cursor-pointer hover:bg-gray-100/50 active:scale-[0.98] transition-all text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
                 {selectedChurch?.imageUrl ? (

@@ -9,7 +9,10 @@ import { useState, useCallback, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import type { Church } from '../../profile/findmychurch/models/findMyChurchTypes';
+import { toChurch } from '../../profile/findmychurch/models/findMyChurchTypes';
 import type { ChurchProfileTab } from '../../profile/churchprofile/models/churchProfileTypes';
+import { fetchProfileSettingsView } from '../../profile/models/profileApi';
+import { fetchChurchById } from '../../profile/churchprofile/models/churchProfileApi';
 
 export type ShellDestination =
   | DashboardTab
@@ -55,7 +58,7 @@ export interface DashboardViewModelReturn {
   churchProfileTab: ChurchProfileTab;
   navigateToServices: () => void;
   navigateToSelectChurch: (serviceName?: string) => void;
-  navigateToBooking: (church?: { id: string | number; name: string }) => void;
+  navigateToBooking: (church?: { id: string | number; name: string }, serviceName?: string) => void;
   navigateToBookingSchedule: () => void;
   navigateToFriends: (initialTab?: string) => void;
   friendsInitialTab: string;
@@ -94,6 +97,21 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
   useEffect(() => {
     const timer = window.setTimeout(() => setShowBrandText(false), 2200);
     return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const loadHomeChurch = async () => {
+      try {
+        const profile = await fetchProfileSettingsView();
+        if (profile?.home_church_id) {
+          const churchData = await fetchChurchById(profile.home_church_id);
+          setHomeChurch(toChurch(churchData));
+        }
+      } catch (err) {
+        // Silent catch for guest / unauthenticated users
+      }
+    };
+    loadHomeChurch();
   }, []);
 
   const navigateToProfile = useCallback(() => {
@@ -154,10 +172,15 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('history');
   }, []);
 
-  const navigateToChurchProfile = useCallback((tab?: ChurchProfileTab) => {
-    setChurchProfileTab(tab ?? 'overview');
-    setActiveTabState('church-profile');
-  }, []);
+  const navigateToChurchProfile = useCallback(
+    (tab?: ChurchProfileTab) => {
+      setViewingChurch(null);
+      const validTab = typeof tab === 'string' ? tab : 'overview';
+      setChurchProfileTab(validTab);
+      setActiveTabState('church-profile');
+    },
+    [setActiveTabState]
+  );
 
   const navigateToServices = useCallback(() => {
     setActiveTabState('services');
@@ -170,12 +193,18 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('select-church');
   }, []);
 
-  const navigateToBooking = useCallback((church?: { id: string | number; name: string }) => {
-    if (church) {
-      setSelectedChurchForBooking(church);
-    }
-    setActiveTabState('booking');
-  }, []);
+  const navigateToBooking = useCallback(
+    (church?: { id: string | number; name: string }, serviceName?: string) => {
+      if (church) {
+        setSelectedChurchForBooking(church);
+      }
+      if (serviceName) {
+        setSelectedServiceName(serviceName);
+      }
+      setActiveTabState('booking');
+    },
+    [setActiveTabState]
+  );
 
   const navigateToBookingSchedule = useCallback(() => {
     setActiveTabState('booking-schedule');
@@ -191,10 +220,14 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
   }, []);
 
   // Selecting a church card in Find My Church to VIEW its profile (does NOT set as home)
-  const selectChurch = useCallback((church: Church) => {
-    setViewingChurch(church);
-    setActiveTabState('church-profile');
-  }, []);
+  const selectChurch = useCallback(
+    (church: Church) => {
+      setViewingChurch(church);
+      setChurchProfileTab('overview');
+      setActiveTabState('church-profile');
+    },
+    [setActiveTabState]
+  );
 
   // Explicitly setting or unsetting home church from ChurchProfileView
   const updateSelectedChurch = useCallback((church: Church | null) => {

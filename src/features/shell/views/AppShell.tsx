@@ -392,6 +392,9 @@ const AppShell: React.FC = () => {
             onHomeChurchChange={(isHome, churchData) =>
               updateSelectedChurch(isHome ? (churchData ?? null) : null)
             }
+            onServiceSelect={(serviceName, church) =>
+              navigateToBooking(church, serviceName)
+            }
           />
         ) : (
           <ActivePage />

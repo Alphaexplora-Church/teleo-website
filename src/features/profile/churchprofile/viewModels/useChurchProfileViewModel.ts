@@ -18,10 +18,8 @@ const MOCK_SERVICES: ChurchService[] = [
   { id: 'svc-5', name: 'Dedication', subtitle: 'Commitment Rituals', image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=600&q=80' },
   { id: 'svc-6', name: 'Counseling', subtitle: 'Spiritual Guidance', image: 'https://images.unsplash.com/photo-1527689368864-3a821dbccc34?auto=format&fit=crop&w=600&q=80' },
 ];
-import { fetchChurchById, joinChurch, leaveChurch } from '../models/churchProfileApi';
+import { fetchChurchById, joinChurch, leaveChurch, fetchChurchContents } from '../models/churchProfileApi';
 import { fetchProfileSettingsView } from '../../models/profileApi';
-
-import { SERMON_IMAGE, EVENT_IMAGE, type FeedPostModel } from '../../../home/models/homeTypes';
 
 // ── Static tab definitions ────────────────────────────────────────────────────
 const TABS: ChurchProfileTabDef[] = [
@@ -30,80 +28,6 @@ const TABS: ChurchProfileTabDef[] = [
   { key: 'events', label: 'Events' },
   { key: 'services', label: 'Services' },
 ];
-
-// ── Shared detail defaults (mirrors homeTypes pattern) ────────────────────────
-const sharedDetails = {
-  location: '123 Faith Avenue, Detroit, MI 48201',
-  locationNote: 'Grace Community Church, 123 Faith Ave, Detroit MI 48201',
-  fee: 'Free',
-  organizer: 'Grace Community Church',
-  speakers: '',
-  participants: '',
-  dressCode: 'Casual',
-};
-
-// ── Mock static data for testing design ───────────────────────────────────────
-const MOCK_ANNOUNCEMENTS: FeedPostModel[] = [
-  {
-    id: 'ann-1',
-    author: 'Pastor John',
-    meta: 'Church • 2 hours ago',
-    category: 'Announcement',
-    title: 'Sunday Service Schedule Change',
-    tags: ['Worship', 'Community', 'Sunday'],
-    body: 'Starting next week, our Sunday Service will begin at 9:30 AM instead of 10:00 AM. Please make a note of this change and adjust your schedule accordingly.',
-    schedule: 'New Schedule:\n▫ New Service Time: 9:30 AM',
-    imageUrl: SERMON_IMAGE,
-    imageAlt: 'Pastor celebrating Sunday service',
-    date: 'Sunday, July 19',
-    time: '9:30 AM – 11:00 AM',
-    ...sharedDetails,
-  },
-  {
-    id: 'ann-2',
-    author: 'Ministry Team',
-    meta: 'Church • July 20',
-    category: 'Announcement',
-    title: 'Volunteer Sign-Up Open',
-    tags: ['Volunteer', 'Outreach', 'Community'],
-    body: 'We need volunteers for the upcoming community outreach program. Sign up at the welcome desk after service. Your time and talent make a difference!',
-    date: 'Saturday, July 26',
-    time: '8:00 AM – 12:00 PM',
-    ...sharedDetails,
-  },
-];
-
-const MOCK_EVENTS: FeedPostModel[] = [
-  {
-    id: 'evt-1',
-    author: 'Pastor John',
-    meta: 'Church • 30 mins ago',
-    category: 'Events',
-    title: 'PRAISE! Youth Worship Charity Concert',
-    tags: ['Music', 'Youth', 'Community'],
-    details: ['● Detroit, MI', '▣ July 25, 2026', '▫ 6:00 PM'],
-    body: 'Join us for an uplifting evening of worship, music, and fellowship in support of our youth charity programs.',
-    schedule: 'Doors open at 5:30 PM',
-    imageUrl: EVENT_IMAGE,
-    imageAlt: 'Youth worship charity concert gathering',
-    date: 'Friday, July 25',
-    time: '6:00 PM – 9:00 PM',
-    ...sharedDetails,
-  },
-  {
-    id: 'evt-2',
-    author: 'Sister Mary',
-    meta: 'Church • 3 days ago',
-    category: 'Events',
-    title: 'Women’s Bible Study',
-    tags: ['Bible Study', 'Women', 'Faith'],
-    body: 'A warm and welcoming space for women of all ages to study scripture, share testimonies, and grow together in faith.',
-    date: 'Wednesday, July 23',
-    time: '10:00 AM – 12:00 PM',
-    ...sharedDetails,
-  },
-];
-
 
 const DEFAULT_STATIC_CHURCH: ChurchProfileData = {
   id: 1,
@@ -118,8 +42,8 @@ const DEFAULT_STATIC_CHURCH: ChurchProfileData = {
   youtubeUrl: 'https://youtube.com',
   websiteUrl: 'https://gracecommunity.org',
   overview: 'Grace Community Church is a vibrant, welcoming community dedicated to worship, spiritual growth, and serving our local neighbors. Join us for Sunday services, midweek Bible studies, and community outreach projects as we walk together in faith and love.',
-  announcements: MOCK_ANNOUNCEMENTS,
-  events: MOCK_EVENTS,
+  announcements: [],
+  events: [],
   services: MOCK_SERVICES,
 };
 
@@ -207,25 +131,43 @@ export const useChurchProfileViewModel = (
   const [existingHomeChurchId, setExistingHomeChurchId] = useState<number | null>(userHomeChurchId ?? null);
   const [existingHomeChurchName, setExistingHomeChurchName] = useState<string | null>(null);
 
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab, churchId]);
+
   // ── Fetch church details on mount / when churchId changes ──
   useEffect(() => {
-    if (!churchId) {
-      setChurch(DEFAULT_STATIC_CHURCH);
-      setIsLoading(false);
-      return;
-    }
-
     const load = async () => {
       try {
         setIsLoading(true);
         setError(null);
 
-        const [data, profile] = await Promise.all([
-          fetchChurchById(churchId),
-          userHomeChurchId === undefined
+        let targetChurchId = churchId;
+        let userProfile: { home_church_id?: number | null; home_church_name?: string | null } | null = null;
+
+        if (!targetChurchId) {
+          userProfile = await fetchProfileSettingsView().catch(() => null);
+          targetChurchId = userProfile?.home_church_id ?? undefined;
+        }
+
+        if (!targetChurchId) {
+          setChurch(DEFAULT_STATIC_CHURCH);
+          setIsLoading(false);
+          return;
+        }
+
+        const [data, profile, contents] = await Promise.all([
+          fetchChurchById(targetChurchId),
+          userProfile
+            ? Promise.resolve(userProfile)
+            : userHomeChurchId === undefined
             ? fetchProfileSettingsView().catch(() => null)
             : Promise.resolve({ home_church_id: userHomeChurchId, home_church_name: null }),
+          fetchChurchContents(targetChurchId).catch(() => ({ announcements: [], events: [] })),
         ]);
+
+        const announcements = contents.announcements;
+        const events = contents.events;
 
         setChurch({
           id: data.church_id,
@@ -240,8 +182,8 @@ export const useChurchProfileViewModel = (
           youtubeUrl: 'https://youtube.com',
           websiteUrl: 'https://gracecommunity.org',
           overview: data.church_description || DEFAULT_STATIC_CHURCH.overview,
-          announcements: MOCK_ANNOUNCEMENTS,
-          events: MOCK_EVENTS,
+          announcements,
+          events,
           services: MOCK_SERVICES,
         });
 
