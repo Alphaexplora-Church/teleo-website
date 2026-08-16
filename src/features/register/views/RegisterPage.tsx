@@ -157,6 +157,8 @@ const RegisterPage: React.FC = () => {
         {currentStep === 6 && (
           <Step6ProfilePic
             profilePictureUrl={formData.profilePictureUrl}
+            isLoading={isLoading}
+            error={errors.general}
             onFileSelected={vm.handleStep6Submit}
             onSkip={vm.handleSkipProfilePic}
           />
