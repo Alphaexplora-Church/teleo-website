@@ -22,12 +22,14 @@ const EditIcon: React.FC = () => (
 // ── Props ─────────────────────────────────────────────────────
 interface Step6Props {
   profilePictureUrl: string | null;
+  isLoading: boolean;
+  error?: string;
   onFileSelected: (file: File) => void;
   onSkip: () => void;
 }
 
 // ── Component ─────────────────────────────────────────────────
-const Step6ProfilePic: React.FC<Step6Props> = ({ profilePictureUrl, onFileSelected, onSkip }) => {
+const Step6ProfilePic: React.FC<Step6Props> = ({ profilePictureUrl, isLoading, error, onFileSelected, onSkip }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const triggerFilePicker = () => {
@@ -60,7 +62,7 @@ const Step6ProfilePic: React.FC<Step6Props> = ({ profilePictureUrl, onFileSelect
         id="btn-reg-avatar-picker"
         type="button"
         onClick={triggerFilePicker}
-        disabled={true}
+        disabled={isLoading}
         aria-label="Upload profile picture"
         className="relative w-[140px] h-[140px] rounded-full border-[2px] border-dashed border-gray-border bg-white flex items-center justify-center cursor-pointer transition-all hover:border-navy hover:bg-navy/5 active:scale-95 mb-10 group shadow-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
       >
@@ -95,16 +97,20 @@ const Step6ProfilePic: React.FC<Step6Props> = ({ profilePictureUrl, onFileSelect
         tabIndex={-1}
       />
 
+      {error && (
+        <p className="text-xs text-error font-medium text-center mb-3" role="alert">{error}</p>
+      )}
+
       {/* ── Action Buttons ── */}
       <div className="flex flex-col gap-3 w-full">
         <button
           id="btn-reg-step6-upload"
           type="button"
           onClick={triggerFilePicker}
-          disabled={true}
+          disabled={isLoading}
           className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-none bg-navy text-white font-sans text-[15px] font-semibold tracking-[0.1px] cursor-pointer px-6 transition-all shadow-btn hover:bg-navy-hover hover:shadow-[0_4px_16px_rgba(27,50,82,0.28)] active:bg-navy-active active:scale-95 active:shadow-none select-none disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
         >
-          {profilePictureUrl ? 'Change Photo' : 'Upload Photo'}
+          {isLoading ? 'Uploading…' : profilePictureUrl ? 'Change Photo' : 'Upload Photo'}
         </button>
 
         {profilePictureUrl && (
@@ -112,7 +118,7 @@ const Step6ProfilePic: React.FC<Step6Props> = ({ profilePictureUrl, onFileSelect
             id="btn-reg-step6-continue"
             type="button"
             onClick={onSkip}
-            disabled={true}
+            disabled={isLoading}
             className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-none bg-navy text-white font-sans text-[15px] font-semibold tracking-[0.1px] cursor-pointer px-6 transition-all shadow-btn hover:bg-navy-hover hover:shadow-[0_4px_16px_rgba(27,50,82,0.28)] active:bg-navy-active active:scale-95 active:shadow-none select-none disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
           >
             Continue
