@@ -47,7 +47,7 @@ interface Step4Props {
 
 // ── Component ─────────────────────────────────────────────────
 const Step4GenderUsername: React.FC<Step4Props> = ({
-  formData, errors, isLoading, setGender, updateField, onSubmit,
+  formData, errors, isLoading, setGender, onSubmit,
 }) => {
   return (
     <div className="flex flex-col gap-0 w-full animate-page-fade-in">
