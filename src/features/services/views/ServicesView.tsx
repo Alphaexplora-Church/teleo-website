@@ -145,7 +145,7 @@ interface BookingCardProps {
   booking: UpcomingBooking;
 }
 
-const BookingCard: React.FC<BookingCardProps> = ({ booking }) => {
+export const BookingCard: React.FC<BookingCardProps> = ({ booking }) => {
   const isConfirmed = booking.status === 'CONFIRMED';
 
   return (
@@ -200,7 +200,7 @@ interface ChurchCardProps {
   onViewServices: (id: string | number) => void;
 }
 
-const ChurchCard: React.FC<ChurchCardProps> = ({ church, onViewServices }) => (
+const ChurchCard: React.FC<ChurchCardProps> = ({ church, onViewServices: _onViewServices }) => (
   <div className="w-full bg-white rounded-xl shadow-[0px_1px_2px_0px_rgba(0,0,0,0.05)] outline -outline-offset-1 outline-neutral-300 overflow-hidden">
     {church.imageUrl ? (
       <>
@@ -283,7 +283,7 @@ const ServicesView: React.FC<ServicesViewProps> = ({ onNavigateToSelectChurch, o
   // All state, data, and handlers come exclusively from the ViewModel.
   const {
     quickServicePages,
-    upcomingBookings,
+    upcomingBookings: _upcomingBookings,
     affiliatedChurches,
     isLoading,
     isLoadingChurches,

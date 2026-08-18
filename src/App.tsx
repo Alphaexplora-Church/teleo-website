@@ -91,6 +91,8 @@ function App() {
           <Route path="/booking" element={<AppShell />} />
           <Route path="/booking-schedule" element={<AppShell />} />
           <Route path="/friends" element={<AppShell />} />
+          <Route path="/public-profile" element={<AppShell />} />
+          <Route path="/public-profile/:userId" element={<AppShell />} />
 
           {/* Prayer request composer */}
           <Route path="/prayer-request" element={<CreatePrayerView />} />

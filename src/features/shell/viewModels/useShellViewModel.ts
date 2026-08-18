@@ -34,7 +34,8 @@ export type ShellDestination =
   | 'select-church'
   | 'booking'
   | 'booking-schedule'
-  | 'friends';
+  | 'friends'
+  | 'public-profile';
 
 export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
@@ -61,6 +62,8 @@ export interface DashboardViewModelReturn {
   navigateToBooking: (church?: { id: string | number; name: string }, serviceName?: string) => void;
   navigateToBookingSchedule: () => void;
   navigateToFriends: (initialTab?: string) => void;
+  navigateToPublicProfile: (userId: string | number) => void;
+  viewingUserId: string | number | null;
   friendsInitialTab: string;
   selectedServiceName: string;
   selectedChurchForBooking: { id: string | number; name: string } | null;
@@ -211,6 +214,9 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
   }, []);
 
   const [friendsInitialTab, setFriendsInitialTab] = useState<string>('Suggestions');
+  const [viewingUserId, setViewingUserId] = useState<string | number | null>(null);
+  const pathUserId = currentPath === 'public-profile' ? location.pathname.split('/')[2] : null;
+  const effectiveViewingUserId = viewingUserId ?? pathUserId;
 
   const navigateToFriends = useCallback((initialTab?: string) => {
     if (initialTab) {
@@ -218,6 +224,14 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     }
     setActiveTabState('friends');
   }, []);
+
+  const navigateToPublicProfile = useCallback(
+    (userId: string | number) => {
+      setViewingUserId(userId);
+      setActiveTabState(`public-profile/${userId}`);
+    },
+    [setActiveTabState]
+  );
 
   // Selecting a church card in Find My Church to VIEW its profile (does NOT set as home)
   const selectChurch = useCallback(
@@ -259,6 +273,8 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     navigateToBooking,
     navigateToBookingSchedule,
     navigateToFriends,
+    navigateToPublicProfile,
+    viewingUserId: effectiveViewingUserId,
     friendsInitialTab,
     selectedServiceName,
     selectedChurchForBooking,

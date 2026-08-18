@@ -8,7 +8,6 @@ import { logout } from '../../../shared/models/authService';
 import { fetchProfileSettingsView } from '../models/profileApi';
 import type {
   ProfileSettingsView,
-  RecentActivityItem,
   SettingsItem,
   QuickActionItem,
 } from '../models/profileTypes';

@@ -2,8 +2,9 @@
 // View layer: Dumb UI. Only JSX. Consumes useFriendsViewModel hook.
 // NO useState, NO useEffect, NO useMemo, NO API calls inside View.
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useFriendsViewModel } from '../viewModels/useFriendsViewModel';
+import PublicProfileView from './PublicProfileView';
 
 // ── Icons ─────────────────────────────────────────────────────────────────────
 
@@ -60,11 +61,14 @@ const MapPinIcon = () => (
 export interface FriendsViewProps {
   initialTab?: string;
   onBack?: () => void;
+  onUserClick?: (userId: string | number) => void;
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-const FriendsView: React.FC<FriendsViewProps> = ({ initialTab = 'Suggestions', onBack }) => {
+const FriendsView: React.FC<FriendsViewProps> = ({ initialTab = 'Suggestions', onBack, onUserClick }) => {
+  const [selectedUserId, setSelectedUserId] = useState<string | number | null>(null);
+
   const {
     activeTab,
     setActiveTab,
@@ -82,6 +86,23 @@ const FriendsView: React.FC<FriendsViewProps> = ({ initialTab = 'Suggestions', o
     handleToggleFollowChurch,
     handleBackPress,
   } = useFriendsViewModel({ initialTab, onBack });
+
+  const handleUserClick = (userId: string | number) => {
+    if (onUserClick) {
+      onUserClick(userId);
+    } else {
+      setSelectedUserId(userId);
+    }
+  };
+
+  if (selectedUserId !== null) {
+    return (
+      <PublicProfileView
+        userId={String(selectedUserId)}
+        onBack={() => setSelectedUserId(null)}
+      />
+    );
+  }
 
   return (
     <div className="w-full max-w-md mx-auto min-h-screen bg-white flex flex-col relative pb-20 font-sans text-black">
@@ -164,14 +185,19 @@ const FriendsView: React.FC<FriendsViewProps> = ({ initialTab = 'Suggestions', o
                 <div className="flex flex-col gap-4">
                   {requests.map((friend) => (
                     <div key={friend.id} className="flex items-center gap-3">
-                      <img
-                        src={friend.avatar}
-                        alt={friend.name}
-                        className="w-12 h-12 rounded-full object-cover border border-gray-100 shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-bold truncate">{friend.name}</h3>
-                        <p className="text-xs text-neutral-500 truncate">{friend.church}</p>
+                      <div
+                        onClick={() => handleUserClick(friend.id)}
+                        className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer group"
+                      >
+                        <img
+                          src={friend.avatar}
+                          alt={friend.name}
+                          className="w-12 h-12 rounded-full object-cover border border-gray-100 shrink-0 group-hover:opacity-90 transition-opacity"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-bold truncate group-hover:text-amber-600 transition-colors">{friend.name}</h3>
+                          <p className="text-xs text-neutral-500 truncate">{friend.church}</p>
+                        </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <button
@@ -204,14 +230,19 @@ const FriendsView: React.FC<FriendsViewProps> = ({ initialTab = 'Suggestions', o
               <div className="flex flex-col gap-4">
                 {suggestions.map((friend) => (
                   <div key={friend.id} className="flex items-center gap-3">
-                    <img
-                      src={friend.avatar}
-                      alt={friend.name}
-                      className="w-12 h-12 rounded-full object-cover border border-gray-100 shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-bold truncate">{friend.name}</h3>
-                      <p className="text-xs text-neutral-500 truncate">{friend.church}</p>
+                    <div
+                      onClick={() => handleUserClick(friend.id)}
+                      className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer group"
+                    >
+                      <img
+                        src={friend.avatar}
+                        alt={friend.name}
+                        className="w-12 h-12 rounded-full object-cover border border-gray-100 shrink-0 group-hover:opacity-90 transition-opacity"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-bold truncate group-hover:text-amber-600 transition-colors">{friend.name}</h3>
+                        <p className="text-xs text-neutral-500 truncate">{friend.church}</p>
+                      </div>
                     </div>
                     <button
                       type="button"
@@ -240,14 +271,19 @@ const FriendsView: React.FC<FriendsViewProps> = ({ initialTab = 'Suggestions', o
                 <div className="flex flex-col gap-4 px-1">
                   {groupedFriends[letter].map((friend) => (
                     <div key={friend.id} className="flex items-center gap-3">
-                      <img
-                        src={friend.avatar}
-                        alt={friend.name}
-                        className="w-12 h-12 rounded-full object-cover border border-gray-100 shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-bold truncate">{friend.name}</h3>
-                        <p className="text-xs text-neutral-500 truncate">{friend.church}</p>
+                      <div
+                        onClick={() => handleUserClick(friend.id)}
+                        className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer group"
+                      >
+                        <img
+                          src={friend.avatar}
+                          alt={friend.name}
+                          className="w-12 h-12 rounded-full object-cover border border-gray-100 shrink-0 group-hover:opacity-90 transition-opacity"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-bold truncate group-hover:text-amber-600 transition-colors">{friend.name}</h3>
+                          <p className="text-xs text-neutral-500 truncate">{friend.church}</p>
+                        </div>
                       </div>
                       <button
                         type="button"

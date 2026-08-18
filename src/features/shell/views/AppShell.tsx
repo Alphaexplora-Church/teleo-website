@@ -33,9 +33,10 @@ import NotificationView from '../../profile/views/NotificationView';
 import HelpView from '../../profile/views/HelpView';
 import HistoryView from '../../profile/views/HistoryView';
 import GivingView from '../../giving/views/GivingView';
-import ChatView from '../../chat/views/ChatView';
-import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
 import FriendsView from '../../profile/views/FriendsView';
+import PublicProfileView from '../../profile/views/PublicProfileView';
+import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
+import ChatView from '../../chat/views/ChatView';
 
 const TAB_PAGES: Record<string, React.FC> = {
   home: HomeFeedView,
@@ -131,6 +132,8 @@ const AppShell: React.FC = () => {
     navigateToHistory,
     navigateToChurchProfile,
     navigateToFriends,
+    navigateToPublicProfile,
+    viewingUserId,
     churchProfileTab,
     friendsInitialTab,
     navigateToServices,
@@ -169,12 +172,13 @@ const AppShell: React.FC = () => {
     'booking',
     'booking-schedule',
     'friends',
+    'public-profile',
   ].includes(activeTab);
 
   return (
     <div className="w-full max-w-md min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
       <header className="sticky top-0 z-50 w-full bg-navy text-white">
-        {activeTab === 'profile' || activeTab === 'church-profile' || activeTab === 'friends' ? null : isSubPage ? (
+        {activeTab === 'profile' || activeTab === 'church-profile' || activeTab === 'friends' || activeTab === 'public-profile' ? null : isSubPage ? (
           <div
             className="flex items-center gap-5 px-5 h-14.75 bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
@@ -383,6 +387,12 @@ const AppShell: React.FC = () => {
           <FriendsView
             initialTab={friendsInitialTab}
             onBack={navigateToProfile}
+            onUserClick={navigateToPublicProfile}
+          />
+        ) : activeTab === 'public-profile' ? (
+          <PublicProfileView
+            userId={String(viewingUserId ?? '')}
+            onBack={() => navigateToFriends(friendsInitialTab)}
           />
         ) : activeTab === 'church-profile' ? (
           <ChurchProfileView
