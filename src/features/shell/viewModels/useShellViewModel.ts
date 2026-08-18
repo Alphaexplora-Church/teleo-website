@@ -55,7 +55,7 @@ export interface DashboardViewModelReturn {
   navigateToNotifications: () => void;
   navigateToHelp: () => void;
   navigateToHistory: () => void;
-  navigateToChurchProfile: (tab?: ChurchProfileTab) => void;
+  navigateToChurchProfile: (tab?: ChurchProfileTab, churchId?: string | number) => void;
   churchProfileTab: ChurchProfileTab;
   navigateToServices: () => void;
   navigateToSelectChurch: (serviceName?: string) => void;
@@ -176,8 +176,15 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
   }, []);
 
   const navigateToChurchProfile = useCallback(
-    (tab?: ChurchProfileTab) => {
-      setViewingChurch(null);
+    (tab?: ChurchProfileTab, churchId?: string | number) => {
+      if (churchId !== undefined && churchId !== null) {
+        const idNum = typeof churchId === 'number' ? churchId : parseInt(String(churchId), 10);
+        if (!isNaN(idNum)) {
+          setViewingChurch({ id: idNum } as Church);
+        }
+      } else {
+        setViewingChurch(null);
+      }
       const validTab = typeof tab === 'string' ? tab : 'overview';
       setChurchProfileTab(validTab);
       setActiveTabState('church-profile');

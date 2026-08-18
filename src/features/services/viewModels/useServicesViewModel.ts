@@ -40,8 +40,8 @@ import type { ChurchProfileTab } from '../../profile/churchprofile/models/church
 export interface ServicesViewModelProps {
   /** Injected by AppShell — triggers navigation to the SelectChurch sub-page. */
   onNavigateToSelectChurch?: (serviceName?: string) => void;
-  /** Injected by AppShell — triggers navigation to Church Profile with optional active tab. */
-  onNavigateToChurchProfile?: (tab?: ChurchProfileTab) => void;
+  /** Injected by AppShell — triggers navigation to Church Profile with optional active tab and churchId. */
+  onNavigateToChurchProfile?: (tab?: ChurchProfileTab, churchId?: string | number) => void;
 }
 
 export const useServicesViewModel = (
@@ -119,8 +119,8 @@ export const useServicesViewModel = (
     // TODO: Navigate to full affiliated churches screen.
   };
 
-  const onViewChurchServices = (_churchId: string | number) => {
-    props?.onNavigateToChurchProfile?.('services');
+  const onViewChurchServices = (churchId: string | number) => {
+    props?.onNavigateToChurchProfile?.('services', churchId);
   };
 
   return {
