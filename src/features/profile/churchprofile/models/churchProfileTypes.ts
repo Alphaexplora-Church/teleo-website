@@ -16,23 +16,31 @@ export interface ChurchProfileTabDef {
   label: string;
 }
 
-/** Service schedule data. */
+/** Service schedule / available service data. */
 export interface ChurchService {
   id: string;
-  day: string;
   name: string;
-  time: string;
+  subtitle?: string;
+  image?: string;
+  day?: string;
+  time?: string;
 }
 
 /** Church profile page data. */
 export interface ChurchProfileData {
   id: number;
   name: string;
-  logoUrl: string;
-  bannerUrl: string;
-  joinedDate: string;
-  overview: string;
-  announcements: FeedPostModel[];
-  events: FeedPostModel[];
-  services: ChurchService[];
+  logoUrl?: string;
+  bannerUrl?: string;
+  joinedDate?: string;
+  location?: string;
+  churchCategory?: 'Main Church' | 'Daugther Church' | string | null;
+  facebookUrl?: string;
+  instagramUrl?: string;
+  youtubeUrl?: string;
+  websiteUrl?: string;
+  overview?: string;
+  announcements?: FeedPostModel[];
+  events?: FeedPostModel[];
+  services?: ChurchService[];
 }

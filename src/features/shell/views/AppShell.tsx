@@ -13,6 +13,9 @@ import teleoMini from '../../../assets/icons/teleo-mini.svg';
 
 import HomeFeedView from '../../home/views/HomeFeedView';
 import ServicesView from '../../services/views/ServicesView';
+import SelectChurchView from '../../services/select-church/views/SelectChurchView';
+import BookingView from '../../services/booking/views/BookingView';
+import BookingScheduleView from '../../services/booking/views/BookingScheduleView';
 import PrayerWallView from '../../prayer-wall/views/PrayerWallView';
 import ContentView from '../../content/views/ContentView';
 import ProfileView from '../../profile/views/ProfileView';
@@ -28,9 +31,12 @@ import ChangePasswordView from '../../profile/security/change-password/views/Cha
 import PrivacyPolicyView from '../../profile/security/views/PrivacyPolicyView';
 import NotificationView from '../../profile/views/NotificationView';
 import HelpView from '../../profile/views/HelpView';
+import HistoryView from '../../profile/views/HistoryView';
 import GivingView from '../../giving/views/GivingView';
-import ChatView from '../../chat/views/ChatView';
+import FriendsView from '../../profile/views/FriendsView';
+import PublicProfileView from '../../profile/views/PublicProfileView';
 import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
+import ChatView from '../../chat/views/ChatView';
 
 const TAB_PAGES: Record<string, React.FC> = {
   home: HomeFeedView,
@@ -64,7 +70,7 @@ interface BackHeaderProps {
 }
 
 const BackHeader: React.FC<BackHeaderProps> = ({ title, onBack }) => (
-  <div className="flex items-center gap-5 h-[60px]">
+  <div className="flex items-center gap-5 h-15">
     <button
       type="button"
       aria-label="Go back"
@@ -73,7 +79,7 @@ const BackHeader: React.FC<BackHeaderProps> = ({ title, onBack }) => (
     >
       <BackChevron />
     </button>
-    <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-[0] font-sans">
+    <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-normal font-sans">
       {title}
     </h1>
   </div>
@@ -100,7 +106,7 @@ const HeaderAvatar: React.FC<HeaderAvatarProps> = ({
           className="w-8 h-8 rounded-full object-cover ring-2 ring-white/30"
         />
       ) : (
-        <img src={profileIcon} alt="" className="h-[25px] w-[25px]" />
+        <img src={profileIcon} alt="" className="h-6.25 w-6.25" />
       )}
     </button>
   );
@@ -123,11 +129,25 @@ const AppShell: React.FC = () => {
     navigateToPrivacyPolicy,
     navigateToNotifications,
     navigateToHelp,
+    navigateToHistory,
     navigateToChurchProfile,
+    navigateToFriends,
+    navigateToPublicProfile,
+    viewingUserId,
+    churchProfileTab,
+    friendsInitialTab,
+    navigateToServices,
+    navigateToSelectChurch,
+    navigateToBooking,
+    navigateToBookingSchedule,
+    selectedServiceName,
+    selectedChurchForBooking,
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,
+    viewingChurch,
     selectChurch,
+    updateSelectedChurch,
     showBrandText,
   } = useShellViewModel();
 
@@ -146,25 +166,28 @@ const AppShell: React.FC = () => {
     'privacy-policy',
     'notifications',
     'help',
+    'history',
     'church-profile',
+    'select-church',
+    'booking',
+    'booking-schedule',
+    'friends',
+    'public-profile',
   ].includes(activeTab);
 
   return (
-    <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
-      <header className="sticky top-0 z-50 w-full bg-[#001739] text-white">
-        {isSubPage ? (
+    <div className="w-full max-w-md min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
+      <header className="sticky top-0 z-50 w-full bg-navy text-white">
+        {activeTab === 'profile' || activeTab === 'church-profile' || activeTab === 'friends' || activeTab === 'public-profile' ? null : isSubPage ? (
           <div
-            className="flex items-center gap-5 px-5 h-[59px] bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
+            className="flex items-center gap-5 px-5 h-14.75 bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
           >
-            {activeTab === 'profile' && (
-              <BackHeader title="Profile" onBack={() => setActiveTab('home')} />
-            )}
             {activeTab === 'find-my-church' && (
               <BackHeader title="Find My Church" onBack={navigateToProfile} />
             )}
             {activeTab === 'account-information' && (
-              <BackHeader title="Account Information" onBack={navigateToProfile} />
+              <BackHeader title="Profile" onBack={navigateToProfile} />
             )}
             {activeTab === 'edit-profile-picture' && (
               <BackHeader title="Edit Profile Picture" onBack={navigateToAccountInformation} />
@@ -196,13 +219,31 @@ const AppShell: React.FC = () => {
             {activeTab === 'help' && (
               <BackHeader title="Help & FAQs" onBack={navigateToProfile} />
             )}
-            {activeTab === 'church-profile' && (
-              <BackHeader title="Church Profile" onBack={navigateToProfile} />
+            {activeTab === 'history' && (
+              <BackHeader title="History" onBack={navigateToProfile} />
+            )}
+            {activeTab === 'select-church' && (
+              <BackHeader
+                title={selectedServiceName ? `Select Church (${selectedServiceName})` : 'Select Church'}
+                onBack={navigateToServices}
+              />
+            )}
+            {activeTab === 'booking' && (
+              <BackHeader
+                title={selectedServiceName ? `${selectedServiceName} Overview` : 'Service Overview'}
+                onBack={() => navigateToSelectChurch(selectedServiceName)}
+              />
+            )}
+            {activeTab === 'booking-schedule' && (
+              <BackHeader
+                title="Schedule Booking"
+                onBack={() => navigateToBooking(selectedChurchForBooking ?? undefined)}
+              />
             )}
           </div>
         ) : (
           <div
-            className="flex items-center justify-between px-5 h-[59px]"
+            className="flex items-center justify-between px-5 h-14.75"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
           >
             <div className="flex items-center gap-2">
@@ -212,7 +253,7 @@ const AppShell: React.FC = () => {
                   'overflow-hidden whitespace-nowrap text-[24px] font-black leading-none tracking-[5px] text-white',
                   'transition-all duration-700 ease-in-out',
                   showBrandText
-                    ? 'max-w-[135px] translate-x-0 opacity-100'
+                    ? 'max-w-33.75 translate-x-0 opacity-100'
                     : 'max-w-0 -translate-x-2 opacity-0',
                 ].join(' ')}
               >
@@ -220,24 +261,23 @@ const AppShell: React.FC = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-2 text-white">
+            <div className="flex items-center gap-3 text-white">
               <button
                 type="button"
                 aria-label="Search"
                 className="flex h-10 w-10 items-center justify-center"
               >
-                <img src={searchIcon} alt="" className="h-[38px] w-9" />
+                <img src={searchIcon} alt="" className="h-9.5 w-9" />
               </button>
 
               <button
-                id="btn-header-notifications"
                 type="button"
                 aria-label="Notifications"
                 className="relative flex h-10 w-8 items-center justify-center rounded-full border-none bg-transparent cursor-pointer"
               >
-                <img src={notificationIcon} alt="" className="h-[25px] w-[25px]" />
+                <img src={notificationIcon} alt="" className="h-6.25 w-6.25" />
                 <span
-                  className="absolute top-0 right-0 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FFAF00] px-1 text-[10px] font-bold text-[#001739]"
+                  className="absolute top-0 right-0 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-[#FFAF00] px-1 text-[10px] font-bold text-navy"
                   aria-hidden="true"
                 >
                   3
@@ -251,12 +291,34 @@ const AppShell: React.FC = () => {
       </header>
 
       <main
-        className="flex-1 overflow-y-auto"
+        className="flex-1 w-full overflow-y-auto"
         id="dashboard-content-area"
         aria-live="polite"
         aria-label={`${activeTab} page`}
       >
-        {activeTab === 'home' ? (
+        {activeTab === 'services' ? (
+          <ServicesView
+            onNavigateToSelectChurch={navigateToSelectChurch}
+            onNavigateToChurchProfile={navigateToChurchProfile}
+          />
+        ) : activeTab === 'select-church' ? (
+          <SelectChurchView
+            serviceName={selectedServiceName}
+            onChurchSelect={(church) => navigateToBooking(church)}
+          />
+        ) : activeTab === 'booking' ? (
+          <BookingView
+            serviceName={selectedServiceName}
+            churchName={selectedChurchForBooking?.name}
+            onProceedToSchedule={navigateToBookingSchedule}
+          />
+        ) : activeTab === 'booking-schedule' ? (
+          <BookingScheduleView
+            serviceName={selectedServiceName}
+            churchName={selectedChurchForBooking?.name}
+            onBookingComplete={navigateToServices}
+          />
+        ) : activeTab === 'home' ? (
           <HomeFeedView onFindMyChurch={navigateToFindMyChurch} />
         ) : activeTab === 'profile' ? (
           <ProfileView
@@ -268,6 +330,13 @@ const AppShell: React.FC = () => {
             onNotifications={navigateToNotifications}
             onHelp={navigateToHelp}
             onChurchProfile={navigateToChurchProfile}
+            onGiving={() => setActiveTab('giving')}
+            onPrayers={() => setActiveTab('prayer-wall')}
+            onHistory={navigateToHistory}
+            onServices={() => setActiveTab('services')}
+            onFriends={() => navigateToFriends('Teleo Friends')}
+            onFollowing={() => navigateToFriends('Church Following')}
+            onBack={() => setActiveTab('home')}
           />
         ) : activeTab === 'find-my-church' ? (
           <FindMyChurchView onChurchSelect={selectChurch} />
@@ -312,8 +381,31 @@ const AppShell: React.FC = () => {
           <NotificationView onSuccess={() => setTimeout(navigateToProfile, 2000)} />
         ) : activeTab === 'help' ? (
           <HelpView />
+        ) : activeTab === 'history' ? (
+          <HistoryView />
+        ) : activeTab === 'friends' ? (
+          <FriendsView
+            initialTab={friendsInitialTab}
+            onBack={navigateToProfile}
+            onUserClick={navigateToPublicProfile}
+          />
+        ) : activeTab === 'public-profile' ? (
+          <PublicProfileView
+            userId={String(viewingUserId ?? '')}
+            onBack={() => navigateToFriends(friendsInitialTab)}
+          />
         ) : activeTab === 'church-profile' ? (
-          <ChurchProfileView onBack={navigateToProfile} churchId={selectedChurch?.id} />
+          <ChurchProfileView
+            onBack={navigateToFindMyChurch}
+            churchId={viewingChurch?.id ?? selectedChurch?.id}
+            initialTab={churchProfileTab}
+            onHomeChurchChange={(isHome, churchData) =>
+              updateSelectedChurch(isHome ? (churchData ?? null) : null)
+            }
+            onServiceSelect={(serviceName, church) =>
+              navigateToBooking(church, serviceName)
+            }
+          />
         ) : (
           <ActivePage />
         )}

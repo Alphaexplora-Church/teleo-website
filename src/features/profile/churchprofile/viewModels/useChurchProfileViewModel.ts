@@ -7,11 +7,19 @@ import type {
   ChurchProfileTab,
   ChurchProfileTabDef,
   ChurchProfileData,
+  ChurchService,
 } from '../models/churchProfileTypes';
-import { fetchChurchById, joinChurch, leaveChurch } from '../models/churchProfileApi';
-import { fetchProfileSettingsView } from '../../models/profileApi';
 
-import { SERMON_IMAGE, EVENT_IMAGE, type FeedPostModel } from '../../../home/models/homeTypes';
+const MOCK_SERVICES: ChurchService[] = [
+  { id: 'svc-1', name: 'Baptism', subtitle: 'Sacred Initiation', image: 'https://images.unsplash.com/photo-1507692049790-de58290a4334?auto=format&fit=crop&w=600&q=80' },
+  { id: 'svc-2', name: 'House Blessing', subtitle: 'Sanctify Your Home', image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=600&q=80' },
+  { id: 'svc-3', name: 'Prayers', subtitle: 'Spiritual Support', image: 'https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&w=600&q=80' },
+  { id: 'svc-4', name: 'Funeral', subtitle: 'Memorial Services', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80' },
+  { id: 'svc-5', name: 'Dedication', subtitle: 'Commitment Rituals', image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=600&q=80' },
+  { id: 'svc-6', name: 'Counseling', subtitle: 'Spiritual Guidance', image: 'https://images.unsplash.com/photo-1527689368864-3a821dbccc34?auto=format&fit=crop&w=600&q=80' },
+];
+import { fetchChurchById, joinChurch, leaveChurch, fetchChurchContents } from '../models/churchProfileApi';
+import { fetchProfileSettingsView } from '../../models/profileApi';
 
 // ── Static tab definitions ────────────────────────────────────────────────────
 const TABS: ChurchProfileTabDef[] = [
@@ -21,84 +29,31 @@ const TABS: ChurchProfileTabDef[] = [
   { key: 'services', label: 'Services' },
 ];
 
-// ── Shared detail defaults (mirrors homeTypes pattern) ────────────────────────
-const sharedDetails = {
-  location: 'Detroit, MI',
-  locationNote: 'Sunny Detroit Church, 123 Faith St, Detroit MI 48201',
-  fee: 'Free',
-  organizer: 'Sunny Detroit Church',
-  speakers: '',
-  participants: '',
-  dressCode: 'Casual',
+const DEFAULT_STATIC_CHURCH: ChurchProfileData = {
+  id: 1,
+  name: 'Grace Community Church',
+  logoUrl: 'https://images.unsplash.com/photo-1548625149-fc4a29cf7092?auto=format&fit=crop&w=400&q=80',
+  bannerUrl: 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=1200&q=80',
+  joinedDate: 'January 2024',
+  location: '123 Faith Avenue, Detroit, MI 48201',
+  churchCategory: 'Main Church',
+  facebookUrl: 'https://facebook.com',
+  instagramUrl: 'https://instagram.com',
+  youtubeUrl: 'https://youtube.com',
+  websiteUrl: 'https://gracecommunity.org',
+  overview: 'Grace Community Church is a vibrant, welcoming community dedicated to worship, spiritual growth, and serving our local neighbors. Join us for Sunday services, midweek Bible studies, and community outreach projects as we walk together in faith and love.',
+  announcements: [],
+  events: [],
+  services: MOCK_SERVICES,
 };
 
-// ── Mock tab data (announcements, events, services — no backend yet) ──────────
-const MOCK_ANNOUNCEMENTS: FeedPostModel[] = [
-  {
-    id: 'ann-1',
-    author: 'Pastor John',
-    meta: 'Church \u2022 2 hours ago',
-    category: 'Announcement',
-    title: 'Sunday Service Schedule Change',
-    tags: ['Worship', 'Community', 'Sunday'],
-    body: 'Starting next week, our Sunday Service will begin at 9:30 AM instead of 10:00 AM. Please make a note of this change and adjust your schedule accordingly.',
-    schedule: 'New Schedule:\n\u25F7 New Service Time: 9:30 AM',
-    imageUrl: SERMON_IMAGE,
-    imageAlt: 'Pastor celebrating Sunday service',
-    date: 'Sunday, July 19',
-    time: '9:30 AM \u2013 11:00 AM',
-    ...sharedDetails,
-  },
-  {
-    id: 'ann-2',
-    author: 'Ministry Team',
-    meta: 'Church \u2022 July 20',
-    category: 'Announcement',
-    title: 'Volunteer Sign-Up Open',
-    tags: ['Volunteer', 'Outreach', 'Community'],
-    body: 'We need volunteers for the upcoming community outreach program. Sign up at the welcome desk after service. Your time and talent make a difference!',
-    date: 'Saturday, July 26',
-    time: '8:00 AM \u2013 12:00 PM',
-    ...sharedDetails,
-  },
-];
-
-const MOCK_EVENTS: FeedPostModel[] = [
-  {
-    id: 'evt-1',
-    author: 'Pastor John',
-    meta: 'Church \u2022 30 mins ago',
-    category: 'Events',
-    title: 'PRAISE! Youth Worship Charity Concert',
-    tags: ['Music', 'Youth', 'Community'],
-    details: ['\u25CF Detroit, MI', '\u25A3 July 25, 2026', '\u25F7 6:00 PM'],
-    body: 'Join us for an uplifting evening of worship, music, and fellowship in support of our youth charity programs.',
-    schedule: 'Doors open at 5:30 PM',
-    imageUrl: EVENT_IMAGE,
-    imageAlt: 'Youth worship charity concert gathering',
-    date: 'Friday, July 25',
-    time: '6:00 PM \u2013 9:00 PM',
-    ...sharedDetails,
-  },
-  {
-    id: 'evt-2',
-    author: 'Sister Mary',
-    meta: 'Church \u2022 3 days ago',
-    category: 'Events',
-    title: 'Women\u2019s Bible Study',
-    tags: ['Bible Study', 'Women', 'Faith'],
-    body: 'A warm and welcoming space for women of all ages to study scripture, share testimonies, and grow together in faith.',
-    date: 'Wednesday, July 23',
-    time: '10:00 AM \u2013 12:00 PM',
-    ...sharedDetails,
-  },
-];
-
-const MOCK_SERVICES = [
-  { id: 'svc-1', day: 'Sunday', name: 'Morning Worship', time: '9:00 AM' },
-  { id: 'svc-2', day: 'Sunday', name: 'Evening Service', time: '6:00 PM' },
-  { id: 'svc-3', day: 'Wednesday', name: 'Midweek Prayer', time: '7:00 PM' },
-];
+export interface ChurchProfileConfirmationModal {
+  type: 'set_home' | 'leave_home' | 'unfollow';
+  title: string;
+  message: string;
+  confirmText: string;
+  confirmVariant: 'primary' | 'danger';
+}
 
 // ── Return type ───────────────────────────────────────────────────────────────
 
@@ -115,17 +70,32 @@ export interface ChurchProfileViewModelReturn {
   /** Whether the user is following this church. */
   isFollowing: boolean;
 
-  /** Toggle the follow state. */
+  /** Toggle the follow state directly. */
   toggleFollow: () => void;
 
   /** Whether this church is set as the user's home church. */
   isHomeChurch: boolean;
 
-  /** Toggle the home church state (calls join/leave API). */
+  /** Toggle the home church state directly. */
   toggleHomeChurch: () => void;
 
   /** Whether a join/leave API call is in progress. */
   isTogglingHome: boolean;
+
+  /** Active confirmation modal state, if any. */
+  confirmationModal: ChurchProfileConfirmationModal | null;
+
+  /** Request setting or removing home church with confirmation check. */
+  requestSetHomeChurch: () => void;
+
+  /** Request follow/unfollow with confirmation check on unfollow. */
+  requestFollowChurch: () => void;
+
+  /** Confirm the pending modal action. */
+  confirmModalAction: () => void;
+
+  /** Cancel and close the confirmation modal. */
+  cancelModalAction: () => void;
 
   /** All available tab definitions. */
   tabs: ChurchProfileTabDef[];
@@ -139,9 +109,13 @@ export interface ChurchProfileViewModelReturn {
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
+import type { Church } from '../../findmychurch/models/findMyChurchTypes';
+
 export const useChurchProfileViewModel = (
   churchId?: number,
   userHomeChurchId?: number | null,
+  initialTab: ChurchProfileTab = 'overview',
+  onHomeChurchChange?: (isHome: boolean, churchData?: Church | null) => void,
 ): ChurchProfileViewModelReturn => {
   // ── API state ──────────────────────────────────────────────
   const [church, setChurch] = useState<ChurchProfileData | null>(null);
@@ -152,44 +126,81 @@ export const useChurchProfileViewModel = (
   const [isFollowing, setIsFollowing] = useState(false);
   const [isHomeChurch, setIsHomeChurch] = useState(false);
   const [isTogglingHome, setIsTogglingHome] = useState(false);
-  const [activeTab, setActiveTab] = useState<ChurchProfileTab>('overview');
+  const [activeTab, setActiveTab] = useState<ChurchProfileTab>(initialTab);
+  const [confirmationModal, setConfirmationModal] = useState<ChurchProfileConfirmationModal | null>(null);
+  const [existingHomeChurchId, setExistingHomeChurchId] = useState<number | null>(userHomeChurchId ?? null);
+  const [existingHomeChurchName, setExistingHomeChurchName] = useState<string | null>(null);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab, churchId]);
 
   // ── Fetch church details on mount / when churchId changes ──
   useEffect(() => {
-    if (!churchId) {
-      setIsLoading(false);
-      setError('No church selected.');
-      return;
-    }
-
     const load = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        // Fetch both church details and user profile concurrently
-        const [data, profile] = await Promise.all([
-          fetchChurchById(churchId),
-          userHomeChurchId === undefined ? fetchProfileSettingsView().catch(() => null) : Promise.resolve({ home_church_id: userHomeChurchId })
+
+        let targetChurchId = churchId;
+        let userProfile: { home_church_id?: number | null; home_church_name?: string | null } | null = null;
+
+        if (!targetChurchId) {
+          userProfile = await fetchProfileSettingsView().catch(() => null);
+          targetChurchId = userProfile?.home_church_id ?? undefined;
+        }
+
+        if (!targetChurchId) {
+          setChurch(DEFAULT_STATIC_CHURCH);
+          setIsLoading(false);
+          return;
+        }
+
+        const [data, profile, contents] = await Promise.all([
+          fetchChurchById(targetChurchId),
+          userProfile
+            ? Promise.resolve(userProfile)
+            : userHomeChurchId === undefined
+            ? fetchProfileSettingsView().catch(() => null)
+            : Promise.resolve({ home_church_id: userHomeChurchId, home_church_name: null }),
+          fetchChurchContents(targetChurchId).catch(() => ({ announcements: [], events: [] })),
         ]);
+
+        const announcements = contents.announcements;
+        const events = contents.events;
 
         setChurch({
           id: data.church_id,
           name: data.church_name,
-          logoUrl: data.logo_url || '',
-          bannerUrl: data.cover_photo_url || '',
-          joinedDate: '',
-          overview: data.church_description || 'No description available.',
-          announcements: MOCK_ANNOUNCEMENTS,
-          events: MOCK_EVENTS,
+          logoUrl: data.logo_url || DEFAULT_STATIC_CHURCH.logoUrl,
+          bannerUrl: data.cover_photo_url || DEFAULT_STATIC_CHURCH.bannerUrl,
+          joinedDate: 'January 2024',
+          location: DEFAULT_STATIC_CHURCH.location,
+          churchCategory: 'Main Church',
+          facebookUrl: 'https://facebook.com',
+          instagramUrl: 'https://instagram.com',
+          youtubeUrl: 'https://youtube.com',
+          websiteUrl: 'https://gracecommunity.org',
+          overview: data.church_description || DEFAULT_STATIC_CHURCH.overview,
+          announcements,
+          events,
           services: MOCK_SERVICES,
         });
 
-        // Determine home church status from profile data
-        const currentHomeChurchId = userHomeChurchId !== undefined ? userHomeChurchId : profile?.home_church_id;
+        const currentHomeChurchId =
+          userHomeChurchId !== undefined ? userHomeChurchId : profile?.home_church_id;
         setIsHomeChurch(currentHomeChurchId === data.church_id);
+
+        if (profile?.home_church_id) {
+          setExistingHomeChurchId(profile.home_church_id);
+          if ('home_church_name' in profile && profile.home_church_name) {
+            setExistingHomeChurchName(profile.home_church_name as string);
+          }
+        }
       } catch (err) {
         console.error('Failed to fetch church details:', err);
-        setError('Could not load church details. Please try again.');
+        setChurch(DEFAULT_STATIC_CHURCH);
+        setError(null);
       } finally {
         setIsLoading(false);
       }
@@ -210,16 +221,90 @@ export const useChurchProfileViewModel = (
       if (isHomeChurch) {
         await leaveChurch();
         setIsHomeChurch(false);
+        setExistingHomeChurchId(null);
+        setExistingHomeChurchName(null);
+        onHomeChurchChange?.(false, null);
       } else {
         await joinChurch(churchId);
         setIsHomeChurch(true);
+        if (church) {
+          setExistingHomeChurchId(church.id);
+          setExistingHomeChurchName(church.name);
+          onHomeChurchChange?.(true, {
+            id: church.id,
+            name: church.name,
+            shortName: '',
+            description: church.overview || null,
+            imageUrl: church.logoUrl || null,
+          });
+        }
       }
     } catch (err) {
       console.error('Failed to toggle home church:', err);
     } finally {
       setIsTogglingHome(false);
     }
-  }, [churchId, isHomeChurch, isTogglingHome]);
+  }, [church, churchId, isHomeChurch, isTogglingHome, onHomeChurchChange]);
+
+  const requestSetHomeChurch = useCallback(() => {
+    const churchName = church?.name || 'this church';
+    if (isHomeChurch) {
+      setConfirmationModal({
+        type: 'leave_home',
+        title: 'Leave Home Church',
+        message: `Are you sure you want to remove ${churchName} as your home church?`,
+        confirmText: 'Leave Home',
+        confirmVariant: 'danger',
+      });
+    } else if (existingHomeChurchId && existingHomeChurchId !== churchId) {
+      setConfirmationModal({
+        type: 'set_home',
+        title: 'Replace Home Church?',
+        message: `You currently have ${existingHomeChurchName ? `"${existingHomeChurchName}"` : 'a home church'} set as your home church. Would you like to replace it with ${churchName}?`,
+        confirmText: 'Replace',
+        confirmVariant: 'primary',
+      });
+    } else {
+      setConfirmationModal({
+        type: 'set_home',
+        title: 'Set as Home Church',
+        message: `Are you sure you want to set ${churchName} as your home church?`,
+        confirmText: 'Set as Home',
+        confirmVariant: 'primary',
+      });
+    }
+  }, [church?.name, churchId, existingHomeChurchId, existingHomeChurchName, isHomeChurch]);
+
+  const requestFollowChurch = useCallback(() => {
+    const churchName = church?.name || 'this church';
+    if (isFollowing) {
+      setConfirmationModal({
+        type: 'unfollow',
+        title: 'Unfollow Church',
+        message: `Are you sure you want to unfollow ${churchName}?`,
+        confirmText: 'Unfollow',
+        confirmVariant: 'danger',
+      });
+    } else {
+      toggleFollow();
+    }
+  }, [church?.name, isFollowing, toggleFollow]);
+
+  const confirmModalAction = useCallback(() => {
+    if (!confirmationModal) return;
+
+    if (confirmationModal.type === 'set_home' || confirmationModal.type === 'leave_home') {
+      toggleHomeChurch();
+    } else if (confirmationModal.type === 'unfollow') {
+      toggleFollow();
+    }
+
+    setConfirmationModal(null);
+  }, [confirmationModal, toggleFollow, toggleHomeChurch]);
+
+  const cancelModalAction = useCallback(() => {
+    setConfirmationModal(null);
+  }, []);
 
   return {
     church,
@@ -230,6 +315,11 @@ export const useChurchProfileViewModel = (
     isHomeChurch,
     toggleHomeChurch,
     isTogglingHome,
+    confirmationModal,
+    requestSetHomeChurch,
+    requestFollowChurch,
+    confirmModalAction,
+    cancelModalAction,
     tabs: TABS,
     activeTab,
     setActiveTab,

@@ -1,9 +1,11 @@
-// features/profile/findmychurch/views/FindMyChurchView.tsx
-import React, { useState } from 'react';
-import { useFindMyChurchViewModel } from '../viewModels/useFindMyChurchViewModel';
-import type { Church } from '../models/findMyChurchTypes';
+// features/services/select-church/views/SelectChurchView.tsx
+// View layer: dumb UI only. NO useState (except img error fallback), NO useEffect, NO API calls.
 
-// ── Icons ────────────────────────────────────────────────────────────────────
+import React from 'react';
+import { useFindMyChurchViewModel } from '../viewModels/useSelectChurchViewModel';
+import type { Church } from '../models/selectChurchTypes';
+
+// ── Search Icon ──────────────────────────────────────────────────────────────
 
 const SearchIcon: React.FC = () => (
   <svg
@@ -31,7 +33,7 @@ interface ChurchCardProps {
 }
 
 const ChurchCard: React.FC<ChurchCardProps> = ({ church, onClick }) => {
-  const [imgError, setImgError] = useState(false);
+  const [imgError, setImgError] = React.useState(false);
 
   return (
     <article
@@ -90,27 +92,22 @@ const ChurchCardSkeleton: React.FC = () => (
 
 // ── View Props ───────────────────────────────────────────────────────────────
 
-interface FindMyChurchViewProps {
+interface SelectChurchViewProps {
+  /** Injected by parent/AppShell — selected service name (e.g. "Baptism", "Counseling"). */
+  serviceName?: string;
+  /** Called when the user taps a church card. Provided by parent/AppShell. */
   onChurchSelect?: (church: Church) => void;
 }
 
-// ── FindMyChurchView ─────────────────────────────────────────────────────────
+// ── SelectChurchView Component ────────────────────────────────────────────────
 
-const FindMyChurchView: React.FC<FindMyChurchViewProps> = ({ onChurchSelect }) => {
-  const {
-    searchQuery,
-    handleSearchChange,
-    churchRows,
-    handleChurchSelect,
-    isLoading,
-    error,
-    hasMore,
-    loadMore,
-    isLoadingMore,
-  } = useFindMyChurchViewModel(onChurchSelect);
+const SelectChurchView: React.FC<SelectChurchViewProps> = ({ serviceName, onChurchSelect }) => {
+  const { searchQuery, handleSearchChange, churchRows, handleChurchSelect, isLoading, error } =
+    useFindMyChurchViewModel(onChurchSelect);
 
   return (
     <main className="w-full min-h-screen bg-gray-50 flex flex-col items-center overflow-x-hidden">
+      {/* ── Search Hero ───────────────────────────────────────────── */}
       <header className="w-full bg-gray-50 px-5 py-3 flex flex-col items-center sticky top-0 z-10">
         <div className="w-full max-w-4xl mx-auto">
           <div
@@ -119,112 +116,84 @@ const FindMyChurchView: React.FC<FindMyChurchViewProps> = ({ onChurchSelect }) =
           >
             <SearchIcon />
             <label htmlFor="church-search" className="sr-only">
-              Search for Church
+              Search for Churches
             </label>
             <input
               id="church-search"
               type="search"
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              placeholder="Search for Church"
-              aria-label="Search for Church"
+              placeholder="Search for Churches"
+              aria-label="Search for Churches"
               className="flex-1 w-full ml-2.5 text-gray-800 text-sm font-medium placeholder:text-gray-400 placeholder:font-normal bg-transparent border-none outline-none appearance-none"
             />
           </div>
         </div>
       </header>
 
-      {/* ── Main Content Area ─────────────────────────────────────────── */}
+      {/* ── Main Content Area ─────────────────────────────────────── */}
       <section
-        className="w-full max-w-4xl mx-auto px-5 py-2 flex-1"
-        aria-labelledby="churches-near-me-heading"
+        className="w-full max-w-4xl mx-auto px-5 py-2 flex-1 flex flex-col"
+        aria-labelledby="churches-offering-heading"
       >
         <div className="flex justify-between items-center mb-6">
           <h2
-            id="churches-near-me-heading"
-            className="text-gray-900 text-lg font-semibold"
+            id="churches-offering-heading"
+            className="text-gray-900 text-lg font-semibold leading-tight"
           >
-            Churches near me
+            Churches offering {serviceName || 'Services'}
           </h2>
         </div>
 
-        {/* Loading State (3 items for skeleton row) */}
+        {/* Loading State */}
         {isLoading ? (
           <div className="w-full grid grid-cols-3 justify-items-center items-start gap-2">
             {[1, 2, 3].map((i) => (
               <ChurchCardSkeleton key={`skeleton-${i}`} />
             ))}
           </div>
-        ) :
-
+        ) : error ? (
           /* Error State */
-          error ? (
-            <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-              <p className="text-red-500 bg-red-50 px-4 py-3 rounded-lg text-sm font-medium">
-                {error}
-              </p>
+          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
+            <p className="text-red-500 bg-red-50 px-4 py-3 rounded-lg text-sm font-medium">
+              {error}
+            </p>
+          </div>
+        ) : churchRows.length === 0 ? (
+          /* Empty State */
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="size-14 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-400">
+              <SearchIcon />
             </div>
-          ) :
-
-            /* Empty State */
-            churchRows.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-                <div className="size-14 bg-gray-100 rounded-full flex items-center justify-center mb-4 text-gray-400">
-                  <SearchIcon />
-                </div>
-                <h3 className="text-gray-900 font-medium mb-1">No churches found</h3>
-                <p className="text-gray-500 text-sm max-w-xs">
-                  We couldn't find any matches for "{searchQuery}". Try adjusting your search.
-                </p>
+            <h3 className="text-gray-900 font-medium mb-1">No churches found</h3>
+            <p className="text-gray-500 text-sm max-w-xs">
+              {searchQuery.trim()
+                ? `We couldn't find any matches for "${searchQuery}". Try adjusting your search.`
+                : 'No churches are currently available.'}
+            </p>
+          </div>
+        ) : (
+          /* Grid Results (Strict 3 per row) */
+          <div className="flex flex-col w-full gap-6">
+            {churchRows.map((row, rowIndex) => (
+              <div
+                key={`row-${rowIndex}`}
+                className="w-full grid grid-cols-3 justify-items-center items-start gap-2"
+              >
+                {row.map((church) => (
+                  <ChurchCard
+                    key={church.id}
+                    church={church}
+                    onClick={() => handleChurchSelect(church)}
+                  />
+                ))}
               </div>
-            ) :
-
-              /* Grid Results (Strict 3 per row) */
-              (
-                <div className="flex flex-col w-full gap-6">
-                  {churchRows.map((row, rowIndex) => (
-                    <div
-                      key={`row-${rowIndex}`}
-                      className="w-full grid grid-cols-3 justify-items-center items-start gap-2"
-                    >
-                      {row.map((church) => (
-                        <ChurchCard
-                          key={church.id}
-                          church={church}
-                          onClick={() => handleChurchSelect(church)}
-                        />
-                      ))}
-                    </div>
-                  ))}
-
-                  {/* Load More Button */}
-                  {hasMore && (
-                    <div className="w-full flex justify-center pt-4 pb-8">
-                      <button
-                        type="button"
-                        onClick={loadMore}
-                        disabled={isLoadingMore}
-                        className="px-8 py-3 bg-navy text-white text-sm font-medium rounded-full shadow-md hover:bg-navy-hover active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                      >
-                        {isLoadingMore ? (
-                          <>
-                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Loading...
-                          </>
-                        ) : (
-                          'Load More'
-                        )}
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );
 };
 
-export default FindMyChurchView;
+export default SelectChurchView;
