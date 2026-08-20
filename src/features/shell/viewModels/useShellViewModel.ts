@@ -49,6 +49,10 @@ export interface DashboardViewModelReturn {
   verifyNumberTarget: string;
   selectedChurch: Church | null;
   selectChurch: (church: Church) => void;
+  isDiscoverSearchOpen: boolean;
+  toggleDiscoverSearch: () => void;
+  discoverSearchQuery: string;
+  setDiscoverSearchQuery: (value: string) => void;
 }
 
 export const useShellViewModel = (): DashboardViewModelReturn => {
@@ -68,6 +72,14 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
   const [verifyEmailTarget, setVerifyEmailTarget] = useState('');
   const [verifyNumberTarget, setVerifyNumberTarget] = useState('');
   const [selectedChurch, setSelectedChurch] = useState<Church | null>(null);
+
+  const [isDiscoverSearchOpen, setIsDiscoverSearchOpen] = useState(false);
+  const [discoverSearchQuery, setDiscoverSearchQuery] = useState('');
+
+  const toggleDiscoverSearch = useCallback(() => {
+    setIsDiscoverSearchOpen((open) => !open);
+    setDiscoverSearchQuery('');
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setShowBrandText(false), 2200);
@@ -159,5 +171,9 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     verifyNumberTarget,
     selectedChurch,
     selectChurch,
+    isDiscoverSearchOpen,
+    toggleDiscoverSearch,
+    discoverSearchQuery,
+    setDiscoverSearchQuery,
   };
 };

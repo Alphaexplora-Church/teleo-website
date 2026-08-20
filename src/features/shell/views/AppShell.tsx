@@ -10,11 +10,17 @@ import searchIcon from '../../../assets/icons/Search Button.svg';
 import notificationIcon from '../../../assets/icons/Notification Icon.svg';
 import profileIcon from '../../../assets/icons/Peofile Icon.svg';
 import teleoMini from '../../../assets/icons/teleo-mini.svg';
+import {
+  DISCOVER_GRADIENT_IMAGE,
+  DISCOVER_GRADIENT_SIZE,
+} from '../../../shared/constants/discoverTheme';
 
 import HomeFeedView from '../../home/views/HomeFeedView';
 import ServicesView from '../../services/views/ServicesView';
 import PrayerWallView from '../../prayer-wall/views/PrayerWallView';
 import ContentView from '../../content/views/ContentView';
+// Note: ContentView (Discover) now needs shell-level search props, so it's
+// wired explicitly in the JSX below rather than through TAB_PAGES.
 import ProfileView from '../../profile/views/ProfileView';
 import FindMyChurchView from '../../profile/findmychurch/views/FindMyChurchView';
 import AccountInformationView from '../../profile/accountinformation/views/AccountInformationView';
@@ -28,17 +34,12 @@ import ChangePasswordView from '../../profile/security/change-password/views/Cha
 import PrivacyPolicyView from '../../profile/security/views/PrivacyPolicyView';
 import NotificationView from '../../profile/views/NotificationView';
 import HelpView from '../../profile/views/HelpView';
-import GivingView from '../../giving/views/GivingView';
-import ChatView from '../../chat/views/ChatView';
 import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
 
 const TAB_PAGES: Record<string, React.FC> = {
   home: HomeFeedView,
   services: ServicesView,
-  'prayer-wall': PrayerWallView,
-  content: ContentView,
-  giving: GivingView,
-  chat: ChatView,
+  announcements: PrayerWallView,
   'find-my-church': FindMyChurchView,
   'account-information': AccountInformationView,
   'edit-profile-picture': EditProfilePictureView,
@@ -129,6 +130,10 @@ const AppShell: React.FC = () => {
     selectedChurch,
     selectChurch,
     showBrandText,
+    isDiscoverSearchOpen,
+    toggleDiscoverSearch,
+    discoverSearchQuery,
+    setDiscoverSearchQuery,
   } = useShellViewModel();
 
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
@@ -151,7 +156,19 @@ const AppShell: React.FC = () => {
 
   return (
     <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
-      <header className="sticky top-0 z-50 w-full bg-[#001739] text-white">
+      <header className="sticky top-0 z-50 w-full overflow-hidden bg-[#001739] text-white">
+        {activeTab === 'content' && !isSubPage && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage: DISCOVER_GRADIENT_IMAGE,
+              backgroundSize: DISCOVER_GRADIENT_SIZE,
+              backgroundPosition: '0 0',
+              backgroundRepeat: 'no-repeat',
+            }}
+          />
+        )}
         {isSubPage ? (
           <div
             className="flex items-center gap-5 px-5 h-[59px] bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
@@ -202,7 +219,7 @@ const AppShell: React.FC = () => {
           </div>
         ) : (
           <div
-            className="flex items-center justify-between px-5 h-[59px]"
+            className="relative flex items-center justify-between px-5 h-[59px]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
           >
             <div className="flex items-center gap-2">
@@ -221,13 +238,19 @@ const AppShell: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2 text-white">
-              <button
-                type="button"
-                aria-label="Search"
-                className="flex h-10 w-10 items-center justify-center"
-              >
-                <img src={searchIcon} alt="" className="h-[38px] w-9" />
-              </button>
+              {activeTab === 'content' && (
+                <button
+                  type="button"
+                  onClick={toggleDiscoverSearch}
+                  aria-label="Search the library"
+                  aria-pressed={isDiscoverSearchOpen}
+                  className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors active:scale-95 ${
+                    isDiscoverSearchOpen ? 'bg-white/25' : 'hover:bg-white/10'
+                  }`}
+                >
+                  <img src={searchIcon} alt="" className="h-[38px] w-9" />
+                </button>
+              )}
 
               <button
                 id="btn-header-notifications"
@@ -314,6 +337,12 @@ const AppShell: React.FC = () => {
           <HelpView />
         ) : activeTab === 'church-profile' ? (
           <ChurchProfileView onBack={navigateToProfile} churchId={selectedChurch?.id} />
+        ) : activeTab === 'content' ? (
+          <ContentView
+            isSearchOpen={isDiscoverSearchOpen}
+            searchQuery={discoverSearchQuery}
+            onSearchQueryChange={setDiscoverSearchQuery}
+          />
         ) : (
           <ActivePage />
         )}
