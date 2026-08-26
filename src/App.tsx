@@ -69,6 +69,10 @@ function App() {
           <Route path="/services" element={<AppShell />} />
           <Route path="/prayer-wall" element={<AppShell />} />
           <Route path="/content" element={<AppShell />} />
+          <Route path="/content/my-list" element={<AppShell />} />
+          <Route path="/my-list" element={<AppShell />} />
+          <Route path="/content/:id" element={<AppShell />} />
+          <Route path="/content/:seriesId" element={<AppShell />} />
           <Route path="/giving" element={<AppShell />} />
           <Route path="/chat" element={<AppShell />} />
 
