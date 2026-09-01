@@ -137,18 +137,23 @@ export const useContentCatalogViewModel = () => {
   // Filtered series based on search query and category filter
   const filteredSeries = useMemo(() => {
     return allSeries.filter((series) => {
+      const isPublished = series.status === 'published';
+      const query = searchQuery.trim().toLowerCase();
+
       const matchesSearch =
-        searchQuery.trim() === '' ||
-        series.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        series.summary?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        series.description?.toLowerCase().includes(searchQuery.toLowerCase());
+        query === '' ||
+        series.title.toLowerCase().includes(query) ||
+        (series.summary && series.summary.toLowerCase().includes(query)) ||
+        (series.description && series.description.toLowerCase().includes(query)) ||
+        series.content_type.toLowerCase().includes(query) ||
+        series.categories.some((c) => c.toLowerCase().includes(query));
 
       const matchesCategory =
         selectedCategory === 'all' ||
-        series.content_type === selectedCategory ||
+        series.content_type.toLowerCase() === selectedCategory.toLowerCase() ||
         series.categories.some((c) => c.toLowerCase() === selectedCategory.toLowerCase());
 
-      return matchesSearch && matchesCategory;
+      return isPublished && matchesSearch && matchesCategory;
     });
   }, [allSeries, searchQuery, selectedCategory]);
 
@@ -182,6 +187,19 @@ export const useContentCatalogViewModel = () => {
   const generalRail = useMemo(() => {
     return filteredSeries.filter((item) => item.content_type === 'general');
   }, [filteredSeries]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchQuery(value);
+  }, []);
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+  }, []);
+
+  const handleResetFilters = useCallback(() => {
+    setSearchQuery('');
+    setSelectedCategory('all');
+  }, []);
 
   const handleCategorySelect = useCallback((categoryId: string) => {
     setSelectedCategory(categoryId);
@@ -220,10 +238,17 @@ export const useContentCatalogViewModel = () => {
     setSelectedCategory('general');
   }, []);
 
+  const isFiltering = searchQuery.trim().length > 0 || selectedCategory !== 'all';
+
   return {
     selectedCategory,
     searchQuery,
     setSearchQuery,
+    handleSearchChange,
+    handleClearSearch,
+    handleResetFilters,
+    isFiltering,
+    filteredSeries,
     categories,
     mostWatchedRail,
     continueRail,

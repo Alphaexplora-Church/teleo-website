@@ -13,15 +13,6 @@ const BackArrowIcon: React.FC = () => (
   </svg>
 );
 
-const ChurchIcon: React.FC = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#336ef9" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M12 2v5M9.5 4.5h5" />
-    <path d="M4 22h16" />
-    <path d="M18 22V9l-6-4-6 4v13" />
-    <path d="M10 22v-5a2 2 0 0 1 4 0v5" />
-  </svg>
-);
-
 const BookmarkIcon: React.FC<{ isSaved?: boolean }> = ({ isSaved }) => (
   <svg
     width="18"
@@ -50,24 +41,6 @@ const SortIcon: React.FC = () => (
   </svg>
 );
 
-const BookOpenIcon: React.FC = () => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-label="Completed"
-    className="shrink-0 text-emerald-500"
-  >
-    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-  </svg>
-);
-
 export const ContentDetailView: React.FC = () => {
   const { id, seriesId } = useParams<{ id?: string; seriesId?: string }>();
   const navigate = useNavigate();
@@ -77,6 +50,9 @@ export const ContentDetailView: React.FC = () => {
     loading,
     activeTab,
     hasProgress,
+    completedCount,
+    totalCount,
+    nextIncompletePartOrder,
     churchName,
     previewSnippet,
     relatedSeries,
@@ -103,9 +79,9 @@ export const ContentDetailView: React.FC = () => {
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200 px-5 py-3 flex items-center justify-between shadow-xs">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/content')}
           className="size-9 rounded-full bg-zinc-100 flex items-center justify-center text-[#1f2156] hover:bg-zinc-200 active:scale-95 transition-all cursor-pointer border-none"
-          aria-label="Back"
+          aria-label="Back to content"
         >
           <BackArrowIcon />
         </button>
@@ -145,20 +121,26 @@ export const ContentDetailView: React.FC = () => {
             </h1>
 
             <div className="inline-flex items-center gap-1.5 mt-2 text-xs font-medium text-[#336ef9]">
-              <ChurchIcon />
               <span>{churchName || 'Affiliated Church'}</span>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3">
-              {detail.categories.map((category) => (
-                <span
-                  key={category}
-                  className="px-2.5 py-0.5 rounded-full bg-[#336ef90d] border border-[#1f2156]/15 text-[11px] font-semibold text-[#1f2156]"
-                >
-                  {category}
-                </span>
-              ))}
-            </div>
+            {/* ── Progress Indicator ────────────────────────────────────────── */}
+            {hasProgress && detail.percent_complete !== undefined && (
+              <div className="w-full mt-3 flex flex-col gap-1">
+                <div className="flex justify-between items-center text-xs font-semibold">
+                  <span className="text-[#1f2156]">
+                    {completedCount} of {totalCount} chapters completed
+                  </span>
+                  <span className="text-[#336ef9]">{Math.round(detail.percent_complete)}%</span>
+                </div>
+                <div className="w-full bg-zinc-100 rounded-full h-1.5 overflow-hidden">
+                  <div
+                    className="bg-[#336ef9] h-full rounded-full transition-all duration-300"
+                    style={{ width: `${Math.min(100, Math.max(0, detail.percent_complete))}%` }}
+                  />
+                </div>
+              </div>
+            )}
 
             {/* ── 3. Primary CTA: Read (Full Width with smaller height) ──────── */}
             <div className="w-full mt-5">
@@ -168,7 +150,13 @@ export const ContentDetailView: React.FC = () => {
                 className="w-full h-10 bg-[#1f2156] hover:bg-[#2c2f6d] active:scale-[0.98] transition-all duration-200 rounded-xl flex items-center justify-center gap-2 text-white font-medium text-sm shadow-sm cursor-pointer border-none"
               >
                 <ReadIcon />
-                <span>{hasProgress ? 'Continue Reading' : 'Start Reading'}</span>
+                <span>
+                  {hasProgress
+                    ? nextIncompletePartOrder
+                      ? `Continue Reading: Chapter ${nextIncompletePartOrder}`
+                      : 'Continue Reading'
+                    : 'Start Reading'}
+                </span>
               </button>
             </div>
 
@@ -176,6 +164,14 @@ export const ContentDetailView: React.FC = () => {
             <p className="mt-5 text-sm text-black/75 leading-relaxed text-left sm:text-center w-full">
               {detail.description || detail.summary}
             </p>
+
+            {/* Categories */}
+            {detail.categories && detail.categories.length > 0 && (
+              <p className="mt-2 text-xs text-gray-placeholder text-left sm:text-center w-full">
+                <span className="font-medium text-black/70">Categories:</span>{' '}
+                {detail.categories.join(', ')}
+              </p>
+            )}
           </div>
         </div>
 
@@ -240,7 +236,7 @@ export const ContentDetailView: React.FC = () => {
                   </button>
                 </div>
 
-                <div className="flex flex-col divide-y divide-zinc-100">
+                <div className="flex flex-col gap-1.5 py-1">
                   {sortedParts.map((part) => {
                     const timeLabel = part.estimated_read_time_minutes
                       ? `${part.estimated_read_time_minutes} min read`
@@ -248,18 +244,40 @@ export const ContentDetailView: React.FC = () => {
                         ? `${Math.round(part.media_duration_seconds / 60)} min`
                         : null;
 
+                    const isNextUp =
+                      !part.is_completed && nextIncompletePartOrder === part.part_order;
+
                     return (
                       <div
                         key={part.part_id}
                         onClick={() => handleSelectPart(part.part_id)}
-                        className="py-3.5 flex items-center justify-between gap-3 hover:bg-zinc-50 rounded-xl px-2 transition-colors cursor-pointer"
+                        className={`py-3 flex items-center justify-between gap-3 rounded-xl px-2.5 transition-all cursor-pointer ${part.is_completed
+                          ? 'opacity-60 bg-zinc-50/60 hover:opacity-80 hover:bg-zinc-100/70'
+                          : isNextUp
+                            ? 'bg-[#336ef9]/8 border border-[#336ef9]/25 shadow-2xs hover:bg-[#336ef9]/12'
+                            : 'hover:bg-zinc-50'
+                          }`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="size-7 rounded-lg bg-zinc-100 text-[#1f2156] text-xs font-bold flex items-center justify-center shrink-0">
+                          <div
+                            className={`size-7 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 ${part.is_completed
+                              ? 'bg-emerald-50 text-emerald-600'
+                              : isNextUp
+                                ? 'bg-[#1f2156] text-white shadow-xs'
+                                : 'bg-zinc-100 text-[#1f2156]'
+                              }`}
+                          >
                             {part.part_order}
                           </div>
                           <div className="flex flex-col text-left">
-                            <h4 className="text-sm font-semibold text-black leading-snug">
+                            <h4
+                              className={`text-sm leading-snug ${part.is_completed
+                                ? 'font-medium text-zinc-500'
+                                : isNextUp
+                                  ? 'font-bold text-[#1f2156]'
+                                  : 'font-semibold text-black'
+                                }`}
+                            >
                               {part.title}
                             </h4>
                             <div className="flex items-center gap-2 text-[11px] text-gray-placeholder mt-0.5">
@@ -273,9 +291,17 @@ export const ContentDetailView: React.FC = () => {
 
                         <div>
                           {part.is_completed ? (
-                            <BookOpenIcon />
+                            <span className="text-xs font-medium text-emerald-600 select-none">
+                              Done
+                            </span>
+                          ) : isNextUp ? (
+                            <span className="px-2.5 py-0.5 border border-[#1f2156] text-[#1f2156] text-[11px] font-semibold rounded-full hover:bg-[#1f2156]/5 transition-colors whitespace-nowrap select-none">
+                              Read
+                            </span>
                           ) : (
-                            <span className="text-xs font-semibold text-[#336ef9]">Read</span>
+                            <span className="text-xs font-medium text-black/50 hover:text-black transition-colors select-none">
+                              Read
+                            </span>
                           )}
                         </div>
                       </div>

@@ -3,6 +3,7 @@
 // NO JSX. Returns only what the View needs.
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type {
   ContentSeriesDetail,
   ContentSeriesSummary,
@@ -17,6 +18,9 @@ export interface ContentDetailViewModelReturn {
   loading: boolean;
   activeTab: ContentDetailTab;
   hasProgress: boolean;
+  completedCount: number;
+  totalCount: number;
+  nextIncompletePartOrder: number | null;
   churchName: string;
   previewSnippet: string | null;
   relatedSeries: ContentSeriesSummary[];
@@ -289,6 +293,22 @@ export const useContentDetailViewModel = (
     );
   }, [detail]);
 
+  const completedCount = useMemo(() => {
+    if (!detail) return 0;
+    if (detail.completed_parts !== undefined) return detail.completed_parts;
+    return detail.parts.filter((p) => p.is_completed).length;
+  }, [detail]);
+
+  const totalCount = useMemo(() => {
+    return detail?.total_parts ?? detail?.parts.length ?? 0;
+  }, [detail]);
+
+  const nextIncompletePartOrder = useMemo(() => {
+    if (!detail?.parts) return null;
+    const next = detail.parts.find((p) => !p.is_completed);
+    return next ? next.part_order : null;
+  }, [detail]);
+
   const previewSnippet = useMemo(() => {
     if (!detail) return null;
     const firstPart = detail.parts?.[0];
@@ -322,10 +342,12 @@ export const useContentDetailViewModel = (
     setDetail((prev) => (prev ? { ...prev, is_bookmarked: !prev.is_bookmarked } : null));
   }, []);
 
+  const navigate = useNavigate();
+
   const handleSelectPart = useCallback((partId: string) => {
-    // TO DO: Route to reader/video viewer modal or part reader page
-    console.log('Navigating to Part:', partId);
-  }, []);
+    if (!detail) return;
+    navigate(`/content/${detail.series_id}/part/${partId}`);
+  }, [detail, navigate]);
 
   const handlePrimaryReadAction = useCallback(() => {
     if (!detail || !detail.parts || detail.parts.length === 0) return;
@@ -341,6 +363,9 @@ export const useContentDetailViewModel = (
     loading,
     activeTab,
     hasProgress,
+    completedCount,
+    totalCount,
+    nextIncompletePartOrder,
     churchName,
     previewSnippet,
     relatedSeries,

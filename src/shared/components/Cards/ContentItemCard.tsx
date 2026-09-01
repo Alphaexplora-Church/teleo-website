@@ -11,6 +11,7 @@ interface ContentItemCardProps {
 export const ContentItemCard: React.FC<ContentItemCardProps> = ({
   series,
   onViewSeries,
+  showProgress = false,
   className = 'w-32 sm:w-36 shrink-0',
 }) => {
   return (
@@ -51,6 +52,15 @@ export const ContentItemCard: React.FC<ContentItemCardProps> = ({
             <span>•</span>
             <span className="capitalize truncate">{series.content_type.replace('_', ' ')}</span>
           </div>
+
+          {showProgress && series.percent_complete !== undefined && (
+            <div className="w-full bg-zinc-100 rounded-full h-1.5 overflow-hidden mt-1">
+              <div
+                className="bg-[#336ef9] h-full rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(100, Math.max(0, series.percent_complete))}%` }}
+              />
+            </div>
+          )}
         </div>
       </div>
 

@@ -31,6 +31,9 @@ const PrayerDetailsView = lazy(
 const PrayerHistoryView = lazy(
   () => import('./features/prayer-wall/views/PrayerHistoryView')
 );
+const ContentReaderView = lazy(
+  () => import('./features/content/content-detail/views/ContentReaderView')
+);
 
 // ── Minimal loading fallback ───────────────────────────────
 const PageLoader: React.FC = () => (
@@ -63,6 +66,10 @@ function App() {
 
           {/* Step 3b: Registration */}
           <Route path="/register" element={<RegisterPage />} />
+
+          {/* Content Reader / Chapter Player */}
+          <Route path="/content/:seriesId/part/:partId" element={<ContentReaderView />} />
+          <Route path="/content/:seriesId/:partId" element={<ContentReaderView />} />
 
           {/* Dashboard and Main Navigation */}
           <Route path="/home" element={<AppShell />} />
