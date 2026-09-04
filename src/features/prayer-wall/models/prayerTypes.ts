@@ -1,8 +1,8 @@
 import type { PrayerComment, PrayerCommentRecord } from './commentTypes';
 
-export type PrayerAudience = 'PUBLIC' | 'PRIVATE' | 'HOME_CHURCH';
+export type PrayerAudience = 'PUBLIC' | 'PRIVATE' | 'HOME_CHURCH' | 'CHURCH_MINISTRY' | 'CHURCH_INTERCESSION';
 
-export type PrayerReactionType = 'AMEN' | 'PRAYING' | 'HEART';
+export type PrayerReactionType = 'AMEN' | 'PRAYING' | 'HEART' | 'PRAYED';
 
 export interface PrayerReactionRecord {
   id: string;
@@ -20,6 +20,10 @@ export interface PrayerApiRecord {
   audience: PrayerAudience;
   description: string;
   prayer_tag: string | null;
+  is_urgent?: boolean;
+  is_anonymous?: boolean;
+  is_prayed_by_church?: boolean;
+  times_prayed_by_church?: number;
   is_answered: boolean;
   answer_note: string | null;
   answered_at: string | null;
@@ -59,6 +63,10 @@ export interface PrayerCard {
   tags: string[];
   prayerTag: string | null;
   audience: PrayerAudience;
+  isUrgent?: boolean;
+  isAnonymous?: boolean;
+  isPrayedByChurch?: boolean;
+  timesPrayedByChurch?: number;
   isAnswered: boolean;
   answerNote: string | null;
   createdAt: string;
@@ -71,6 +79,8 @@ export interface CreatePrayerPayload {
   description: string;
   prayer_tag?: string;
   audience?: PrayerAudience;
+  is_urgent?: boolean;
+  is_anonymous?: boolean;
 }
 
 export interface UpdatePrayerPayload extends CreatePrayerPayload {}

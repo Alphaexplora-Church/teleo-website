@@ -173,6 +173,10 @@ const mapPrayerRecordToCard = (record: PrayerApiRecord): PrayerCard => {
     tags,
     prayerTag: tag,
     audience: record.audience,
+    isUrgent: record.is_urgent,
+    isAnonymous: record.is_anonymous,
+    isPrayedByChurch: record.is_prayed_by_church,
+    timesPrayedByChurch: record.times_prayed_by_church,
     isAnswered: record.is_answered,
     answerNote: record.answer_note,
     createdAt: record.created_at,
@@ -357,6 +361,7 @@ export const togglePrayerReaction = async (
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
+    credentials: 'include',
     body: JSON.stringify({ reaction_type: reactionType }),
   });
 

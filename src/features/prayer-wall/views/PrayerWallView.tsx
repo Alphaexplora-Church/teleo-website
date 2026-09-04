@@ -197,9 +197,12 @@ const CardActions: React.FC<CardActionsProps> = ({
       aria-label={liked ? 'Unlike prayer request' : 'Like prayer request'}
       aria-pressed={liked}
       onPointerDown={onPointerDown}
-      onClick={onLike}
-      className={`flex size-9 shrink-0 items-center justify-center rounded-full bg-white shadow-sm transition duration-200 active:scale-90 ${
-        liked ? 'text-[#e33686]' : 'text-[#9aa9bb]'
+      onClick={(e) => {
+        e.stopPropagation();
+        onLike();
+      }}
+      className={`flex size-9 shrink-0 items-center justify-center rounded-full shadow-sm transition duration-200 active:scale-90 ${
+        liked ? 'bg-[#ffe4f0] text-[#e33686] ring-2 ring-[#e33686]/50 scale-105' : 'bg-white text-[#9aa9bb]'
       }`}
     >
       <HeartIcon />
@@ -414,10 +417,27 @@ const PrayerWallView: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex min-h-0 flex-1 items-center justify-center px-2 py-5 text-center">
-                  <p className="max-w-[260px] text-[clamp(22px,6.4vw,28px)] font-black leading-[1.42] tracking-[-0.035em]">
+                <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-2 py-4 text-center">
+                  <div className="flex flex-wrap items-center justify-center gap-1.5 mb-2">
+                    {topCard.isUrgent && (
+                      <span className="rounded-full bg-rose-500/30 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-rose-200 border border-rose-300/30">
+                        Urgent
+                      </span>
+                    )}
+                    {topCard.audience === 'CHURCH_INTERCESSION' && (
+                      <span className="rounded-full bg-blue-500/30 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-200 border border-blue-300/30">
+                        Intercession
+                      </span>
+                    )}
+                  </div>
+                  <p className="max-w-[260px] text-[clamp(20px,6vw,26px)] font-black leading-[1.42] tracking-[-0.035em]">
                     {topCard.frontMessage}
                   </p>
+                  {topCard.isPrayedByChurch && (
+                    <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-[11px] font-bold text-emerald-200 border border-emerald-300/30">
+                      <span>✓ Church Leadership Prayed</span>
+                    </div>
+                  )}
                 </div>
 
                 <CardActions {...cardActions} showPrayerMenu={!isFlipped} />

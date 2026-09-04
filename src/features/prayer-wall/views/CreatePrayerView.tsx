@@ -48,6 +48,8 @@ const CreatePrayerView: React.FC = () => {
   } = useCreatePrayerViewModel();
   const [isHashtagDropdownOpen, setIsHashtagDropdownOpen] = useState(false);
   const [selectedHashtags, setSelectedHashtags] = useState<string[]>([]);
+  const [isUrgent, setIsUrgent] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   const toggleHashtag = (hashtag: string) => {
     setSelectedHashtags((current) =>
@@ -84,6 +86,8 @@ const CreatePrayerView: React.FC = () => {
         onReset={() => {
           setSelectedHashtags([]);
           setIsHashtagDropdownOpen(false);
+          setIsUrgent(false);
+          setIsAnonymous(false);
         }}
       >
         <div className="mb-7">
@@ -272,6 +276,93 @@ const CreatePrayerView: React.FC = () => {
               ))}
             </div>
           </fieldset>
+
+          {/* Urgent & Anonymous Options */}
+          <div className="space-y-3 rounded-2xl border border-gray-border/70 bg-[#fafafa] p-4">
+            {/* Urgent Priority Toggle */}
+            <div
+              onClick={() => setIsUrgent(!isUrgent)}
+              className="flex cursor-pointer items-center justify-between gap-3 select-none"
+            >
+              <div>
+                <p className="text-[13px] font-bold text-navy flex items-center gap-1.5">
+                  <span className="text-rose-600">🔥</span> Urgent Priority
+                </p>
+                <p className="text-[11px] text-gray-placeholder">
+                  Pins this request to the top of feeds for emergency prayer.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                name="is_urgent"
+                checked={isUrgent}
+                onChange={() => {}}
+                className="sr-only"
+              />
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isUrgent}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsUrgent(!isUrgent);
+                }}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  isUrgent ? 'bg-rose-600' : 'bg-[#d1d5db]'
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block size-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    isUrgent ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="h-px bg-gray-border/60" />
+
+            {/* Post Anonymously Toggle */}
+            <div
+              onClick={() => setIsAnonymous(!isAnonymous)}
+              className="flex cursor-pointer items-center justify-between gap-3 select-none"
+            >
+              <div>
+                <p className="text-[13px] font-bold text-navy flex items-center gap-1.5">
+                  <span>🔒</span> Post Anonymously
+                </p>
+                <p className="text-[11px] text-gray-placeholder">
+                  Hides your name and photo from other members and leaders.
+                </p>
+              </div>
+              <input
+                type="checkbox"
+                name="is_anonymous"
+                checked={isAnonymous}
+                onChange={() => {}}
+                className="sr-only"
+              />
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isAnonymous}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsAnonymous(!isAnonymous);
+                }}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                  isAnonymous ? 'bg-navy' : 'bg-[#d1d5db]'
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none inline-block size-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+                    isAnonymous ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
         </div>
 
         {errorMessage && (

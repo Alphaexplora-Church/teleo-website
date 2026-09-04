@@ -30,6 +30,8 @@ export const usePrayerDetailsViewModel = () => {
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isMarkingAnswered, setIsMarkingAnswered] = useState(false);
+  const [isAnswerModalOpen, setIsAnswerModalOpen] = useState(false);
+  const [answerTestimony, setAnswerTestimony] = useState('');
   const [hasHeartReacted, setHasHeartReacted] = useState(false);
 
   useEffect(() => {
@@ -58,7 +60,7 @@ export const usePrayerDetailsViewModel = () => {
   }, [prayerId]);
 
   const reactToPost = async (reactionType: PrayerReactionType) => {
-    if (!prayer || reactingAction) {
+    if (!prayer || reactingAction || prayer.isAnswered) {
       return;
     }
 
@@ -142,29 +144,34 @@ export const usePrayerDetailsViewModel = () => {
     }
   };
 
-  const markCurrentPrayerAsAnswered = async () => {
-    if (!prayer || prayer.isAnswered || isMarkingAnswered) {
-      return;
-    }
+  const openAnswerModal = () => {
+    setIsPostMenuOpen(false);
+    setAnswerTestimony('');
+    setIsAnswerModalOpen(true);
+  };
 
-    const answerNote = window.prompt('How did God answer this prayer?');
-    const trimmedAnswerNote = answerNote?.trim();
+  const closeAnswerModal = () => {
+    setIsAnswerModalOpen(false);
+    setAnswerTestimony('');
+  };
 
-    if (!trimmedAnswerNote) {
+  const submitPraiseReport = async () => {
+    if (!prayer || prayer.isAnswered || isMarkingAnswered || !answerTestimony.trim()) {
       return;
     }
 
     setIsMarkingAnswered(true);
-    setIsPostMenuOpen(false);
     setErrorMessage(null);
 
     try {
-      const updatedPrayer = await markPrayerAsAnswered(prayer.id, trimmedAnswerNote);
+      const updatedPrayer = await markPrayerAsAnswered(prayer.id, answerTestimony.trim());
       setPrayer(updatedPrayer);
       setComments(getPrayerComments(updatedPrayer.id, updatedPrayer.comments));
+      setIsAnswerModalOpen(false);
+      setAnswerTestimony('');
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to mark this prayer as answered.',
+        error instanceof Error ? error.message : 'Unable to submit praise report.',
       );
     } finally {
       setIsMarkingAnswered(false);
@@ -198,10 +205,15 @@ export const usePrayerDetailsViewModel = () => {
     isSavingEdit,
     isDeleting,
     isMarkingAnswered,
+    isAnswerModalOpen,
+    answerTestimony,
+    setAnswerTestimony,
     hasHeartReacted,
     reactToPost,
     startEditing,
-    markCurrentPrayerAsAnswered,
+    openAnswerModal,
+    closeAnswerModal,
+    submitPraiseReport,
     savePrayerEdit,
     deleteCurrentPrayer,
     goBack: () => navigate(-1),

@@ -104,10 +104,15 @@ const PrayerDetailsView: React.FC = () => {
     isSavingEdit,
     isDeleting,
     isMarkingAnswered,
+    isAnswerModalOpen,
+    answerTestimony,
+    setAnswerTestimony,
     hasHeartReacted,
     reactToPost,
     startEditing,
-    markCurrentPrayerAsAnswered,
+    openAnswerModal,
+    closeAnswerModal,
+    submitPraiseReport,
     savePrayerEdit,
     deleteCurrentPrayer,
     goBack,
@@ -159,7 +164,9 @@ const PrayerDetailsView: React.FC = () => {
           >
             <BackIcon />
           </button>
-          <h1 className="min-w-0 flex-1 text-[17px] font-semibold">Prayer Request</h1>
+          <h1 className="min-w-0 flex-1 text-[17px] font-semibold">
+            {prayer.isAnswered ? 'Praise Report' : 'Prayer Request'}
+          </h1>
           {isOwner && (
             <div className="relative">
               <button
@@ -172,7 +179,7 @@ const PrayerDetailsView: React.FC = () => {
                 <MoreIcon />
               </button>
               {isPostMenuOpen && (
-                <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-44 overflow-hidden rounded-xl border border-black/8 bg-white py-1.5 text-gray-label shadow-[0_16px_36px_rgba(12,25,48,0.24)]">
+                <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-48 overflow-hidden rounded-xl border border-black/8 bg-white py-1.5 text-gray-label shadow-[0_16px_36px_rgba(12,25,48,0.24)]">
                   <button
                     type="button"
                     onClick={startEditing}
@@ -180,18 +187,15 @@ const PrayerDetailsView: React.FC = () => {
                   >
                     Edit post
                   </button>
-                  <button
-                    type="button"
-                    onClick={markCurrentPrayerAsAnswered}
-                    disabled={prayer.isAnswered || isMarkingAnswered}
-                    className="block w-full px-4 py-2.5 text-left text-[12px] font-semibold text-[#096f5f] transition hover:bg-[#ecfbf7] disabled:cursor-not-allowed disabled:text-gray-placeholder disabled:opacity-65 disabled:hover:bg-transparent"
-                  >
-                    {prayer.isAnswered
-                      ? 'Prayer answered'
-                      : isMarkingAnswered
-                        ? 'Marking answered...'
-                        : 'Mark as answered'}
-                  </button>
+                  {!prayer.isAnswered && (
+                    <button
+                      type="button"
+                      onClick={openAnswerModal}
+                      className="block w-full px-4 py-2.5 text-left text-[12px] font-semibold text-[#096f5f] transition hover:bg-[#ecfbf7]"
+                    >
+                      🎉 Mark as Answered
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={deleteCurrentPrayer}
@@ -218,6 +222,16 @@ const PrayerDetailsView: React.FC = () => {
               </div>
             </div>
             <div className="flex flex-wrap justify-end gap-1.5">
+              {prayer.isUrgent && (
+                <span className="rounded-full bg-rose-500/30 border border-rose-300/30 px-2.5 py-1 text-[9px] font-black uppercase text-rose-200">
+                  Urgent
+                </span>
+              )}
+              {prayer.audience === 'CHURCH_INTERCESSION' && (
+                <span className="rounded-full bg-blue-500/30 border border-blue-300/30 px-2.5 py-1 text-[9px] font-bold uppercase text-blue-200">
+                  Intercession
+                </span>
+              )}
               {(prayer.tags ?? []).map((tag) => (
                 <span
                   key={tag}
@@ -228,6 +242,18 @@ const PrayerDetailsView: React.FC = () => {
               ))}
             </div>
           </div>
+
+          {/* Answered Praise Report Banner */}
+          {prayer.isAnswered && (
+            <div className="mt-4 rounded-2xl bg-white/20 p-4 border border-white/30 backdrop-blur-sm">
+              <div className="flex items-center gap-1.5 text-white font-black text-xs uppercase tracking-wider mb-1">
+                <span>🎉</span> Praise Report / Answered Prayer
+              </div>
+              <p className="text-xs text-white/95 leading-relaxed italic whitespace-pre-wrap">
+                "{prayer.answerNote || prayer.backDetails}"
+              </p>
+            </div>
+          )}
 
           {isEditing ? (
             <div className="mt-7 space-y-3 rounded-2xl bg-white/92 p-4 text-gray-label shadow-sm">
@@ -275,7 +301,8 @@ const PrayerDetailsView: React.FC = () => {
                     className="h-11 w-full rounded-xl border border-gray-border px-3 text-[12px] outline-none focus:border-navy focus:ring-4 focus:ring-navy/8"
                   >
                     <option value="PUBLIC">Public</option>
-                    <option value="HOME_CHURCH">Church</option>
+                    <option value="HOME_CHURCH">Church Community</option>
+                    <option value="CHURCH_INTERCESSION">Church Intercession</option>
                     <option value="PRIVATE">Only Me</option>
                   </select>
                 </label>
@@ -300,45 +327,60 @@ const PrayerDetailsView: React.FC = () => {
             </div>
           ) : (
             <>
-              <h2 className="mt-7 max-w-[330px] text-[22px] font-black leading-[1.3] tracking-[-0.035em]">
+              <h2 className="mt-6 max-w-[330px] text-[22px] font-black leading-[1.3] tracking-[-0.035em]">
                 {prayer.frontMessage}
               </h2>
-              <p className="mt-6 text-[13px] leading-[1.6] text-white/82">
-                {prayer.backDetails}
+              <p className="mt-4 text-[13px] leading-[1.6] text-white/85 whitespace-pre-wrap">
+                {prayer.description}
               </p>
+
+              {/* Creator Action: Mark as Answered Banner */}
+              {isOwner && !prayer.isAnswered && (
+                <button
+                  type="button"
+                  onClick={openAnswerModal}
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-white/25 hover:bg-white/35 border border-white/40 px-4 py-3 text-[13px] font-bold text-white transition active:scale-[0.98]"
+                >
+                  <span>🎉</span>
+                  <span>Mark as Answered / Share Praise Report</span>
+                </button>
+              )}
             </>
           )}
         </article>
 
-        <div className="flex items-center gap-3 border-y border-white/22 px-4 py-3">
-          <button
-            type="button"
-            onClick={() => reactToPost('HEART')}
-            disabled={Boolean(reactingAction)}
-            aria-label="Heart react to prayer"
-            className={`flex size-11 shrink-0 items-center justify-center rounded-full transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 ${
-              hasHeartReacted
-                ? 'bg-white text-[#d92d20] hover:bg-white/92'
-                : 'bg-white/22 text-white hover:bg-white/32'
-            }`}
-          >
-            <HeartIcon filled={hasHeartReacted || reactingAction === 'HEART'} />
-          </button>
-          <button
-            type="button"
-            onClick={() => reactToPost('PRAYING')}
-            disabled={Boolean(reactingAction)}
-            className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-white/35 px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-white/45 active:scale-[0.98]"
-          >
-            <PrayIcon />
-            {reactingAction === 'PRAYING' ? 'Sending...' : 'Pray'}
-          </button>
-        </div>
+        {/* Reaction Bar */}
+        {!prayer.isAnswered && (
+          <div className="flex items-center gap-3 border-y border-white/22 px-4 py-3">
+            <button
+              type="button"
+              onClick={() => reactToPost('HEART')}
+              disabled={Boolean(reactingAction)}
+              aria-label="Heart react to prayer"
+              className={`flex size-11 shrink-0 items-center justify-center rounded-full transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 ${
+                hasHeartReacted
+                  ? 'bg-white text-[#d92d20] hover:bg-white/92'
+                  : 'bg-white/22 text-white hover:bg-white/32'
+              }`}
+            >
+              <HeartIcon filled={hasHeartReacted || reactingAction === 'HEART'} />
+            </button>
+            <button
+              type="button"
+              onClick={() => reactToPost('PRAYING')}
+              disabled={Boolean(reactingAction)}
+              className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-white/35 px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-white/45 active:scale-[0.98]"
+            >
+              <PrayIcon />
+              {reactingAction === 'PRAYING' ? 'Sending...' : 'Pray'}
+            </button>
+          </div>
+        )}
 
         <section aria-label="Prayer comments" className="flex-1 px-5 pb-8 pt-4">
           <div className="mb-4 flex items-center gap-2 text-[13px] font-semibold">
             <CommentIcon />
-            Comments
+            Comments ({comments.length})
           </div>
 
           <div className="space-y-2.5">
@@ -371,13 +413,60 @@ const PrayerDetailsView: React.FC = () => {
               {errorMessage}
             </p>
           )}
-
         </section>
 
         <div className="sticky bottom-0 z-20 mt-auto text-gray-label">
           <BottomNavBar activeTab="prayer-wall" onTabChange={navigateToTab} />
         </div>
       </div>
+
+      {/* Praise Report / Mark as Answered Modal */}
+      {isAnswerModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-navy shadow-2xl animate-in fade-in zoom-in duration-200">
+            <div className="text-center">
+              <span className="text-3xl">🎉</span>
+              <h3 className="mt-2 text-[18px] font-black tracking-tight text-navy">
+                Celebrate Answered Prayer
+              </h3>
+              <p className="mt-1 text-xs text-gray-placeholder">
+                Share how God answered your prayer to encourage the community.
+              </p>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-xs font-bold text-navy mb-1.5">
+                Praise Testimony / Gratitude Note
+              </label>
+              <textarea
+                value={answerTestimony}
+                onChange={(e) => setAnswerTestimony(e.target.value)}
+                placeholder="E.g., God healed my brother through a successful surgery. Thank you for your prayers!"
+                rows={4}
+                className="w-full resize-none rounded-2xl border border-gray-border p-3 text-xs text-navy outline-none focus:border-navy focus:ring-2 focus:ring-navy/10"
+              />
+            </div>
+
+            <div className="mt-6 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={closeAnswerModal}
+                className="flex-1 rounded-xl border border-gray-border py-2.5 text-xs font-bold text-gray-placeholder hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={submitPraiseReport}
+                disabled={isMarkingAnswered || !answerTestimony.trim()}
+                className="flex-1 rounded-xl bg-[#252f91] py-2.5 text-xs font-bold text-white transition hover:bg-[#1d267d] disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isMarkingAnswered ? 'Submitting...' : 'Post Praise Report'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
