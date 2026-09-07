@@ -14,7 +14,20 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, first, onOpen }) => (
       <div className="h-8 w-8 shrink-0 rounded-full bg-[#DBE0E4]" aria-hidden="true" />
       <div className="min-w-0 flex-1 leading-tight">
         <p className="text-[12px] font-medium text-black">{post.author}</p>
-        <p className="mt-1 text-[10px] text-gray-placeholder">{post.meta}</p>
+        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] text-gray-placeholder">
+          <span>{post.meta}</span>
+          {post.tags && post.tags.length > 0 && (
+            <>
+              <span className="h-1 w-1 rounded-full bg-[#9AA2AA]" aria-hidden="true" />
+              {post.tags.map((tag, index) => (
+                <React.Fragment key={tag}>
+                  {index > 0 && <span className="h-1 w-1 rounded-full bg-[#9AA2AA]" aria-hidden="true" />}
+                  <span>{tag}</span>
+                </React.Fragment>
+              ))}
+            </>
+          )}
+        </div>
       </div>
       <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ring-1 ring-inset ${TAG_STYLES[post.category]}`}>
         {post.category}
@@ -22,20 +35,12 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, first, onOpen }) => (
     </div>
     <button type="button" onClick={onOpen} className="block w-full text-left">
       <h2 className="text-[16px] font-bold">{post.title}</h2>
-      <div className="mt-2 flex flex-wrap items-center gap-2.5 text-[12px] font-medium text-[#565F68]">
-        {post.tags.map((tag, index) => (
-          <React.Fragment key={tag}>
-            {index > 0 && <span className="h-1.5 w-1.5 rounded-full bg-[#9AA2AA]" aria-hidden="true" />}
-            <span>{tag}</span>
-          </React.Fragment>
-        ))}
-      </div>
       {post.details && (
         <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-[#666]">
           {post.details.map((detail) => <span key={detail}>{detail}</span>)}
         </p>
       )}
-      <p className="mt-2 text-[11px] leading-4.25">{post.body}</p>
+      <p className="mt-1 text-[11px] leading-4.25">{post.body}</p>
       {post.schedule && <p className="mt-4 whitespace-pre-line text-[11px] leading-4.25">{post.schedule}</p>}
       {post.imageUrl && (
         <img src={post.imageUrl} alt={post.imageAlt ?? ''} className="mt-2 h-42.5 w-full rounded-lg object-cover" />
