@@ -51,6 +51,7 @@ export const useContentDetailViewModel = (
   const [error, setError] = useState<string | null>(null);
   const [relatedSeries, setRelatedSeries] = useState<ContentSeriesSummary[]>([]);
   const [reloadToken, setReloadToken] = useState(0);
+  const [resumePartId, setResumePartId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!seriesId) return;
@@ -81,6 +82,7 @@ export const useContentDetailViewModel = (
           total_parts: progress?.total_parts ?? series.parts.length,
           percent_complete: progress?.percent_complete ?? 0,
         });
+        setResumePartId(progress?.resume_part_id ?? null);
         setLoading(false);
 
         void recordJourneyView(seriesId);
@@ -170,14 +172,21 @@ export const useContentDetailViewModel = (
     navigate(`/content/${detail.series_id}/part/${partId}`);
   }, [detail, navigate]);
 
+  // resumePartId is the server's own resume point: the first published Part
+  // not yet completed, in display order. It survives reordering, so prefer it
+  // over recomputing the answer from the local parts array.
   const handlePrimaryReadAction = useCallback(() => {
     if (!detail || !detail.parts || detail.parts.length === 0) return;
-    const nextIncompletePart =
-      detail.parts.find((part) => !part.is_completed) || detail.parts[0];
-    if (nextIncompletePart) {
-      handleSelectPart(nextIncompletePart.part_id);
+
+    const target =
+      (resumePartId && detail.parts.find((part) => part.part_id === resumePartId))
+      || detail.parts.find((part) => !part.is_completed)
+      || detail.parts[0];
+
+    if (target) {
+      handleSelectPart(target.part_id);
     }
-  }, [detail, handleSelectPart]);
+  }, [detail, resumePartId, handleSelectPart]);
 
   return {
     detail,

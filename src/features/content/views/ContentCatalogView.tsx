@@ -216,6 +216,17 @@ const BookmarkIcon: React.FC = () => (
               </div>
             </div>
           )
+        ) : filteredSeries.length === 0 ? (
+          /* Nothing published for this church yet */
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="size-14 bg-zinc-100 rounded-full flex items-center justify-center mb-4 text-zinc-400">
+              <SearchIcon />
+            </div>
+            <h3 className="text-black text-lg font-semibold mb-1">No journeys yet</h3>
+            <p className="text-gray-placeholder text-sm max-w-sm leading-relaxed">
+              Your church has not published any journeys yet. Check back soon.
+            </p>
+          </div>
         ) : (
           /* Standard Rails Default View */
           <>
