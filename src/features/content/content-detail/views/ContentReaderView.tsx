@@ -27,9 +27,25 @@ export const ContentReaderView: React.FC = () => {
   const {
     chapter,
     loading,
+    error,
     readProgress,
     contentContainerRef,
   } = useContentReaderViewModel(seriesId, partId);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#faf9f7] px-6 text-center">
+        <p className="text-sm text-black/70 font-medium">{error}</p>
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="px-5 py-2.5 bg-[#1f2156] hover:bg-[#2c2f6d] text-white text-sm font-medium rounded-xl active:scale-95 transition-all duration-150 cursor-pointer"
+        >
+          Go back
+        </button>
+      </div>
+    );
+  }
 
   if (loading || !chapter) {
     return (

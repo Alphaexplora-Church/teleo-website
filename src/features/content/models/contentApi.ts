@@ -1,5 +1,12 @@
 // Model Layer: Pure TypeScript API contracts & Request/Response payload definitions
-import type { ContentCategory, ContentSeriesSummary, ContentSeriesDetail } from './contentTypes';
+import type {
+  ContentCategory,
+  ContentSeriesSummary,
+  ContentSeriesDetail,
+  ContentPart,
+  ContentStatus,
+  MediaType,
+} from './contentTypes';
 import { toSeriesSummary, type ApiJourney } from './journeyMapper';
 import { getCachedUserId, refreshCurrentUser } from '../../../shared/models/authService';
 
@@ -136,4 +143,138 @@ export async function fetchMemberJourneys(
     started_at: (row.startedAt as string) ?? null,
     last_activity_at: (row.lastActivityAt as string) ?? null,
   }));
+}
+
+interface ApiPart {
+  partId: string;
+  journeyId?: string;
+  partOrder: number;
+  title: string;
+  mediaUrl?: string | null;
+  mediaType?: MediaType;
+  mediaDurationSeconds?: number | null;
+  readingText?: string | null;
+  estimatedReadTimeMinutes?: number | null;
+  status: ContentStatus;
+  isCompleted?: boolean;
+  lastResumedPositionSeconds?: number;
+}
+
+const toContentPart = (row: ApiPart, seriesId: string): ContentPart => ({
+  part_id: row.partId,
+  series_id: row.journeyId ?? seriesId,
+  part_order: row.partOrder,
+  title: row.title,
+  media_url: row.mediaUrl ?? null,
+  media_type: row.mediaType ?? null,
+  media_duration_seconds: row.mediaDurationSeconds ?? null,
+  reading_text: row.readingText ?? null,
+  estimated_read_time_minutes: row.estimatedReadTimeMinutes ?? null,
+  status: row.status,
+  is_completed: row.isCompleted === true,
+});
+
+export async function fetchSeriesDetail(seriesId: string): Promise<ContentSeriesDetail> {
+  const response = await fetch(`${API_BASE_URL}/api/journeys/${seriesId}`, {
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      response.status === 404 ? 'This journey is no longer available.' : `Failed to load journey (${response.status})`
+    );
+  }
+
+  const body = await response.json();
+  const summary = toSeriesSummary(body.journey as ApiJourney);
+
+  return {
+    ...summary,
+    parts: ((body.parts ?? []) as ApiPart[])
+      .map((row) => toContentPart(row, seriesId))
+      .sort((a, b) => a.part_order - b.part_order),
+  };
+}
+
+export interface JourneyProgress {
+  completed_parts: number;
+  total_parts: number;
+  percent_complete: number;
+  progress_status: 'not_started' | 'in_progress' | 'completed';
+  resume_part_id: string | null;
+}
+
+export async function fetchJourneyProgress(seriesId: string): Promise<JourneyProgress> {
+  const response = await fetch(`${API_BASE_URL}/api/journeys/${seriesId}/progress`, {
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to load progress (${response.status})`);
+  }
+
+  const body = await response.json();
+
+  return {
+    completed_parts: Number(body.completedParts ?? 0),
+    total_parts: Number(body.totalPublishedParts ?? 0),
+    percent_complete: Number(body.completionPercentage ?? 0),
+    progress_status: body.progressStatus ?? 'not_started',
+    resume_part_id: body.resumePartId ?? null,
+  };
+}
+
+/**
+ * Feeds discovery ranking only. Deduped server-side to once per member per
+ * journey per day, so it is safe to call on every open, and a failure here
+ * must never block the screen.
+ */
+export async function recordJourneyView(seriesId: string): Promise<void> {
+  await fetch(`${API_BASE_URL}/api/journeys/${seriesId}/view`, {
+    method: 'POST',
+    credentials: 'include',
+  }).catch(() => undefined);
+}
+
+/** Opening a part is what enrolls the member; there is no separate start-journey call. */
+export async function startPart(seriesId: string, partId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/journeys/${seriesId}/parts/${partId}/start`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to open this part (${response.status})`);
+  }
+}
+
+export interface CompletePartResult {
+  completed: boolean;
+  percent_complete: number;
+  progress_status: 'not_started' | 'in_progress' | 'completed';
+}
+
+export async function completePart(
+  seriesId: string,
+  partId: string,
+  completed: boolean = true
+): Promise<CompletePartResult> {
+  const response = await fetch(`${API_BASE_URL}/api/journeys/${seriesId}/parts/${partId}/complete`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ completed }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to update progress (${response.status})`);
+  }
+
+  const body = await response.json();
+
+  return {
+    completed: body.completed === true,
+    percent_complete: Number(body.completionPercentage ?? 0),
+    progress_status: body.progressStatus ?? 'in_progress',
+  };
 }
