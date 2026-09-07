@@ -1,12 +1,17 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { ContentCategory, ContentSeriesSummary } from '../models/contentTypes';
 import { addBookmarkApi, removeBookmarkApi } from '../models/myListApi';
+import { searchJourneys } from '../models/contentApi';
 
 export const useContentCatalogViewModel = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [categories, setCategories] = useState<ContentCategory[]>([]);
   const [allSeries, setAllSeries] = useState<ContentSeriesSummary[]>([]);
+  const [searchResults, setSearchResults] = useState<ContentSeriesSummary[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [debouncedQuery, setDebouncedQuery] = useState('');
 
   useEffect(() => {
     // Mock Categories
@@ -135,28 +140,46 @@ export const useContentCatalogViewModel = () => {
     setAllSeries(mockSeriesList);
   }, []);
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedQuery(searchQuery.trim()), 300);
+    return () => window.clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (debouncedQuery === '') {
+      setSearchResults([]);
+      setSearchError(null);
+      setIsSearching(false);
+      return;
+    }
+
+    let cancelled = false;
+    setIsSearching(true);
+    setSearchError(null);
+
+    searchJourneys(debouncedQuery)
+      .then((results) => { if (!cancelled) setSearchResults(results); })
+      .catch(() => { if (!cancelled) setSearchError('Search failed. Please try again.'); })
+      .finally(() => { if (!cancelled) setIsSearching(false); });
+
+    return () => { cancelled = true; };
+  }, [debouncedQuery]);
+
   // Filtered series based on search query and category filter
   const filteredSeries = useMemo(() => {
-    return allSeries.filter((series) => {
-      const isPublished = series.status === 'published';
-      const query = searchQuery.trim().toLowerCase();
+    const source = debouncedQuery !== '' ? searchResults : allSeries;
 
-      const matchesSearch =
-        query === '' ||
-        series.title.toLowerCase().includes(query) ||
-        (series.summary && series.summary.toLowerCase().includes(query)) ||
-        (series.description && series.description.toLowerCase().includes(query)) ||
-        series.content_type.toLowerCase().includes(query) ||
-        series.categories.some((c) => c.toLowerCase().includes(query));
+    return source.filter((series) => {
+      const isPublished = series.status === 'published';
 
       const matchesCategory =
         selectedCategory === 'all' ||
         series.content_type.toLowerCase() === selectedCategory.toLowerCase() ||
         series.categories.some((c) => c.toLowerCase() === selectedCategory.toLowerCase());
 
-      return isPublished && matchesSearch && matchesCategory;
+      return isPublished && matchesCategory;
     });
-  }, [allSeries, searchQuery, selectedCategory]);
+  }, [allSeries, searchResults, debouncedQuery, selectedCategory]);
 
   // Specific Rails
   const mostWatchedRail = useMemo(() => {
@@ -265,6 +288,8 @@ export const useContentCatalogViewModel = () => {
     handleClearSearch,
     handleResetFilters,
     isFiltering,
+    isSearching,
+    searchError,
     filteredSeries,
     categories,
     mostWatchedRail,
