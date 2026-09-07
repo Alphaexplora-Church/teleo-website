@@ -18,6 +18,7 @@ export type ShellDestination =
   | DashboardTab
   | 'profile'
   | 'find-my-church'
+  | 'my-list'
   | 'account-information'
   | 'edit-profile-picture'
   | 'security'
@@ -41,6 +42,8 @@ export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
   setActiveTab: (tab: DashboardTab) => void;
   navigateToProfile: () => void;
+  navigateToContent: () => void;
+  navigateToMyList: () => void;
   showBrandText: boolean;
   navigateToFindMyChurch: () => void;
   navigateToAccountInformation: () => void;
@@ -119,7 +122,15 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
 
   const navigateToProfile = useCallback(() => {
     setActiveTabState('profile');
-  }, []);
+  }, [setActiveTabState]);
+
+  const navigateToContent = useCallback(() => {
+    setActiveTabState('content');
+  }, [setActiveTabState]);
+
+  const navigateToMyList = useCallback(() => {
+    setActiveTabState('my-list');
+  }, [setActiveTabState]);
 
   const navigateToFindMyChurch = useCallback(() => {
     setActiveTabState('find-my-church');
@@ -259,6 +270,8 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     activeTab,
     setActiveTab: setActiveTabState,
     navigateToProfile,
+    navigateToContent,
+    navigateToMyList,
     showBrandText,
     navigateToFindMyChurch,
     navigateToAccountInformation,

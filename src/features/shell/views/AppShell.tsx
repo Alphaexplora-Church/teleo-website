@@ -4,6 +4,7 @@
 // Tab switching is entirely state-driven - no URL changes, no shell re-mounts.
 
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
 import { useShellViewModel } from '../viewModels/useShellViewModel';
 import searchIcon from '../../../assets/icons/Search Button.svg';
@@ -17,7 +18,9 @@ import SelectChurchView from '../../services/select-church/views/SelectChurchVie
 import BookingView from '../../services/booking/views/BookingView';
 import BookingScheduleView from '../../services/booking/views/BookingScheduleView';
 import PrayerWallView from '../../prayer-wall/views/PrayerWallView';
-import ContentView from '../../content/views/ContentView';
+import ContentCatalogView from '../../content/views/ContentCatalogView';
+import ContentDetailView from '../../content/content-detail/views/ContentDetailView';
+import MyListView from '../../content/views/MyListView';
 import ProfileView from '../../profile/views/ProfileView';
 import FindMyChurchView from '../../profile/findmychurch/views/FindMyChurchView';
 import AccountInformationView from '../../profile/accountinformation/views/AccountInformationView';
@@ -42,7 +45,7 @@ const TAB_PAGES: Record<string, React.FC> = {
   home: HomeFeedView,
   services: ServicesView,
   'prayer-wall': PrayerWallView,
-  content: ContentView,
+  content: ContentCatalogView,
   giving: GivingView,
   chat: ChatView,
   'find-my-church': FindMyChurchView,
@@ -50,6 +53,7 @@ const TAB_PAGES: Record<string, React.FC> = {
   'edit-profile-picture': EditProfilePictureView,
   security: SecurityView,
   'change-email': ChangeEmailView,
+  'my-list': MyListView,
 };
 
 const BackChevron: React.FC = () => (
@@ -117,6 +121,7 @@ const AppShell: React.FC = () => {
     activeTab,
     setActiveTab,
     navigateToProfile,
+    navigateToContent,
     navigateToFindMyChurch,
     navigateToAccountInformation,
     navigateToEditProfilePicture,
@@ -151,10 +156,14 @@ const AppShell: React.FC = () => {
     showBrandText,
   } = useShellViewModel();
 
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isContentDetail = activeTab === 'content' && Boolean(location.pathname.split('/')[2]);
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
   const isSubPage = [
     'profile',
     'find-my-church',
+    'my-list',
     'account-information',
     'edit-profile-picture',
     'security',
@@ -177,14 +186,17 @@ const AppShell: React.FC = () => {
 
   return (
     <div className="w-full max-w-md min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
-      <header className="sticky top-0 z-50 w-full bg-navy text-white">
-        {activeTab === 'profile' || activeTab === 'church-profile' || activeTab === 'friends' || activeTab === 'public-profile' ? null : isSubPage ? (
+      <header className="w-full bg-navy text-white">
+        {activeTab === 'profile' || activeTab === 'church-profile' || activeTab === 'friends' || activeTab === 'public-profile' || isContentDetail ? null : isSubPage ? (
           <div
             className="flex items-center gap-5 px-5 h-14.75 bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
           >
             {activeTab === 'find-my-church' && (
               <BackHeader title="Find My Church" onBack={navigateToProfile} />
+            )}
+            {activeTab === 'my-list' && (
+              <BackHeader title="My List" onBack={navigateToContent} />
             )}
             {activeTab === 'account-information' && (
               <BackHeader title="Profile" onBack={navigateToProfile} />
@@ -340,6 +352,8 @@ const AppShell: React.FC = () => {
           />
         ) : activeTab === 'find-my-church' ? (
           <FindMyChurchView onChurchSelect={selectChurch} />
+        ) : activeTab === 'my-list' ? (
+          <MyListView onSeriesSelect={(seriesId) => navigate(`/content/${seriesId}`)} />
         ) : activeTab === 'account-information' ? (
           <AccountInformationView onEditProfilePicture={navigateToEditProfilePicture} />
         ) : activeTab === 'edit-profile-picture' ? (
@@ -406,6 +420,8 @@ const AppShell: React.FC = () => {
               navigateToBooking(church, serviceName)
             }
           />
+        ) : isContentDetail ? (
+          <ContentDetailView />
         ) : (
           <ActivePage />
         )}

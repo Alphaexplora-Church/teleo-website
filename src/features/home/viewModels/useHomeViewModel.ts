@@ -7,11 +7,12 @@ import {
   isEventWithinFifteenDays,
 } from '../models/homeApi';
 import type { DailyGospel } from '../models/gospelTypes';
-import type { FeedPostModel } from '../models/homeTypes';
+import { STATIC_SAMPLE_EVENT_POSTS, type FeedPostModel } from '../models/homeTypes';
 
 export const useHomeViewModel = () => {
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
-  const [feedPosts, setFeedPosts] = useState<FeedPostModel[]>([]);
+  // TO DO: DELETE STATIC DATA - Initialize with static sample posts for testing
+  const [feedPosts, setFeedPosts] = useState<FeedPostModel[]>(STATIC_SAMPLE_EVENT_POSTS);
   const [selectedPost, setSelectedPost] = useState<FeedPostModel | null>(null);
   const [dailyGospel, setDailyGospel] = useState<DailyGospel | null>(null);
   const [isGospelLoading, setIsGospelLoading] = useState(true);
@@ -35,10 +36,14 @@ export const useHomeViewModel = () => {
         if (isCurrent) {
           if (error instanceof ChurchMembershipRequiredError) {
             setNeedsChurchMembership(true);
+            // TO DO: DELETE STATIC DATA - Retain static sample posts when membership is required
+            setFeedPosts(STATIC_SAMPLE_EVENT_POSTS);
           } else {
             setFeedError(
               error instanceof Error ? error.message : 'Unable to load the home feed.',
             );
+            // TO DO: DELETE STATIC DATA - Retain static sample posts on feed error
+            setFeedPosts(STATIC_SAMPLE_EVENT_POSTS);
           }
         }
       } finally {
