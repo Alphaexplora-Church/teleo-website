@@ -3,7 +3,8 @@
 // Pure TypeScript only — NO functions with component logic, NO React hooks, NO JSX.
 
 import type { BookmarkedSeriesApiRecord, MyListPaginationMeta } from './myListTypes';
-import { getCachedUserId } from '../../../shared/models/authService';
+import { getCachedUserId, refreshCurrentUser } from '../../../shared/models/authService';
+import { toBookmarkedRecord, type ApiJourney } from './journeyMapper';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
@@ -30,14 +31,13 @@ export async function fetchMyListSeries(
   cursor?: string | null,
   limit: number = 20
 ): Promise<FetchMyListResponse> {
-  const userId = getCachedUserId();
+  const userId = getCachedUserId() ?? (await refreshCurrentUser());
   if (!userId) throw new Error('Not signed in');
 
   const offset = cursor ? parseInt(cursor, 10) : 0;
-  const page = Math.floor(offset / limit) + 1;
 
   const response = await fetch(
-    `${API_BASE_URL}/api/members/${userId}/bookmarks?page=${page}&limit=${limit}`,
+    `${API_BASE_URL}/api/members/${userId}/bookmarks`,
     { credentials: 'include' }
   );
 
@@ -46,17 +46,18 @@ export async function fetchMyListSeries(
   }
 
   const body = await response.json();
-  const rows: BookmarkedSeriesApiRecord[] = body.data ?? [];
-  const total = body.meta?.total ?? rows.length;
-  const nextOffset = offset + rows.length;
-  const hasMore = nextOffset < total;
+  const rows: ApiJourney[] = body.journeys ?? [];
+
+  const pageRows = rows.slice(offset, offset + limit);
+  const nextOffset = offset + pageRows.length;
+  const hasMore = nextOffset < rows.length;
 
   return {
-    data: rows.map((row) => ({ ...row, is_bookmarked: true })),
+    data: pageRows.map(toBookmarkedRecord),
     meta: {
       next_cursor: hasMore ? String(nextOffset) : null,
       has_more: hasMore,
-      total_count: total,
+      total_count: rows.length,
     },
   };
 }
