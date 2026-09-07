@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { ContentCategory, ContentSeriesSummary } from '../models/contentTypes';
+import { addBookmarkApi, removeBookmarkApi } from '../models/myListApi';
 
 export const useContentCatalogViewModel = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -205,14 +206,30 @@ export const useContentCatalogViewModel = () => {
     setSelectedCategory(categoryId);
   }, []);
 
-  const handleBookmarkToggle = useCallback((seriesId: string, e: React.MouseEvent) => {
+  const handleBookmarkToggle = useCallback(async (seriesId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+
+    const current = allSeries.find((item) => item.series_id === seriesId);
+    if (!current) return;
+
+    const next = !current.is_bookmarked;
+
     setAllSeries((prev) =>
-      prev.map((item) =>
-        item.series_id === seriesId ? { ...item, is_bookmarked: !item.is_bookmarked } : item
-      )
+      prev.map((item) => (item.series_id === seriesId ? { ...item, is_bookmarked: next } : item))
     );
-  }, []);
+
+    try {
+      if (next) {
+        await addBookmarkApi(seriesId);
+      } else {
+        await removeBookmarkApi(seriesId);
+      }
+    } catch {
+      setAllSeries((prev) =>
+        prev.map((item) => (item.series_id === seriesId ? { ...item, is_bookmarked: !next } : item))
+      );
+    }
+  }, [allSeries]);
 
   const onViewAllMostWatched = useCallback(() => {
     setSelectedCategory('all');
