@@ -59,6 +59,7 @@ export const loginWithEmail = async (
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',
       body: JSON.stringify({
         email: credentials.emailOrPhone,
         password: credentials.password,
@@ -77,15 +78,23 @@ export const loginWithEmail = async (
       return { success: false, error: data?.message || `Login failed (${response.status})` };
     }
 
-    if (data?.data?.user) {
-      // Tokens are set as httpOnly cookies by the server — nothing to store here.
-      cachedUserId = data.data.user.id;
+    const user = data?.data?.user || data?.data?.userProfile;
+    const session = data?.data?.session;
+
+    if (user) {
+      if (session?.access_token) {
+        localStorage.setItem('access_token', session.access_token);
+        if (session.refresh_token) {
+          localStorage.setItem('refresh_token', session.refresh_token);
+        }
+      }
+
       return {
         success: true,
         user: {
-          id: data.data.user.id,
-          email: data.data.user.email,
-          displayName: data.data.user.email.split('@')[0],
+          id: user.id || user.uid || '',
+          email: user.email || credentials.emailOrPhone,
+          displayName: user.username || user.email?.split('@')[0] || 'Member',
           role: 'member',
         },
       };

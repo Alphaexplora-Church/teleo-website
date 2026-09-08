@@ -38,7 +38,13 @@ const PRAYER_AUDIENCES: readonly {
     id: 'HOME_CHURCH',
     label: 'Church Community',
     description: 'Visible to your home church',
-    disabled: true,
+    disabled: false,
+  },
+  {
+    id: 'CHURCH_INTERCESSION',
+    label: 'Church Intercession Team',
+    description: 'Sent directly to the pastors and prayer intercessors',
+    disabled: false,
   },
   {
     id: 'PRIVATE',
@@ -62,6 +68,8 @@ export const useCreatePrayerViewModel = () => {
       .filter(Boolean)
       .join(', ');
     const audience = String(formData.get('audience') ?? 'PUBLIC') as PrayerAudience;
+    const is_urgent = formData.get('is_urgent') === 'on' || formData.get('is_urgent') === 'true';
+    const is_anonymous = formData.get('is_anonymous') === 'on' || formData.get('is_anonymous') === 'true';
 
     if (!title || !description) {
       setErrorMessage('Please complete the subject and prayer request.');
@@ -77,9 +85,11 @@ export const useCreatePrayerViewModel = () => {
         description,
         audience,
         prayer_tag: prayerTag || undefined,
+        is_urgent,
+        is_anonymous,
       });
 
-      navigate('/prayer-wall', { state: { prayerWallRefresh: Date.now() } });
+      navigate('/dashboard', { state: { activeTab: 'prayer-wall', prayerWallRefresh: Date.now() } });
       return true;
     } catch (error) {
       setErrorMessage(
@@ -100,6 +110,6 @@ export const useCreatePrayerViewModel = () => {
     errorMessage,
     submitPrayer,
     navigateToTab: (tab: DashboardTab) =>
-      navigate(`/${tab}`),
+      navigate('/dashboard', { state: { activeTab: tab } }),
   };
 };

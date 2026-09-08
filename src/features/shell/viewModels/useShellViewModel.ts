@@ -6,7 +6,7 @@
 // They are extended shell destinations reachable via header/profile interactions.
 
 import { useState, useCallback, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import type { Church } from '../../profile/findmychurch/models/findMyChurchTypes';
 import { toChurch } from '../../profile/findmychurch/models/findMyChurchTypes';
@@ -18,7 +18,6 @@ export type ShellDestination =
   | DashboardTab
   | 'profile'
   | 'find-my-church'
-  | 'my-list'
   | 'account-information'
   | 'edit-profile-picture'
   | 'security'
@@ -29,14 +28,7 @@ export type ShellDestination =
   | 'change-password'
   | 'privacy-policy'
   | 'notifications'
-  | 'help'
-  | 'history'
-  | 'church-profile'
-  | 'select-church'
-  | 'booking'
-  | 'booking-schedule'
-  | 'friends'
-  | 'public-profile';
+  | 'help';
 
 export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
@@ -73,51 +65,26 @@ export interface DashboardViewModelReturn {
   verifyEmailTarget: string;
   verifyNumberTarget: string;
   selectedChurch: Church | null;
-  viewingChurch: Church | null;
   selectChurch: (church: Church) => void;
   updateSelectedChurch: (church: Church | null) => void;
 }
 
 export const useShellViewModel = (): DashboardViewModelReturn => {
   const location = useLocation();
-  const navigate = useNavigate();
-
-  const currentPath = location.pathname.split('/')[1];
-  const activeTab = (currentPath || 'home') as ShellDestination;
-
-  const setActiveTabState = useCallback(
-    (tab: ShellDestination | string) => {
-      navigate(`/${tab}`);
-    },
-    [navigate]
+  const requestedTab = (
+    location.state as { activeTab?: DashboardTab } | null
+  )?.activeTab;
+  const [activeTab, setActiveTabState] = useState<ShellDestination>(
+    requestedTab ?? 'home',
   );
   const [showBrandText, setShowBrandText] = useState(true);
   const [verifyEmailTarget, setVerifyEmailTarget] = useState('');
   const [verifyNumberTarget, setVerifyNumberTarget] = useState('');
-  const [homeChurch, setHomeChurch] = useState<Church | null>(null);
-  const [viewingChurch, setViewingChurch] = useState<Church | null>(null);
-  const [selectedServiceName, setSelectedServiceName] = useState<string>('');
-  const [selectedChurchForBooking, setSelectedChurchForBooking] = useState<{ id: string | number; name: string } | null>(null);
-  const [churchProfileTab, setChurchProfileTab] = useState<ChurchProfileTab>('overview');
+  const [selectedChurch, setSelectedChurch] = useState<Church | null>(null);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setShowBrandText(false), 2200);
     return () => window.clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const loadHomeChurch = async () => {
-      try {
-        const profile = await fetchProfileSettingsView();
-        if (profile?.home_church_id) {
-          const churchData = await fetchChurchById(profile.home_church_id);
-          setHomeChurch(toChurch(churchData));
-        }
-      } catch (err) {
-        // Silent catch for guest / unauthenticated users
-      }
-    };
-    loadHomeChurch();
   }, []);
 
   const navigateToProfile = useCallback(() => {
@@ -182,88 +149,9 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     setActiveTabState('help');
   }, []);
 
-  const navigateToHistory = useCallback(() => {
-    setActiveTabState('history');
-  }, []);
-
-  const navigateToChurchProfile = useCallback(
-    (tab?: ChurchProfileTab, churchId?: string | number) => {
-      if (churchId !== undefined && churchId !== null) {
-        const idNum = typeof churchId === 'number' ? churchId : parseInt(String(churchId), 10);
-        if (!isNaN(idNum)) {
-          setViewingChurch({ id: idNum } as Church);
-        }
-      } else {
-        setViewingChurch(null);
-      }
-      const validTab = typeof tab === 'string' ? tab : 'overview';
-      setChurchProfileTab(validTab);
-      setActiveTabState('church-profile');
-    },
-    [setActiveTabState]
-  );
-
-  const navigateToServices = useCallback(() => {
-    setActiveTabState('services');
-  }, []);
-
-  const navigateToSelectChurch = useCallback((serviceName?: string) => {
-    if (serviceName) {
-      setSelectedServiceName(serviceName);
-    }
-    setActiveTabState('select-church');
-  }, []);
-
-  const navigateToBooking = useCallback(
-    (church?: { id: string | number; name: string }, serviceName?: string) => {
-      if (church) {
-        setSelectedChurchForBooking(church);
-      }
-      if (serviceName) {
-        setSelectedServiceName(serviceName);
-      }
-      setActiveTabState('booking');
-    },
-    [setActiveTabState]
-  );
-
-  const navigateToBookingSchedule = useCallback(() => {
-    setActiveTabState('booking-schedule');
-  }, []);
-
-  const [friendsInitialTab, setFriendsInitialTab] = useState<string>('Suggestions');
-  const [viewingUserId, setViewingUserId] = useState<string | number | null>(null);
-  const pathUserId = currentPath === 'public-profile' ? location.pathname.split('/')[2] : null;
-  const effectiveViewingUserId = viewingUserId ?? pathUserId;
-
-  const navigateToFriends = useCallback((initialTab?: string) => {
-    if (initialTab) {
-      setFriendsInitialTab(initialTab);
-    }
-    setActiveTabState('friends');
-  }, []);
-
-  const navigateToPublicProfile = useCallback(
-    (userId: string | number) => {
-      setViewingUserId(userId);
-      setActiveTabState(`public-profile/${userId}`);
-    },
-    [setActiveTabState]
-  );
-
-  // Selecting a church card in Find My Church to VIEW its profile (does NOT set as home)
-  const selectChurch = useCallback(
-    (church: Church) => {
-      setViewingChurch(church);
-      setChurchProfileTab('overview');
-      setActiveTabState('church-profile');
-    },
-    [setActiveTabState]
-  );
-
-  // Explicitly setting or unsetting home church from ChurchProfileView
-  const updateSelectedChurch = useCallback((church: Church | null) => {
-    setHomeChurch(church);
+  const selectChurch = useCallback((church: Church) => {
+    setSelectedChurch(church);
+    setActiveTabState('profile');
   }, []);
 
   return {

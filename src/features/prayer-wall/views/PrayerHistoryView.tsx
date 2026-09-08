@@ -36,6 +36,22 @@ const EyeIcon = () => (
   </svg>
 );
 
+const BookmarkIcon = ({ filled = false, size = 15 }: { filled?: boolean; size?: number }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill={filled ? 'currentColor' : 'none'}
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+  </svg>
+);
+
 const PrayerHistoryView: React.FC = () => {
   const {
     prayers,
@@ -46,6 +62,7 @@ const PrayerHistoryView: React.FC = () => {
     errorMessage,
     setHistoryFilter,
     loadMorePrayers,
+    removeBookmarkItem,
     goBack,
     navigateToTab,
   } = usePrayerHistoryViewModel();
@@ -85,7 +102,7 @@ const PrayerHistoryView: React.FC = () => {
             <BackIcon />
           </button>
           <h1 className="text-[17px] font-bold tracking-[-0.02em] text-navy">
-            Post History
+            {historyFilter === 'bookmarks' ? 'Saved Bookmarks' : 'Post History'}
           </h1>
         </header>
 
@@ -94,41 +111,57 @@ const PrayerHistoryView: React.FC = () => {
             Prayer Wall
           </p>
           <h2 className="mt-2 text-[26px] font-black tracking-[-0.04em] text-navy">
-            Prayer History
+            {historyFilter === 'bookmarks' ? 'Saved Prayers' : 'Prayer History'}
           </h2>
           <p className="mt-2 text-[12px] leading-5 text-gray-placeholder">
-            Prayers you have viewed will appear here.
+            {historyFilter === 'bookmarks'
+              ? 'Prayers you have bookmarked for intercession and prayer.'
+              : 'Prayers you have shared or viewed will appear here.'}
           </p>
 
-          <div className="mt-5 grid grid-cols-2 rounded-xl bg-[#eef1f5] p-1">
+          <div className="mt-5 grid grid-cols-3 gap-1 rounded-xl bg-[#eef1f5] p-1">
             <button
               type="button"
               onClick={() => setHistoryFilter('others')}
-              className={`rounded-lg px-3 py-2.5 text-[12px] font-bold transition ${
+              className={`rounded-lg px-2 py-2.5 text-[11px] font-bold transition text-center ${
                 historyFilter === 'others'
                   ? 'bg-navy text-white shadow-sm'
-                  : 'text-gray-placeholder'
+                  : 'text-gray-placeholder hover:text-navy'
               }`}
             >
-              Shared by Others
+              Others
             </button>
             <button
               type="button"
               onClick={() => setHistoryFilter('mine')}
-              className={`rounded-lg px-3 py-2.5 text-[12px] font-bold transition ${
+              className={`rounded-lg px-2 py-2.5 text-[11px] font-bold transition text-center ${
                 historyFilter === 'mine'
                   ? 'bg-navy text-white shadow-sm'
-                  : 'text-gray-placeholder'
+                  : 'text-gray-placeholder hover:text-navy'
               }`}
             >
-              Shared by Me
+              My Posts
+            </button>
+            <button
+              type="button"
+              onClick={() => setHistoryFilter('bookmarks')}
+              className={`flex items-center justify-center gap-1.5 rounded-lg px-2 py-2.5 text-[11px] font-bold transition text-center ${
+                historyFilter === 'bookmarks'
+                  ? 'bg-navy text-white shadow-sm'
+                  : 'text-gray-placeholder hover:text-navy'
+              }`}
+            >
+              <BookmarkIcon size={13} filled={historyFilter === 'bookmarks'} />
+              <span>Saved</span>
             </button>
           </div>
 
           <div className="mt-5 space-y-3">
             {isLoading && (
               <div className="rounded-2xl border border-gray-border bg-off-white px-5 py-10 text-center">
-                <p className="text-[14px] font-bold text-navy">Loading history...</p>
+                <p className="text-[14px] font-bold text-navy">
+                  {historyFilter === 'bookmarks' ? 'Loading saved prayers...' : 'Loading history...'}
+                </p>
               </div>
             )}
             {errorMessage && !isLoading && (
@@ -138,37 +171,65 @@ const PrayerHistoryView: React.FC = () => {
             )}
             {!isLoading && !errorMessage && prayers.length === 0 && !hasMore && (
               <div className="rounded-2xl border border-dashed border-gray-border bg-off-white px-5 py-10 text-center">
-                <p className="text-[14px] font-bold text-navy">No posts yet</p>
+                <p className="text-[14px] font-bold text-navy">
+                  {historyFilter === 'bookmarks' ? 'No saved prayers yet' : 'No posts yet'}
+                </p>
                 <p className="mt-1 text-[11px] text-gray-placeholder">
-                  Prayer requests you share will appear here.
+                  {historyFilter === 'bookmarks'
+                    ? 'Tap the bookmark icon on any prayer request to save it here for prayer.'
+                    : historyFilter === 'mine'
+                    ? 'Prayer requests you share will appear here.'
+                    : 'No prayer requests shared by others found.'}
                 </p>
               </div>
             )}
             {prayers.map((prayer) => (
-              <Link
+              <div
                 key={prayer.id}
-                to={`/prayer/${prayer.id}`}
-                className="block rounded-2xl p-4 text-white shadow-[0_10px_24px_rgba(27,50,82,0.16)] transition active:scale-[0.99]"
+                className="relative overflow-hidden rounded-2xl shadow-[0_10px_24px_rgba(27,50,82,0.16)] transition"
                 style={{ backgroundColor: prayer.accentColor }}
               >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-center gap-2.5">
-                  <div className="size-8 rounded-full bg-white/85" />
-                  <div>
-                    <p className="text-[12px] font-bold text-white">
-                      {prayer.author ?? 'Teleo Member'}
-                    </p>
-                    <p className="text-[9px] text-white/65">{prayer.timeAgo}</p>
+                <Link
+                  to={`/prayer/${prayer.id}`}
+                  className="block p-4 text-white active:scale-[0.99]"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-2.5">
+                      <div className="size-8 rounded-full bg-white/85" />
+                      <div>
+                        <p className="text-[12px] font-bold text-white">
+                          {prayer.author ?? 'Teleo Member'}
+                        </p>
+                        <p className="text-[9px] text-white/65">{prayer.timeAgo}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {historyFilter === 'bookmarks' ? (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            void removeBookmarkItem(prayer.id);
+                          }}
+                          aria-label="Remove from saved bookmarks"
+                          title="Remove bookmark"
+                          className="flex size-8 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/35 active:scale-95"
+                        >
+                          <BookmarkIcon size={14} filled />
+                        </button>
+                      ) : (
+                        <span className="flex size-8 items-center justify-center rounded-full bg-white/20 text-white">
+                          <EyeIcon />
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-                  <span className="flex size-8 items-center justify-center rounded-full bg-white/20 text-white">
-                    <EyeIcon />
-                  </span>
-                </div>
-                <p className="mt-5 text-center text-[17px] font-black leading-[1.45] tracking-[-0.025em]">
-                  {prayer.frontMessage}
-                </p>
-              </Link>
+                  <p className="mt-5 text-center text-[17px] font-black leading-[1.45] tracking-[-0.025em]">
+                    {prayer.frontMessage}
+                  </p>
+                </Link>
+              </div>
             ))}
             {hasMore && (
               <div ref={loadMoreRef} className="py-4 text-center">

@@ -45,7 +45,7 @@ const TAB_PAGES: Record<string, React.FC> = {
   home: HomeFeedView,
   services: ServicesView,
   'prayer-wall': PrayerWallView,
-  content: ContentCatalogView,
+  content: ContentView,
   giving: GivingView,
   chat: ChatView,
   'find-my-church': FindMyChurchView,
@@ -53,7 +53,6 @@ const TAB_PAGES: Record<string, React.FC> = {
   'edit-profile-picture': EditProfilePictureView,
   security: SecurityView,
   'change-email': ChangeEmailView,
-  'my-list': MyListView,
 };
 
 const BackChevron: React.FC = () => (
@@ -74,7 +73,7 @@ interface BackHeaderProps {
 }
 
 const BackHeader: React.FC<BackHeaderProps> = ({ title, onBack }) => (
-  <div className="flex items-center gap-5 h-15">
+  <div className="flex items-center gap-5 h-[60px]">
     <button
       type="button"
       aria-label="Go back"
@@ -156,14 +155,10 @@ const AppShell: React.FC = () => {
     showBrandText,
   } = useShellViewModel();
 
-  const location = useLocation();
-  const navigate = useNavigate();
-  const isContentDetail = activeTab === 'content' && Boolean(location.pathname.split('/')[2]);
   const ActivePage = TAB_PAGES[activeTab] ?? HomeFeedView;
   const isSubPage = [
     'profile',
     'find-my-church',
-    'my-list',
     'account-information',
     'edit-profile-picture',
     'security',
@@ -175,19 +170,12 @@ const AppShell: React.FC = () => {
     'privacy-policy',
     'notifications',
     'help',
-    'history',
-    'church-profile',
-    'select-church',
-    'booking',
-    'booking-schedule',
-    'friends',
-    'public-profile',
   ].includes(activeTab);
 
   return (
-    <div className="w-full max-w-md min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
-      <header className="w-full bg-navy text-white">
-        {activeTab === 'profile' || activeTab === 'church-profile' || activeTab === 'friends' || activeTab === 'public-profile' || isContentDetail ? null : isSubPage ? (
+    <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
+      <header className="sticky top-0 z-50 w-full bg-[#001739] text-white">
+        {isSubPage ? (
           <div
             className="flex items-center gap-5 px-5 h-14.75 bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
@@ -273,7 +261,7 @@ const AppShell: React.FC = () => {
               </span>
             </div>
 
-            <div className="flex items-center gap-3 text-white">
+            <div className="flex items-center gap-2 text-white">
               <button
                 type="button"
                 aria-label="Search"
@@ -287,7 +275,7 @@ const AppShell: React.FC = () => {
                 aria-label="Notifications"
                 className="relative flex h-10 w-8 items-center justify-center rounded-full border-none bg-transparent cursor-pointer"
               >
-                <img src={notificationIcon} alt="" className="h-6.25 w-6.25" />
+                <img src={notificationIcon} alt="" className="h-[25px] w-[25px]" />
                 <span
                   className="absolute top-0 right-0 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-[#FFAF00] px-1 text-[10px] font-bold text-navy"
                   aria-hidden="true"
@@ -308,31 +296,7 @@ const AppShell: React.FC = () => {
         aria-live="polite"
         aria-label={`${activeTab} page`}
       >
-        {activeTab === 'services' ? (
-          <ServicesView
-            onNavigateToSelectChurch={navigateToSelectChurch}
-            onNavigateToChurchProfile={navigateToChurchProfile}
-          />
-        ) : activeTab === 'select-church' ? (
-          <SelectChurchView
-            serviceName={selectedServiceName}
-            onChurchSelect={(church) => navigateToBooking(church)}
-          />
-        ) : activeTab === 'booking' ? (
-          <BookingView
-            serviceName={selectedServiceName}
-            churchName={selectedChurchForBooking?.name}
-            onProceedToSchedule={navigateToBookingSchedule}
-          />
-        ) : activeTab === 'booking-schedule' ? (
-          <BookingScheduleView
-            serviceName={selectedServiceName}
-            churchName={selectedChurchForBooking?.name}
-            onBookingComplete={navigateToServices}
-          />
-        ) : activeTab === 'home' ? (
-          <HomeFeedView onFindMyChurch={navigateToFindMyChurch} />
-        ) : activeTab === 'profile' ? (
+        {activeTab === 'profile' ? (
           <ProfileView
             onFindMyChurch={navigateToFindMyChurch}
             selectedChurch={selectedChurch}
