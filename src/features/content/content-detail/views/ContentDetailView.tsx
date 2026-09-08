@@ -69,7 +69,7 @@ export const ContentDetailView: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-white px-6 text-center">
+      <div className="w-full min-h-screen flex flex-col items-center justify-center gap-4 bg-white px-6 text-center">
         <p className="text-sm text-black/70 font-medium">{error}</p>
         <div className="flex gap-2">
           <button
@@ -93,14 +93,14 @@ export const ContentDetailView: React.FC = () => {
 
   if (loading || !detail) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="w-full min-h-screen flex items-center justify-center bg-white">
         <p className="text-sm text-black/60 font-medium">Loading series details...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white text-black font-sans pb-24">
+    <div className="w-full min-h-screen bg-white text-black font-sans pb-24">
       {/* ── Top Navigation Bar (Sticky) ─────────────────────────────────── */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200 px-5 py-3 flex items-center justify-between shadow-xs">
         <button
