@@ -35,7 +35,7 @@ export const ContentReaderView: React.FC = () => {
   const embed = toMediaEmbed(chapter?.media_url, chapter?.last_media_timestamp_seconds || 0);
 
   return (
-    <div className="w-full min-h-screen bg-[#faf9f7] text-[#1c1c1e] font-sans antialiased selection:bg-[#336ef91a]">
+    <div className="w-full max-w-md min-h-screen bg-[#faf9f7] text-[#1c1c1e] font-sans antialiased selection:bg-[#336ef91a]">
       {/* ── 1. Top Reading Bar (Wattpad Style with Progress Tracker) ───────── */}
       <header className="sticky top-0 z-30 bg-[#faf9f7]/95 backdrop-blur-md border-b border-zinc-200/80 px-4 py-2.5 flex items-center justify-between transition-all">
         <button
