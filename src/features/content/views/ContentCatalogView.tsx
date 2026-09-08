@@ -67,6 +67,9 @@ const BookmarkIcon: React.FC = () => (
     isFiltering,
     filteredSeries,
     categories,
+    isLoading,
+    loadError,
+    retry,
     mostWatchedRail,
     continueRail,
     becauseYouWatchedRail,
@@ -131,12 +134,12 @@ const BookmarkIcon: React.FC = () => (
             All
           </button>
           {categories.map((cat) => {
-            const isSelected = selectedCategory === cat.category_id;
+            const isSelected = selectedCategory === cat.name;
             return (
               <button
                 key={cat.category_id}
                 type="button"
-                onClick={() => handleCategorySelect(cat.category_id)}
+                onClick={() => handleCategorySelect(cat.name)}
                 className={`rounded-xl px-4 py-2 text-xs font-medium whitespace-nowrap border-none active:scale-95 transition-all duration-150 cursor-pointer shrink-0 ${isSelected
                     ? 'bg-[#1f2156] text-white shadow-xs'
                     : 'bg-zinc-100 text-black/70 hover:bg-zinc-200'
@@ -151,7 +154,22 @@ const BookmarkIcon: React.FC = () => (
 
       {/* ── 2. Content Display (Filtered Grid or Rails) ───────────────────── */}
       <div className="px-5 pt-4 pb-8 flex flex-col gap-6">
-        {isFiltering ? (
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <p className="text-gray-placeholder text-sm">Loading journeys...</p>
+          </div>
+        ) : loadError ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <h3 className="text-black text-lg font-semibold mb-1">{loadError}</h3>
+            <button
+              type="button"
+              onClick={() => void retry()}
+              className="mt-4 px-5 py-2.5 bg-[#1f2156] hover:bg-[#2c2f6d] text-white text-sm font-medium rounded-xl shadow-xs active:scale-95 transition-all duration-150 cursor-pointer"
+            >
+              Retry
+            </button>
+          </div>
+        ) : isFiltering ? (
           /* Filter / Search Results State */
           filteredSeries.length === 0 ? (
             /* No Results Found State */
@@ -198,6 +216,17 @@ const BookmarkIcon: React.FC = () => (
               </div>
             </div>
           )
+        ) : filteredSeries.length === 0 ? (
+          /* Nothing published for this church yet */
+          <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+            <div className="size-14 bg-zinc-100 rounded-full flex items-center justify-center mb-4 text-zinc-400">
+              <SearchIcon />
+            </div>
+            <h3 className="text-black text-lg font-semibold mb-1">No journeys yet</h3>
+            <p className="text-gray-placeholder text-sm max-w-sm leading-relaxed">
+              Your church has not published any journeys yet. Check back soon.
+            </p>
+          </div>
         ) : (
           /* Standard Rails Default View */
           <>

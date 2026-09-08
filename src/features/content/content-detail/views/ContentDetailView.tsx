@@ -68,6 +68,8 @@ export const ContentDetailView: React.FC = () => {
   const {
     detail,
     loading,
+    error,
+    retry,
     activeTab,
     hasProgress,
     completedCount,
@@ -83,16 +85,40 @@ export const ContentDetailView: React.FC = () => {
     handlePrimaryReadAction,
   } = useContentDetailViewModel(effectiveId);
 
+  if (error) {
+    return (
+      <div className="w-full min-h-screen flex flex-col items-center justify-center gap-4 bg-white px-6 text-center">
+        <p className="text-sm text-black/70 font-medium">{error}</p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={retry}
+            className="px-5 py-2.5 bg-[#1f2156] hover:bg-[#2c2f6d] text-white text-sm font-medium rounded-xl active:scale-95 transition-all duration-150 cursor-pointer"
+          >
+            Retry
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate('/content')}
+            className="px-5 py-2.5 bg-zinc-100 hover:bg-zinc-200 text-black/70 text-sm font-medium rounded-xl active:scale-95 transition-all duration-150 cursor-pointer"
+          >
+            Back to journeys
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (loading || !detail) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="w-full min-h-screen flex items-center justify-center bg-white">
         <p className="text-sm text-black/60 font-medium">Loading series details...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white text-black font-sans pb-24">
+    <div className="w-full min-h-screen bg-white text-black font-sans pb-24">
       {/* ── Top Navigation Bar (Sticky) ─────────────────────────────────── */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200 px-5 py-3 flex items-center justify-between shadow-xs">
         <button
