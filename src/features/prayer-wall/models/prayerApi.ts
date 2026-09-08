@@ -384,3 +384,77 @@ export const markPrayerAsAnswered = async (
 
   return mapPrayerRecordToCard(await parseJsonResponse<PrayerApiRecord>(response));
 };
+
+export const addPrayerBookmark = async (prayerId: string) => {
+  const token = getRequiredAccessToken();
+  const response = await fetch(`${API_BASE_URL}/api/prayers/bookmark`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ prayer_id: prayerId }),
+  });
+
+  return parseJsonResponse<{ message: string; data?: unknown }>(response);
+};
+
+export const removePrayerBookmark = async (prayerId: string) => {
+  const token = getRequiredAccessToken();
+  const response = await fetch(`${API_BASE_URL}/api/prayers/bookmark`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ prayer_id: prayerId }),
+  });
+
+  return parseJsonResponse<{ message: string; data?: unknown }>(response);
+};
+
+export const checkPrayerBookmark = async (prayerId: string): Promise<boolean> => {
+  const token = getRequiredAccessToken();
+  const response = await fetch(`${API_BASE_URL}/api/prayers/bookmark?prayer_id=${encodeURIComponent(prayerId)}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const result = await parseJsonResponse<{ bookmarked: boolean }>(response);
+  return Boolean(result.bookmarked);
+};
+
+export const getBookmarkedPrayersPage = async (
+  cursor?: string | null,
+  limit = 10,
+): Promise<PrayerCardsPage> => {
+  const token = getRequiredAccessToken();
+  const params = new URLSearchParams({ limit: String(limit) });
+
+  if (cursor) {
+    params.set('cursor', cursor);
+  }
+
+  const response = await fetch(`${API_BASE_URL}/api/prayers/bookmark?${params.toString()}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const result = await parseJsonResponse<PrayerFeedResponse>(response);
+  const mappedPrayers = (result.data ?? [])
+    .filter((record) => !isLikelyMockPrayerRecord(record))
+    .map(mapPrayerRecordToCard)
+    .filter((prayer) => !isLikelyMockPrayerCard(prayer));
+  const prayers = sortPrayerCardsByRecent(
+    await applyCurrentUserAuthorFallback(mappedPrayers),
+  );
+
+  return {
+    prayers,
+    nextCursor: result.meta?.next_cursor ?? null,
+    hasMore: Boolean(result.meta?.has_more),
+  };
+};
+

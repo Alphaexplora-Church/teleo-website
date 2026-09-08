@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
+  addPrayerBookmark,
+  checkPrayerBookmark,
   deletePrayer,
   getCurrentUserId,
   getPrayerCardById,
   getPrayerComments,
   markPrayerAsAnswered,
+  removePrayerBookmark,
   togglePrayerReaction,
   updatePrayer,
 } from '../models/prayerApi';
@@ -21,6 +24,9 @@ export const usePrayerDetailsViewModel = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [reactingAction, setReactingAction] = useState<PrayerReactionType | null>(null);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isTogglingBookmark, setIsTogglingBookmark] = useState(false);
+  const [bookmarkToast, setBookmarkToast] = useState<string | null>(null);
   const [isPostMenuOpen, setIsPostMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
@@ -40,8 +46,12 @@ export const usePrayerDetailsViewModel = () => {
       setErrorMessage(null);
 
       try {
-        const mappedPrayer = await getPrayerCardById(prayerId);
+        const [mappedPrayer, bookmarkedStatus] = await Promise.all([
+          getPrayerCardById(prayerId),
+          checkPrayerBookmark(prayerId).catch(() => false),
+        ]);
         setPrayer(mappedPrayer);
+        setIsBookmarked(bookmarkedStatus);
         setComments(getPrayerComments(prayerId, mappedPrayer.comments));
         setEditTitle(mappedPrayer.title);
         setEditDescription(mappedPrayer.description);
@@ -175,6 +185,41 @@ export const usePrayerDetailsViewModel = () => {
     }
   };
 
+  const toggleBookmark = async () => {
+    if (!prayer || isTogglingBookmark) {
+      return;
+    }
+
+    const previousState = isBookmarked;
+    const nextState = !previousState;
+    setIsBookmarked(nextState);
+    setIsTogglingBookmark(true);
+    setBookmarkToast(nextState ? 'Saved to Bookmarks 🔖' : 'Removed from Bookmarks');
+
+    try {
+      if (nextState) {
+        await addPrayerBookmark(prayer.id);
+      } else {
+        await removePrayerBookmark(prayer.id);
+      }
+    } catch (error) {
+      setIsBookmarked(previousState);
+      setBookmarkToast(null);
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Unable to update bookmark.',
+      );
+    } finally {
+      setIsTogglingBookmark(false);
+      setTimeout(() => {
+        setBookmarkToast((current) =>
+          current === (nextState ? 'Saved to Bookmarks 🔖' : 'Removed from Bookmarks')
+            ? null
+            : current,
+        );
+      }, 3000);
+    }
+  };
+
   const startEditing = () => {
     setIsEditing(true);
     setIsPostMenuOpen(false);
@@ -187,6 +232,10 @@ export const usePrayerDetailsViewModel = () => {
     isLoading,
     errorMessage,
     reactingAction,
+    isBookmarked,
+    isTogglingBookmark,
+    bookmarkToast,
+    toggleBookmark,
     isPostMenuOpen,
     setIsPostMenuOpen,
     isEditing,
