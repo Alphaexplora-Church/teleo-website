@@ -286,7 +286,7 @@ const CreatePrayerView: React.FC = () => {
             >
               <div>
                 <p className="text-[13px] font-bold text-navy flex items-center gap-1.5">
-                  <span className="text-rose-600">🔥</span> Urgent Priority
+                  <span className="text-rose-600"></span> Urgent Priority
                 </p>
                 <p className="text-[11px] text-gray-placeholder">
                   Pins this request to the top of feeds for emergency prayer.

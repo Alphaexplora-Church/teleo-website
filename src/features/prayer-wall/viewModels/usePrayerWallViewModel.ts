@@ -160,7 +160,7 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     }));
 
     try {
-      await togglePrayerReaction(topCard.id, 'HEART');
+      await togglePrayerReaction(topCard.id, 'AMEN');
       setErrorMessage(null);
     } catch (error) {
       setLikedCardIds((current) => ({
@@ -247,7 +247,7 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
             : card,
         ),
       );
-      await togglePrayerReaction(topCard.id, 'PRAYING');
+      await togglePrayerReaction(topCard.id, 'AMEN');
       setPrayerCommentStatusByCard((current) => ({
         ...current,
         [topCard.id]: 'sent',

@@ -2,7 +2,7 @@ import type { PrayerComment, PrayerCommentRecord } from './commentTypes';
 
 export type PrayerAudience = 'PUBLIC' | 'PRIVATE' | 'HOME_CHURCH' | 'CHURCH_MINISTRY' | 'CHURCH_INTERCESSION';
 
-export type PrayerReactionType = 'AMEN' | 'PRAYING' | 'HEART' | 'PRAYED';
+export type PrayerReactionType = 'AMEN' | 'PRAYED';
 
 export interface PrayerReactionRecord {
   id: string;

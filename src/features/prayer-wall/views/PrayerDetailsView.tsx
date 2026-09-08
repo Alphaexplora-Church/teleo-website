@@ -354,25 +354,25 @@ const PrayerDetailsView: React.FC = () => {
           <div className="flex items-center gap-3 border-y border-white/22 px-4 py-3">
             <button
               type="button"
-              onClick={() => reactToPost('HEART')}
+              onClick={() => reactToPost('AMEN')}
               disabled={Boolean(reactingAction)}
-              aria-label="Heart react to prayer"
+              aria-label="Amen react to prayer"
               className={`flex size-11 shrink-0 items-center justify-center rounded-full transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 ${
                 hasHeartReacted
                   ? 'bg-white text-[#d92d20] hover:bg-white/92'
                   : 'bg-white/22 text-white hover:bg-white/32'
               }`}
             >
-              <HeartIcon filled={hasHeartReacted || reactingAction === 'HEART'} />
+              <HeartIcon filled={hasHeartReacted || reactingAction === 'AMEN'} />
             </button>
             <button
               type="button"
-              onClick={() => reactToPost('PRAYING')}
+              onClick={() => reactToPost('AMEN')}
               disabled={Boolean(reactingAction)}
               className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-white/35 px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-white/45 active:scale-[0.98]"
             >
               <PrayIcon />
-              {reactingAction === 'PRAYING' ? 'Sending...' : 'Pray'}
+              {reactingAction === 'AMEN' ? 'Amen...' : 'Amen / Pray'}
             </button>
           </div>
         )}

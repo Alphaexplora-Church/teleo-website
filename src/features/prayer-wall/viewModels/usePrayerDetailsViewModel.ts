@@ -59,7 +59,7 @@ export const usePrayerDetailsViewModel = () => {
     })();
   }, [prayerId]);
 
-  const reactToPost = async (reactionType: PrayerReactionType) => {
+  const reactToPost = async (reactionType: PrayerReactionType = 'AMEN') => {
     if (!prayer || reactingAction || prayer.isAnswered) {
       return;
     }
@@ -69,10 +69,7 @@ export const usePrayerDetailsViewModel = () => {
 
     try {
       await togglePrayerReaction(prayer.id, reactionType);
-
-      if (reactionType === 'HEART') {
-        setHasHeartReacted((current) => !current);
-      }
+      setHasHeartReacted((current) => !current);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to react to this prayer request.',
