@@ -4,6 +4,7 @@
 // Tab switching is entirely state-driven - no URL changes, no shell re-mounts.
 
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BottomNavBar from '../../../shared/components/BottomNavBar';
 import { useShellViewModel } from '../viewModels/useShellViewModel';
 import searchIcon from '../../../assets/icons/Search Button.svg';
@@ -13,8 +14,13 @@ import teleoMini from '../../../assets/icons/teleo-mini.svg';
 
 import HomeFeedView from '../../home/views/HomeFeedView';
 import ServicesView from '../../services/views/ServicesView';
+import SelectChurchView from '../../services/select-church/views/SelectChurchView';
+import BookingView from '../../services/booking/views/BookingView';
+import BookingScheduleView from '../../services/booking/views/BookingScheduleView';
 import PrayerWallView from '../../prayer-wall/views/PrayerWallView';
-import ContentView from '../../content/views/ContentView';
+import ContentCatalogView from '../../content/views/ContentCatalogView';
+import ContentDetailView from '../../content/content-detail/views/ContentDetailView';
+import MyListView from '../../content/views/MyListView';
 import ProfileView from '../../profile/views/ProfileView';
 import FindMyChurchView from '../../profile/findmychurch/views/FindMyChurchView';
 import AccountInformationView from '../../profile/accountinformation/views/AccountInformationView';
@@ -28,7 +34,11 @@ import ChangePasswordView from '../../profile/security/change-password/views/Cha
 import PrivacyPolicyView from '../../profile/security/views/PrivacyPolicyView';
 import NotificationView from '../../profile/views/NotificationView';
 import HelpView from '../../profile/views/HelpView';
+import HistoryView from '../../profile/views/HistoryView';
 import GivingView from '../../giving/views/GivingView';
+import FriendsView from '../../profile/views/FriendsView';
+import PublicProfileView from '../../profile/views/PublicProfileView';
+import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
 import ChatView from '../../chat/views/ChatView';
 
 const TAB_PAGES: Record<string, React.FC> = {
@@ -72,7 +82,7 @@ const BackHeader: React.FC<BackHeaderProps> = ({ title, onBack }) => (
     >
       <BackChevron />
     </button>
-    <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-[0] font-sans">
+    <h1 className="font-medium text-[#1f2156] text-xl leading-6 tracking-normal font-sans">
       {title}
     </h1>
   </div>
@@ -99,7 +109,7 @@ const HeaderAvatar: React.FC<HeaderAvatarProps> = ({
           className="w-8 h-8 rounded-full object-cover ring-2 ring-white/30"
         />
       ) : (
-        <img src={profileIcon} alt="" className="h-[25px] w-[25px]" />
+        <img src={profileIcon} alt="" className="h-6.25 w-6.25" />
       )}
     </button>
   );
@@ -110,6 +120,7 @@ const AppShell: React.FC = () => {
     activeTab,
     setActiveTab,
     navigateToProfile,
+    navigateToContent,
     navigateToFindMyChurch,
     navigateToAccountInformation,
     navigateToEditProfilePicture,
@@ -122,10 +133,25 @@ const AppShell: React.FC = () => {
     navigateToPrivacyPolicy,
     navigateToNotifications,
     navigateToHelp,
+    navigateToHistory,
+    navigateToChurchProfile,
+    navigateToFriends,
+    navigateToPublicProfile,
+    viewingUserId,
+    churchProfileTab,
+    friendsInitialTab,
+    navigateToServices,
+    navigateToSelectChurch,
+    navigateToBooking,
+    navigateToBookingSchedule,
+    selectedServiceName,
+    selectedChurchForBooking,
     verifyEmailTarget,
     verifyNumberTarget,
     selectedChurch,
+    viewingChurch,
     selectChurch,
+    updateSelectedChurch,
     showBrandText,
   } = useShellViewModel();
 
@@ -151,17 +177,17 @@ const AppShell: React.FC = () => {
       <header className="sticky top-0 z-50 w-full bg-[#001739] text-white">
         {isSubPage ? (
           <div
-            className="flex items-center gap-5 px-5 h-[59px] bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
+            className="flex items-center gap-5 px-5 h-14.75 bg-white border-b border-gray-200 shadow-[0_1px_8px_rgba(27,50,82,0.06)]"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
           >
-            {activeTab === 'profile' && (
-              <BackHeader title="Profile" onBack={() => setActiveTab('home')} />
-            )}
             {activeTab === 'find-my-church' && (
               <BackHeader title="Find My Church" onBack={navigateToProfile} />
             )}
+            {activeTab === 'my-list' && (
+              <BackHeader title="My List" onBack={navigateToContent} />
+            )}
             {activeTab === 'account-information' && (
-              <BackHeader title="Account Information" onBack={navigateToProfile} />
+              <BackHeader title="Profile" onBack={navigateToProfile} />
             )}
             {activeTab === 'edit-profile-picture' && (
               <BackHeader title="Edit Profile Picture" onBack={navigateToAccountInformation} />
@@ -193,10 +219,31 @@ const AppShell: React.FC = () => {
             {activeTab === 'help' && (
               <BackHeader title="Help & FAQs" onBack={navigateToProfile} />
             )}
+            {activeTab === 'history' && (
+              <BackHeader title="History" onBack={navigateToProfile} />
+            )}
+            {activeTab === 'select-church' && (
+              <BackHeader
+                title={selectedServiceName ? `Select Church (${selectedServiceName})` : 'Select Church'}
+                onBack={navigateToServices}
+              />
+            )}
+            {activeTab === 'booking' && (
+              <BackHeader
+                title={selectedServiceName ? `${selectedServiceName} Overview` : 'Service Overview'}
+                onBack={() => navigateToSelectChurch(selectedServiceName)}
+              />
+            )}
+            {activeTab === 'booking-schedule' && (
+              <BackHeader
+                title="Schedule Booking"
+                onBack={() => navigateToBooking(selectedChurchForBooking ?? undefined)}
+              />
+            )}
           </div>
         ) : (
           <div
-            className="flex items-center justify-between px-5 h-[59px]"
+            className="flex items-center justify-between px-5 h-14.75"
             style={{ paddingTop: 'env(safe-area-inset-top)' }}
           >
             <div className="flex items-center gap-2">
@@ -206,7 +253,7 @@ const AppShell: React.FC = () => {
                   'overflow-hidden whitespace-nowrap text-[24px] font-black leading-none tracking-[5px] text-white',
                   'transition-all duration-700 ease-in-out',
                   showBrandText
-                    ? 'max-w-[135px] translate-x-0 opacity-100'
+                    ? 'max-w-33.75 translate-x-0 opacity-100'
                     : 'max-w-0 -translate-x-2 opacity-0',
                 ].join(' ')}
               >
@@ -220,18 +267,17 @@ const AppShell: React.FC = () => {
                 aria-label="Search"
                 className="flex h-10 w-10 items-center justify-center"
               >
-                <img src={searchIcon} alt="" className="h-[38px] w-9" />
+                <img src={searchIcon} alt="" className="h-9.5 w-9" />
               </button>
 
               <button
-                id="btn-header-notifications"
                 type="button"
                 aria-label="Notifications"
                 className="relative flex h-10 w-8 items-center justify-center rounded-full border-none bg-transparent cursor-pointer"
               >
                 <img src={notificationIcon} alt="" className="h-[25px] w-[25px]" />
                 <span
-                  className="absolute top-0 right-0 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#FFAF00] px-1 text-[10px] font-bold text-[#001739]"
+                  className="absolute top-0 right-0 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-[#FFAF00] px-1 text-[10px] font-bold text-navy"
                   aria-hidden="true"
                 >
                   3
@@ -245,7 +291,7 @@ const AppShell: React.FC = () => {
       </header>
 
       <main
-        className="flex-1 overflow-y-auto"
+        className="flex-1 w-full overflow-y-auto"
         id="dashboard-content-area"
         aria-live="polite"
         aria-label={`${activeTab} page`}
@@ -259,9 +305,19 @@ const AppShell: React.FC = () => {
             onSecurity={navigateToSecurity}
             onNotifications={navigateToNotifications}
             onHelp={navigateToHelp}
+            onChurchProfile={navigateToChurchProfile}
+            onGiving={() => setActiveTab('giving')}
+            onPrayers={() => setActiveTab('prayer-wall')}
+            onHistory={navigateToHistory}
+            onServices={() => setActiveTab('services')}
+            onFriends={() => navigateToFriends('Teleo Friends')}
+            onFollowing={() => navigateToFriends('Church Following')}
+            onBack={() => setActiveTab('home')}
           />
         ) : activeTab === 'find-my-church' ? (
           <FindMyChurchView onChurchSelect={selectChurch} />
+        ) : activeTab === 'my-list' ? (
+          <MyListView onSeriesSelect={(seriesId) => navigate(`/content/${seriesId}`)} />
         ) : activeTab === 'account-information' ? (
           <AccountInformationView onEditProfilePicture={navigateToEditProfilePicture} />
         ) : activeTab === 'edit-profile-picture' ? (
@@ -303,6 +359,33 @@ const AppShell: React.FC = () => {
           <NotificationView onSuccess={() => setTimeout(navigateToProfile, 2000)} />
         ) : activeTab === 'help' ? (
           <HelpView />
+        ) : activeTab === 'history' ? (
+          <HistoryView />
+        ) : activeTab === 'friends' ? (
+          <FriendsView
+            initialTab={friendsInitialTab}
+            onBack={navigateToProfile}
+            onUserClick={navigateToPublicProfile}
+          />
+        ) : activeTab === 'public-profile' ? (
+          <PublicProfileView
+            userId={String(viewingUserId ?? '')}
+            onBack={() => navigateToFriends(friendsInitialTab)}
+          />
+        ) : activeTab === 'church-profile' ? (
+          <ChurchProfileView
+            onBack={navigateToFindMyChurch}
+            churchId={viewingChurch?.id ?? selectedChurch?.id}
+            initialTab={churchProfileTab}
+            onHomeChurchChange={(isHome, churchData) =>
+              updateSelectedChurch(isHome ? (churchData ?? null) : null)
+            }
+            onServiceSelect={(serviceName, church) =>
+              navigateToBooking(church, serviceName)
+            }
+          />
+        ) : isContentDetail ? (
+          <ContentDetailView />
         ) : (
           <ActivePage />
         )}

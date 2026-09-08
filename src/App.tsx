@@ -1,8 +1,9 @@
 // App.tsx — Router shell + lazy-loaded page routes
 // All page-level views are lazy-loaded per MVVM convention
 
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ensureCurrentUserLoaded } from './shared/models/authService';
 
 // ── Lazy-loaded page views ─────────────────────────────────
 const AppShell = lazy(
@@ -33,7 +34,7 @@ const PrayerHistoryView = lazy(
 
 // ── Minimal loading fallback ───────────────────────────────
 const PageLoader: React.FC = () => (
-  <div className="w-full max-w-[448px] min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
+  <div className="w-full max-w-md min-h-dvh bg-white flex flex-col relative ring-1 ring-black/4 shadow-card">
     <div className="flex-1 flex flex-col items-center justify-center py-12 px-6 pb-[calc(3rem+env(safe-area-inset-bottom))] bg-white">
       <div className="inline-block w-9 h-9 border-[3px] border-navy/15 border-t-navy rounded-full animate-spin" aria-label="Loading" />
     </div>
@@ -42,6 +43,11 @@ const PageLoader: React.FC = () => (
 
 // ── App ────────────────────────────────────────────────────
 function App() {
+  // Rehydrate the in-memory user id from the session cookie after a page reload.
+  useEffect(() => {
+    ensureCurrentUserLoaded();
+  }, []);
+
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
@@ -58,8 +64,48 @@ function App() {
           {/* Step 3b: Registration */}
           <Route path="/register" element={<RegisterPage />} />
 
-          {/* Step 4: Dashboard (post-auth / guest) */}
-          <Route path="/dashboard" element={<AppShell />} />
+          {/* Content Reader / Chapter Player */}
+          <Route path="/content/:seriesId/part/:partId" element={<ContentReaderView />} />
+          <Route path="/content/:seriesId/:partId" element={<ContentReaderView />} />
+
+          {/* Dashboard and Main Navigation */}
+          <Route path="/home" element={<AppShell />} />
+          <Route path="/services" element={<AppShell />} />
+          <Route path="/prayer-wall" element={<AppShell />} />
+          <Route path="/content" element={<AppShell />} />
+          <Route path="/content/my-list" element={<AppShell />} />
+          <Route path="/my-list" element={<AppShell />} />
+          <Route path="/content/:id" element={<AppShell />} />
+          <Route path="/content/:seriesId" element={<AppShell />} />
+          <Route path="/giving" element={<AppShell />} />
+          <Route path="/chat" element={<AppShell />} />
+
+          {/* Profile and Sub-pages */}
+          <Route path="/profile" element={<AppShell />} />
+          <Route path="/find-my-church" element={<AppShell />} />
+          <Route path="/account-information" element={<AppShell />} />
+          <Route path="/edit-profile-picture" element={<AppShell />} />
+          <Route path="/security" element={<AppShell />} />
+          <Route path="/change-email" element={<AppShell />} />
+          <Route path="/verify-email" element={<AppShell />} />
+          <Route path="/change-number" element={<AppShell />} />
+          <Route path="/verify-number" element={<AppShell />} />
+          <Route path="/change-password" element={<AppShell />} />
+          <Route path="/privacy-policy" element={<AppShell />} />
+          <Route path="/notifications" element={<AppShell />} />
+          <Route path="/help" element={<AppShell />} />
+          <Route path="/church-profile" element={<AppShell />} />
+          <Route path="/select-church" element={<AppShell />} />
+          <Route path="/booking" element={<AppShell />} />
+          <Route path="/booking-schedule" element={<AppShell />} />
+          <Route path="/friends" element={<AppShell />} />
+          <Route path="/public-profile" element={<AppShell />} />
+          <Route path="/public-profile/:userId" element={<AppShell />} />
+
+          {/* Prayer request composer */}
+          <Route path="/prayer-request" element={<CreatePrayerView />} />
+          <Route path="/prayer/:prayerId" element={<PrayerDetailsView />} />
+          <Route path="/prayer-history" element={<PrayerHistoryView />} />
 
           {/* Prayer request composer */}
           <Route path="/prayer-request" element={<CreatePrayerView />} />

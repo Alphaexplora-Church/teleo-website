@@ -1,13 +1,12 @@
 // features/profile/views/HelpView.tsx
 // View layer — static page displaying Help & FAQs.
-// Dumb UI following Teleo branding guidelines.
 
 import React from 'react';
 
 const HelpView: React.FC = () => {
   return (
     <main className="flex flex-col w-full items-center gap-6 relative min-h-full pt-6 pb-10">
-      <div className="flex flex-col w-full gap-5 px-5 max-w-[448px]">
+      <div className="flex flex-col w-full gap-5 px-5 max-w-md">
 
         {/* ── Hero Title ─────────────────────────────────────────── */}
         <section className="flex flex-col gap-1 w-full">

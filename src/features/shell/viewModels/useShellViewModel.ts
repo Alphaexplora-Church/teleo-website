@@ -9,6 +9,10 @@ import { useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 import type { Church } from '../../profile/findmychurch/models/findMyChurchTypes';
+import { toChurch } from '../../profile/findmychurch/models/findMyChurchTypes';
+import type { ChurchProfileTab } from '../../profile/churchprofile/models/churchProfileTypes';
+import { fetchProfileSettingsView } from '../../profile/models/profileApi';
+import { fetchChurchById } from '../../profile/churchprofile/models/churchProfileApi';
 
 export type ShellDestination =
   | DashboardTab
@@ -30,6 +34,8 @@ export interface DashboardViewModelReturn {
   activeTab: ShellDestination;
   setActiveTab: (tab: DashboardTab) => void;
   navigateToProfile: () => void;
+  navigateToContent: () => void;
+  navigateToMyList: () => void;
   showBrandText: boolean;
   navigateToFindMyChurch: () => void;
   navigateToAccountInformation: () => void;
@@ -43,10 +49,24 @@ export interface DashboardViewModelReturn {
   navigateToPrivacyPolicy: () => void;
   navigateToNotifications: () => void;
   navigateToHelp: () => void;
+  navigateToHistory: () => void;
+  navigateToChurchProfile: (tab?: ChurchProfileTab, churchId?: string | number) => void;
+  churchProfileTab: ChurchProfileTab;
+  navigateToServices: () => void;
+  navigateToSelectChurch: (serviceName?: string) => void;
+  navigateToBooking: (church?: { id: string | number; name: string }, serviceName?: string) => void;
+  navigateToBookingSchedule: () => void;
+  navigateToFriends: (initialTab?: string) => void;
+  navigateToPublicProfile: (userId: string | number) => void;
+  viewingUserId: string | number | null;
+  friendsInitialTab: string;
+  selectedServiceName: string;
+  selectedChurchForBooking: { id: string | number; name: string } | null;
   verifyEmailTarget: string;
   verifyNumberTarget: string;
   selectedChurch: Church | null;
   selectChurch: (church: Church) => void;
+  updateSelectedChurch: (church: Church | null) => void;
 }
 
 export const useShellViewModel = (): DashboardViewModelReturn => {
@@ -69,7 +89,15 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
 
   const navigateToProfile = useCallback(() => {
     setActiveTabState('profile');
-  }, []);
+  }, [setActiveTabState]);
+
+  const navigateToContent = useCallback(() => {
+    setActiveTabState('content');
+  }, [setActiveTabState]);
+
+  const navigateToMyList = useCallback(() => {
+    setActiveTabState('my-list');
+  }, [setActiveTabState]);
 
   const navigateToFindMyChurch = useCallback(() => {
     setActiveTabState('find-my-church');
@@ -130,6 +158,8 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     activeTab,
     setActiveTab: setActiveTabState,
     navigateToProfile,
+    navigateToContent,
+    navigateToMyList,
     showBrandText,
     navigateToFindMyChurch,
     navigateToAccountInformation,
@@ -143,9 +173,24 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
     navigateToPrivacyPolicy,
     navigateToNotifications,
     navigateToHelp,
+    navigateToHistory,
+    navigateToChurchProfile,
+    churchProfileTab,
+    navigateToServices,
+    navigateToSelectChurch,
+    navigateToBooking,
+    navigateToBookingSchedule,
+    navigateToFriends,
+    navigateToPublicProfile,
+    viewingUserId: effectiveViewingUserId,
+    friendsInitialTab,
+    selectedServiceName,
+    selectedChurchForBooking,
     verifyEmailTarget,
     verifyNumberTarget,
-    selectedChurch,
+    selectedChurch: homeChurch,
+    viewingChurch,
     selectChurch,
+    updateSelectedChurch,
   };
 };

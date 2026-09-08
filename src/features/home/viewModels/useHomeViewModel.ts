@@ -1,32 +1,127 @@
-import { useEffect, useState } from 'react';
-import { HERO_SLIDES, HOME_POSTS } from '../models/homeTypes';
-import type { FeedPostModel } from '../models/homeTypes';
+import { useEffect, useMemo, useState } from 'react';
+import { fetchTodaysGospel } from '../models/gospelApi';
+import {
+  buildHeroSlides,
+  ChurchMembershipRequiredError,
+  fetchHomeFeed,
+  isEventWithinFifteenDays,
+} from '../models/homeApi';
+import type { DailyGospel } from '../models/gospelTypes';
+import { STATIC_SAMPLE_EVENT_POSTS, type FeedPostModel } from '../models/homeTypes';
 
 export const useHomeViewModel = () => {
-  // Business-facing screen state is coordinated here so HomeFeedView remains
-  // a declarative composition of presentational components.
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
+  // TO DO: DELETE STATIC DATA - Initialize with static sample posts for testing
+  const [feedPosts, setFeedPosts] = useState<FeedPostModel[]>(STATIC_SAMPLE_EVENT_POSTS);
   const [selectedPost, setSelectedPost] = useState<FeedPostModel | null>(null);
+  const [dailyGospel, setDailyGospel] = useState<DailyGospel | null>(null);
+  const [isGospelLoading, setIsGospelLoading] = useState(true);
+  const [gospelError, setGospelError] = useState<string | null>(null);
+  const [isFeedLoading, setIsFeedLoading] = useState(true);
+  const [feedError, setFeedError] = useState<string | null>(null);
+  const [needsChurchMembership, setNeedsChurchMembership] = useState(false);
 
   useEffect(() => {
-    // Functional state updates avoid stale carousel indices between intervals.
+    let isCurrent = true;
+
+    const loadFeed = async () => {
+      setIsFeedLoading(true);
+      setFeedError(null);
+      setNeedsChurchMembership(false);
+
+      try {
+        const posts = await fetchHomeFeed();
+        if (isCurrent) setFeedPosts(posts);
+      } catch (error) {
+        if (isCurrent) {
+          if (error instanceof ChurchMembershipRequiredError) {
+            setNeedsChurchMembership(true);
+            // TO DO: DELETE STATIC DATA - Retain static sample posts when membership is required
+            setFeedPosts(STATIC_SAMPLE_EVENT_POSTS);
+          } else {
+            setFeedError(
+              error instanceof Error ? error.message : 'Unable to load the home feed.',
+            );
+            // TO DO: DELETE STATIC DATA - Retain static sample posts on feed error
+            setFeedPosts(STATIC_SAMPLE_EVENT_POSTS);
+          }
+        }
+      } finally {
+        if (isCurrent) setIsFeedLoading(false);
+      }
+    };
+
+    void loadFeed();
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
+  const heroSlides = useMemo(() => buildHeroSlides(feedPosts), [feedPosts]);
+  const posts = useMemo(
+    () => feedPosts.filter((post) => !isEventWithinFifteenDays(post)),
+    [feedPosts],
+  );
+
+  useEffect(() => {
+    setActiveHeroIndex((current) =>
+      current < heroSlides.length ? current : 0,
+    );
+
+    if (heroSlides.length < 2) return;
+
     const timer = window.setInterval(
-      () => setActiveHeroIndex((current) => (current + 1) % HERO_SLIDES.length),
+      () =>
+        setActiveHeroIndex((current) => (current + 1) % heroSlides.length),
       6500,
     );
     return () => window.clearInterval(timer);
+  }, [heroSlides.length]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadGospel = async () => {
+      try {
+        const gospel = await fetchTodaysGospel();
+        if (!isActive) return;
+        setDailyGospel(gospel);
+        setGospelError(null);
+      } catch (error) {
+        if (!isActive) return;
+        setDailyGospel(null);
+        setGospelError(
+          error instanceof Error
+            ? error.message
+            : 'Unable to load Gospel of the day.',
+        );
+      } finally {
+        if (isActive) setIsGospelLoading(false);
+      }
+    };
+
+    void loadGospel();
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
   return {
     activeHeroIndex,
     setActiveHeroIndex,
-    heroSlides: HERO_SLIDES,
-    posts: HOME_POSTS,
+    heroSlides,
+    dailyGospel,
+    isGospelLoading,
+    gospelError,
+    posts,
+    isFeedLoading,
+    feedError,
+    needsChurchMembership,
     selectedPost,
     openPost: (post: FeedPostModel) => setSelectedPost(post),
-    // The hero points to the same event model used by the feed, keeping both
-    // entry points synchronized without duplicating detail-page content.
-    openEventPost: () => setSelectedPost(HOME_POSTS.find((post) => post.id === 'event') ?? null),
+    openEventPost: (postId: string) =>
+      setSelectedPost(feedPosts.find((post) => post.id === postId) ?? null),
     closePost: () => setSelectedPost(null),
   };
 };
