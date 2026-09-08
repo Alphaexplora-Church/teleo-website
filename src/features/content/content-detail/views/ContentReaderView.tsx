@@ -4,6 +4,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useContentReaderViewModel } from '../viewModels/useContentReaderViewModel';
+import { toMediaEmbed } from '../models/contentReaderApi';
 
 // ── Icons ────────────────────────────────────────────────────────────────────
 
@@ -26,37 +27,12 @@ export const ContentReaderView: React.FC = () => {
 
   const {
     chapter,
-    loading,
     error,
     readProgress,
     contentContainerRef,
   } = useContentReaderViewModel(seriesId, partId);
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-[#faf9f7] px-6 text-center">
-        <p className="text-sm text-black/70 font-medium">{error}</p>
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          className="px-5 py-2.5 bg-[#1f2156] hover:bg-[#2c2f6d] text-white text-sm font-medium rounded-xl active:scale-95 transition-all duration-150 cursor-pointer"
-        >
-          Go back
-        </button>
-      </div>
-    );
-  }
-
-  if (loading || !chapter) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#faf9f7]">
-        <div className="flex flex-col items-center gap-2">
-          <div className="size-8 rounded-full border-2 border-[#1f2156]/20 border-t-[#1f2156] animate-spin" />
-          <p className="text-xs text-gray-placeholder font-medium">Opening chapter...</p>
-        </div>
-      </div>
-    );
-  }
+  const embed = toMediaEmbed(chapter?.media_url, chapter?.last_media_timestamp_seconds || 0);
 
   return (
     <div className="min-h-screen bg-[#faf9f7] text-[#1c1c1e] font-sans antialiased selection:bg-[#336ef91a]">
@@ -64,7 +40,7 @@ export const ContentReaderView: React.FC = () => {
       <header className="sticky top-0 z-30 bg-[#faf9f7]/95 backdrop-blur-md border-b border-zinc-200/80 px-4 py-2.5 flex items-center justify-between transition-all">
         <button
           type="button"
-          onClick={() => navigate(`/content/${chapter.series_id}`, { replace: true })}
+          onClick={() => navigate(`/content/${seriesId}`, { replace: true })}
           className="size-9 rounded-full bg-zinc-100/80 flex items-center justify-center text-[#1f2156] hover:bg-zinc-200 active:scale-95 transition-all cursor-pointer border-none"
           aria-label="Back to series details"
         >
@@ -73,10 +49,10 @@ export const ContentReaderView: React.FC = () => {
 
         <div className="flex flex-col items-center max-w-[60%] text-center">
           <span className="text-[10px] uppercase font-bold tracking-widest text-gray-placeholder truncate w-full">
-            {chapter.series_title}
+            {chapter?.series_title ?? ' '}
           </span>
           <span className="text-xs font-semibold text-black truncate w-full">
-            Part {chapter.part_order} of {chapter.total_parts}
+            {chapter ? `Part ${chapter.part_order} of ${chapter.total_parts}` : ' '}
           </span>
         </div>
 
@@ -96,6 +72,33 @@ export const ContentReaderView: React.FC = () => {
         ref={contentContainerRef}
         className="max-w-2xl mx-auto px-6 sm:px-8 pt-8 pb-10 flex flex-col"
       >
+        {error ? (
+          <div className="flex flex-col items-center gap-4 py-24 text-center">
+            <p className="text-sm text-black/70 font-medium">{error}</p>
+            <button
+              type="button"
+              onClick={() => navigate(`/content/${seriesId}`, { replace: true })}
+              className="px-5 py-2.5 bg-[#1f2156] hover:bg-[#2c2f6d] text-white text-sm font-medium rounded-xl active:scale-95 transition-all duration-150 cursor-pointer border-none"
+            >
+              Back to the journey
+            </button>
+          </div>
+        ) : !chapter ? (
+          /* Skeleton in place, so the page frame never swaps out under the reader */
+          <div className="flex flex-col items-center gap-4 pb-8 animate-pulse" aria-busy="true" aria-label="Opening chapter">
+            <div className="h-3 w-20 rounded bg-zinc-200" />
+            <div className="h-7 w-3/4 rounded bg-zinc-200" />
+            <div className="h-3 w-32 rounded bg-zinc-200" />
+            <div className="mt-6 w-full aspect-video rounded-2xl bg-zinc-200" />
+            <div className="mt-4 w-full flex flex-col gap-3">
+              <div className="h-3.5 w-full rounded bg-zinc-200" />
+              <div className="h-3.5 w-11/12 rounded bg-zinc-200" />
+              <div className="h-3.5 w-full rounded bg-zinc-200" />
+              <div className="h-3.5 w-4/5 rounded bg-zinc-200" />
+            </div>
+          </div>
+        ) : (
+          <>
         {/* Chapter Title & Meta Header */}
         <header className="flex flex-col items-center text-center pb-8 border-b border-zinc-200/60">
           <span className="text-xs font-bold uppercase tracking-widest text-[#336ef9] mb-1.5">
@@ -117,18 +120,37 @@ export const ContentReaderView: React.FC = () => {
         </header>
 
         {/* ── 3. Embedded Media Section (Video/Audio Player) ────────────────── */}
-        {chapter.media_url && (
+        {embed?.kind === 'iframe' && (
           <section
             aria-label="Chapter Media"
             className="my-8 w-full rounded-2xl overflow-hidden bg-black aspect-video shadow-md border border-zinc-200"
           >
             <iframe
-              src={`${chapter.media_url}?start=${chapter.last_media_timestamp_seconds || 0}`}
+              src={embed.src}
               title={chapter.title}
               className="w-full h-full border-none"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
+          </section>
+        )}
+
+        {embed?.kind === 'audio' && (
+          <section aria-label="Chapter Media" className="my-8 w-full">
+            <audio src={embed.src} controls className="w-full" />
+          </section>
+        )}
+
+        {embed?.kind === 'link' && (
+          <section aria-label="Chapter Media" className="my-8 w-full">
+            <a
+              href={embed.src}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-2xl border border-zinc-200 bg-white px-5 py-4 text-sm font-semibold text-[#1f2156] hover:bg-zinc-50 transition-colors"
+            >
+              Open media in a new tab
+            </a>
           </section>
         )}
 
@@ -202,6 +224,8 @@ export const ContentReaderView: React.FC = () => {
             )}
           </div>
         </section>
+          </>
+        )}
       </main>
     </div>
   );
