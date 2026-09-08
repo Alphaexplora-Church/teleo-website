@@ -35,9 +35,29 @@ const ReadIcon: React.FC = () => (
   </svg>
 );
 
-const SortIcon: React.FC = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M3 6h18M6 12h12M10 18h4" />
+const CheckIcon: React.FC = () => (
+  <svg
+    className="size-3.5 shrink-0"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path
+      fillRule="evenodd"
+      d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+const PlayIcon: React.FC = () => (
+  <svg
+    className="size-2.5 ml-0.5 shrink-0"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <polygon points="6 4 20 12 6 20 6 4" />
   </svg>
 );
 
@@ -58,9 +78,7 @@ export const ContentDetailView: React.FC = () => {
     churchName,
     previewSnippet,
     relatedSeries,
-    sortOrder,
     sortedParts,
-    handleToggleSortOrder,
     handleTabChange,
     handleToggleBookmark,
     handleSelectPart,
@@ -246,20 +264,11 @@ export const ContentDetailView: React.FC = () => {
             {/* Tab: Chapters */}
             {activeTab === 'chapters' && (
               <div className="flex flex-col">
-                {/* Chapters subheader with count & sort filter */}
-                <div className="flex items-center justify-between py-1 px-2 text-xs">
+                {/* Chapters subheader with count */}
+                <div className="flex items-center justify-between py-1.5 px-2 text-xs">
                   <span className="font-semibold text-black">
                     {detail.parts.length} {detail.parts.length === 1 ? 'Chapter' : 'Chapters'}
                   </span>
-                  <button
-                    type="button"
-                    onClick={handleToggleSortOrder}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-gray-placeholder hover:text-black transition-colors bg-transparent border-none cursor-pointer p-0"
-                    aria-label={`Sort chapters: ${sortOrder === 'asc' ? 'Oldest' : 'Newest'}`}
-                  >
-                    <span>{sortOrder === 'asc' ? 'Oldest' : 'Newest'}</span>
-                    <SortIcon />
-                  </button>
                 </div>
 
                 <div className="flex flex-col gap-1.5 py-1">
@@ -315,19 +324,31 @@ export const ContentDetailView: React.FC = () => {
                           </div>
                         </div>
 
-                        <div>
+                        <div className="shrink-0 flex items-center">
                           {part.is_completed ? (
-                            <span className="text-xs font-medium text-emerald-600 select-none">
-                              Done
-                            </span>
+                            <div
+                              className="size-6 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center"
+                              title="Done"
+                              aria-label="Done"
+                            >
+                              <CheckIcon />
+                            </div>
                           ) : isNextUp ? (
-                            <span className="px-2.5 py-0.5 border border-[#1f2156] text-[#1f2156] text-[11px] font-semibold rounded-full hover:bg-[#1f2156]/5 transition-colors whitespace-nowrap select-none">
-                              Read
-                            </span>
+                            <div
+                              className="size-6 rounded-full bg-[#1f2156] text-white flex items-center justify-center shadow-xs"
+                              title="Read"
+                              aria-label="Read"
+                            >
+                              <PlayIcon />
+                            </div>
                           ) : (
-                            <span className="text-xs font-medium text-black/50 hover:text-black transition-colors select-none">
-                              Read
-                            </span>
+                            <div
+                              className="size-6 rounded-full bg-zinc-100 text-zinc-400 flex items-center justify-center"
+                              title="Read"
+                              aria-label="Read"
+                            >
+                              <PlayIcon />
+                            </div>
                           )}
                         </div>
                       </div>

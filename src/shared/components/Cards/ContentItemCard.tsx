@@ -16,7 +16,16 @@ export const ContentItemCard: React.FC<ContentItemCardProps> = ({
 }) => {
   return (
     <div
-      className={`bg-white rounded-xl border border-zinc-200 shadow-xs overflow-hidden transition-all duration-200 hover:shadow-md flex flex-col justify-between h-full ${className}`}
+      role="button"
+      tabIndex={0}
+      onClick={() => onViewSeries(series.series_id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onViewSeries(series.series_id);
+        }
+      }}
+      className={`bg-white rounded-xl border border-zinc-200 shadow-xs overflow-hidden transition-all duration-200 hover:shadow-md hover:border-zinc-300 active:scale-[0.98] cursor-pointer flex flex-col justify-between text-left select-none ${className}`}
     >
       <div>
         <div className="relative w-full aspect-video sm:h-22 bg-zinc-100 overflow-hidden">
@@ -43,7 +52,7 @@ export const ContentItemCard: React.FC<ContentItemCardProps> = ({
         </div>
 
         <div className="p-2.5 flex flex-col gap-1">
-          <h3 className="text-black text-xs font-semibold leading-snug line-clamp-2 min-h-8">
+          <h3 className="text-black text-xs font-semibold leading-snug line-clamp-2">
             {series.title}
           </h3>
 
@@ -62,18 +71,6 @@ export const ContentItemCard: React.FC<ContentItemCardProps> = ({
             </div>
           )}
         </div>
-      </div>
-
-      <div className="px-2.5 pb-2.5 pt-1">
-        <button
-          type="button"
-          onClick={() => onViewSeries(series.series_id)}
-          className="w-full py-1.5 bg-[#1f2156] hover:bg-[#2c2f6d] active:scale-[0.98] transition-all duration-200 rounded-md flex justify-center items-center border-none cursor-pointer"
-        >
-          <span className="text-white text-[9px] font-medium leading-tight tracking-wide">
-            View
-          </span>
-        </button>
       </div>
     </div>
   );

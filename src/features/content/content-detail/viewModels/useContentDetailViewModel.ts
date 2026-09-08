@@ -15,7 +15,6 @@ import { addBookmarkApi, removeBookmarkApi, fetchMyListSeries } from '../../mode
 import { fetchChurchById } from '../../../profile/churchprofile/models/churchProfileApi';
 
 export type ContentDetailTab = 'chapters' | 'preview' | 'more';
-export type ChapterSortOrder = 'asc' | 'desc';
 
 export interface ContentDetailViewModelReturn {
   detail: ContentSeriesDetail | null;
@@ -30,9 +29,7 @@ export interface ContentDetailViewModelReturn {
   churchName: string;
   previewSnippet: string | null;
   relatedSeries: ContentSeriesSummary[];
-  sortOrder: ChapterSortOrder;
   sortedParts: ContentSeriesDetail['parts'];
-  handleToggleSortOrder: () => void;
   handleTabChange: (tab: ContentDetailTab) => void;
   handleToggleBookmark: () => void;
   handleSelectPart: (partId: string) => void;
@@ -45,7 +42,6 @@ export const useContentDetailViewModel = (
   const [detail, setDetail] = useState<ContentSeriesDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<ContentDetailTab>('chapters');
-  const [sortOrder, setSortOrder] = useState<ChapterSortOrder>('asc');
   const [churchName, setChurchName] = useState<string>('');
 
   const [error, setError] = useState<string | null>(null);
@@ -138,16 +134,8 @@ export const useContentDetailViewModel = (
 
   const sortedParts = useMemo(() => {
     if (!detail?.parts) return [];
-    const partsCopy = [...detail.parts];
-    if (sortOrder === 'desc') {
-      return partsCopy.sort((a, b) => b.part_order - a.part_order);
-    }
-    return partsCopy.sort((a, b) => a.part_order - b.part_order);
-  }, [detail, sortOrder]);
-
-  const handleToggleSortOrder = useCallback(() => {
-    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-  }, []);
+    return [...detail.parts].sort((a, b) => a.part_order - b.part_order);
+  }, [detail]);
 
   const handleTabChange = useCallback((tab: ContentDetailTab) => {
     setActiveTab(tab);
@@ -201,9 +189,7 @@ export const useContentDetailViewModel = (
     churchName,
     previewSnippet,
     relatedSeries,
-    sortOrder,
     sortedParts,
-    handleToggleSortOrder,
     handleTabChange,
     handleToggleBookmark,
     handleSelectPart,

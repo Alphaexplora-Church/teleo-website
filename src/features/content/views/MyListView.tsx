@@ -41,16 +41,13 @@ const BookmarkIcon: React.FC<{ className?: string }> = ({ className = 'size-5' }
 // ── Skeleton Loader ──────────────────────────────────────────────────────────
 
 const ContentItemCardSkeleton: React.FC = () => (
-  <div className="w-full bg-white rounded-xl border border-zinc-200 shadow-xs overflow-hidden flex flex-col justify-between animate-pulse h-full">
+  <div className="w-full bg-white rounded-xl border border-zinc-200 shadow-xs overflow-hidden flex flex-col justify-between animate-pulse">
     <div>
       <div className="w-full aspect-video sm:h-22 bg-gray-200" />
       <div className="p-2.5 flex flex-col gap-2">
         <div className="w-full h-3.5 bg-gray-200 rounded" />
         <div className="w-1/2 h-2.5 bg-gray-100 rounded" />
       </div>
-    </div>
-    <div className="px-2.5 pb-2.5 pt-1">
-      <div className="w-full h-7 bg-gray-200 rounded-md" />
     </div>
   </div>
 );
