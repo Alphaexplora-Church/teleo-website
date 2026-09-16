@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
+  addPrayerBookmark,
+  checkPrayerBookmark,
   deletePrayer,
   getCurrentUserId,
   getPrayerCardById,
   getPrayerComments,
   markPrayerAsAnswered,
+  removePrayerBookmark,
   togglePrayerReaction,
   updatePrayer,
 } from '../models/prayerApi';
@@ -21,6 +24,9 @@ export const usePrayerDetailsViewModel = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [reactingAction, setReactingAction] = useState<PrayerReactionType | null>(null);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isTogglingBookmark, setIsTogglingBookmark] = useState(false);
+  const [bookmarkToast, setBookmarkToast] = useState<string | null>(null);
   const [isPostMenuOpen, setIsPostMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
@@ -30,6 +36,8 @@ export const usePrayerDetailsViewModel = () => {
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isMarkingAnswered, setIsMarkingAnswered] = useState(false);
+  const [isAnswerModalOpen, setIsAnswerModalOpen] = useState(false);
+  const [answerTestimony, setAnswerTestimony] = useState('');
   const [hasHeartReacted, setHasHeartReacted] = useState(false);
 
   useEffect(() => {
@@ -38,8 +46,12 @@ export const usePrayerDetailsViewModel = () => {
       setErrorMessage(null);
 
       try {
-        const mappedPrayer = await getPrayerCardById(prayerId);
+        const [mappedPrayer, bookmarkedStatus] = await Promise.all([
+          getPrayerCardById(prayerId),
+          checkPrayerBookmark(prayerId).catch(() => false),
+        ]);
         setPrayer(mappedPrayer);
+        setIsBookmarked(bookmarkedStatus);
         setComments(getPrayerComments(prayerId, mappedPrayer.comments));
         setEditTitle(mappedPrayer.title);
         setEditDescription(mappedPrayer.description);
@@ -57,8 +69,8 @@ export const usePrayerDetailsViewModel = () => {
     })();
   }, [prayerId]);
 
-  const reactToPost = async (reactionType: PrayerReactionType) => {
-    if (!prayer || reactingAction) {
+  const reactToPost = async (reactionType: PrayerReactionType = 'AMEN') => {
+    if (!prayer || reactingAction || prayer.isAnswered) {
       return;
     }
 
@@ -67,10 +79,7 @@ export const usePrayerDetailsViewModel = () => {
 
     try {
       await togglePrayerReaction(prayer.id, reactionType);
-
-      if (reactionType === 'HEART') {
-        setHasHeartReacted((current) => !current);
-      }
+      setHasHeartReacted((current) => !current);
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to react to this prayer request.',
@@ -130,8 +139,8 @@ export const usePrayerDetailsViewModel = () => {
 
     try {
       await deletePrayer(prayer.id);
-      navigate('/prayer-wall', {
-        state: { prayerWallRefresh: Date.now() },
+      navigate('/dashboard', {
+        state: { activeTab: 'prayer-wall', prayerWallRefresh: Date.now() },
       });
     } catch (error) {
       setErrorMessage(
@@ -142,32 +151,72 @@ export const usePrayerDetailsViewModel = () => {
     }
   };
 
-  const markCurrentPrayerAsAnswered = async () => {
-    if (!prayer || prayer.isAnswered || isMarkingAnswered) {
-      return;
-    }
+  const openAnswerModal = () => {
+    setIsPostMenuOpen(false);
+    setAnswerTestimony('');
+    setIsAnswerModalOpen(true);
+  };
 
-    const answerNote = window.prompt('How did God answer this prayer?');
-    const trimmedAnswerNote = answerNote?.trim();
+  const closeAnswerModal = () => {
+    setIsAnswerModalOpen(false);
+    setAnswerTestimony('');
+  };
 
-    if (!trimmedAnswerNote) {
+  const submitPraiseReport = async () => {
+    if (!prayer || prayer.isAnswered || isMarkingAnswered || !answerTestimony.trim()) {
       return;
     }
 
     setIsMarkingAnswered(true);
-    setIsPostMenuOpen(false);
     setErrorMessage(null);
 
     try {
-      const updatedPrayer = await markPrayerAsAnswered(prayer.id, trimmedAnswerNote);
+      const updatedPrayer = await markPrayerAsAnswered(prayer.id, answerTestimony.trim());
       setPrayer(updatedPrayer);
       setComments(getPrayerComments(updatedPrayer.id, updatedPrayer.comments));
+      setIsAnswerModalOpen(false);
+      setAnswerTestimony('');
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to mark this prayer as answered.',
+        error instanceof Error ? error.message : 'Unable to submit praise report.',
       );
     } finally {
       setIsMarkingAnswered(false);
+    }
+  };
+
+  const toggleBookmark = async () => {
+    if (!prayer || isTogglingBookmark) {
+      return;
+    }
+
+    const previousState = isBookmarked;
+    const nextState = !previousState;
+    setIsBookmarked(nextState);
+    setIsTogglingBookmark(true);
+    setBookmarkToast(nextState ? 'Saved to Bookmarks 🔖' : 'Removed from Bookmarks');
+
+    try {
+      if (nextState) {
+        await addPrayerBookmark(prayer.id);
+      } else {
+        await removePrayerBookmark(prayer.id);
+      }
+    } catch (error) {
+      setIsBookmarked(previousState);
+      setBookmarkToast(null);
+      setErrorMessage(
+        error instanceof Error ? error.message : 'Unable to update bookmark.',
+      );
+    } finally {
+      setIsTogglingBookmark(false);
+      setTimeout(() => {
+        setBookmarkToast((current) =>
+          current === (nextState ? 'Saved to Bookmarks 🔖' : 'Removed from Bookmarks')
+            ? null
+            : current,
+        );
+      }, 3000);
     }
   };
 
@@ -183,6 +232,10 @@ export const usePrayerDetailsViewModel = () => {
     isLoading,
     errorMessage,
     reactingAction,
+    isBookmarked,
+    isTogglingBookmark,
+    bookmarkToast,
+    toggleBookmark,
     isPostMenuOpen,
     setIsPostMenuOpen,
     isEditing,
@@ -198,14 +251,19 @@ export const usePrayerDetailsViewModel = () => {
     isSavingEdit,
     isDeleting,
     isMarkingAnswered,
+    isAnswerModalOpen,
+    answerTestimony,
+    setAnswerTestimony,
     hasHeartReacted,
     reactToPost,
     startEditing,
-    markCurrentPrayerAsAnswered,
+    openAnswerModal,
+    closeAnswerModal,
+    submitPraiseReport,
     savePrayerEdit,
     deleteCurrentPrayer,
     goBack: () => navigate(-1),
     navigateToTab: (tab: DashboardTab) =>
-      navigate(`/${tab}`),
+      navigate('/dashboard', { state: { activeTab: tab } }),
   };
 };

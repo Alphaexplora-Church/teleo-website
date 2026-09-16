@@ -122,9 +122,9 @@ interface EmptyPrayerWallProps {
 const EmptyPrayerWall: React.FC<EmptyPrayerWallProps> = ({ onRefresh, variant }) => (
   <section
     aria-label="All prayers viewed"
-    className="w-full flex-1 min-h-[calc(100dvh-124px)] overflow-hidden bg-[#faf9f7] flex items-center justify-center"
+    className="fixed inset-0 z-10 min-h-dvh w-full overflow-hidden bg-[#faf9f7]"
   >
-    <div className="relative mx-auto flex h-full min-h-[500px] w-full max-w-[448px] items-center justify-center overflow-hidden px-6">
+    <div className="relative mx-auto flex h-dvh min-h-[540px] w-full max-w-[448px] items-center justify-center overflow-hidden border-x border-black/10 bg-white px-6 shadow-[0_0_24px_rgba(27,50,82,0.1)]">
       <div className="w-full max-w-[320px] -translate-y-4 text-center">
         <div className="mx-auto flex size-16 items-center justify-center text-[#253aa6]">
           <RefreshIcon size={52} />
@@ -155,6 +155,86 @@ const EmptyPrayerWall: React.FC<EmptyPrayerWallProps> = ({ onRefresh, variant })
           <RefreshIcon />
           Refresh Prayer Wall
         </button>
+      </div>
+    </div>
+  </section>
+);
+
+const PrayerWallStackLoading: React.FC = () => (
+  <section
+    aria-label="Loading prayer requests"
+    className="fixed inset-0 z-10 min-h-dvh w-full overflow-hidden bg-[radial-gradient(circle_at_50%_42%,#ffffff_0%,#faf8f6_55%,#f2eeea_100%)]"
+  >
+    <div className="relative mx-auto h-dvh min-h-[540px] w-full max-w-[448px] overflow-hidden border-x border-black/10 shadow-[0_0_24px_rgba(27,50,82,0.1)]">
+      {/* Top Header Placeholder */}
+      <div className="absolute top-6 left-0 right-0 px-6 flex items-center justify-between opacity-60">
+        <div className="h-5 w-28 rounded-full bg-black/10 animate-pulse" />
+        <div className="size-9 rounded-full bg-black/10 animate-pulse" />
+      </div>
+
+      {/* Animated Card Stack */}
+      <div className="pointer-events-none absolute left-1/2 top-[47%] h-[clamp(420px,64vh,500px)] w-[clamp(288px,86vw,360px)] -translate-x-1/2 -translate-y-1/2">
+        {/* Deepest Card (Teal) */}
+        <div
+          className="absolute inset-0 rounded-[24px] shadow-[0_14px_35px_rgba(30,58,95,0.14)]"
+          style={{
+            backgroundColor: '#1f8c85',
+            animation: 'card-stack-1 3.2s ease-in-out infinite',
+            zIndex: 1,
+          }}
+        />
+
+        {/* Middle Card (Warm Orange) */}
+        <div
+          className="absolute inset-0 rounded-[24px] shadow-[0_14px_35px_rgba(30,58,95,0.16)]"
+          style={{
+            backgroundColor: '#e66c37',
+            animation: 'card-stack-2 3s ease-in-out infinite',
+            zIndex: 2,
+          }}
+        />
+
+        {/* Front Card (Midnight Blue with shimmering content) */}
+        <div
+          className="absolute inset-0 flex flex-col rounded-[24px] px-5 pb-6 pt-5 text-white shadow-[0_22px_50px_rgba(22,46,76,0.28)] sm:px-6 overflow-hidden"
+          style={{
+            backgroundColor: '#2f4f73',
+            animation: 'card-float 2.6s ease-in-out infinite',
+            zIndex: 3,
+          }}
+        >
+          {/* Card Author Skeleton */}
+          <div className="flex items-center gap-3">
+            <div className="size-9 shrink-0 rounded-full bg-white/25 animate-pulse" />
+            <div className="space-y-1.5">
+              <div className="h-3.5 w-24 rounded bg-white/35 animate-pulse" />
+              <div className="h-2.5 w-14 rounded bg-white/20 animate-pulse" />
+            </div>
+          </div>
+
+          {/* Card Center Message Skeleton */}
+          <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-2 py-4 text-center space-y-3">
+            <div className="flex gap-1.5">
+              <div className="h-5 w-16 rounded-full bg-white/20 animate-pulse" />
+              <div className="h-5 w-24 rounded-full bg-white/20 animate-pulse" />
+            </div>
+            <div className="h-6 w-3/4 rounded-lg bg-white/35 animate-pulse" />
+            <div className="h-6 w-1/2 rounded-lg bg-white/25 animate-pulse" />
+          </div>
+
+          {/* Card Actions Skeleton */}
+          <div className="flex w-full items-center justify-between gap-3 pt-2">
+            <div className="size-9 shrink-0 rounded-full bg-white/25 animate-pulse" />
+            <div className="h-10 flex-1 rounded-full bg-white/25 animate-pulse" />
+            <div className="size-9 shrink-0 rounded-full bg-white/25 animate-pulse" />
+          </div>
+        </div>
+      </div>
+
+      {/* Floating status pill */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-2.5 rounded-full border border-black/8 bg-white/90 px-4 py-2 text-xs font-bold text-navy shadow-lg backdrop-blur-md">
+        <span className="size-2 rounded-full bg-[#252f91] animate-ping" />
+        <span>Gathering community prayers...</span>
       </div>
     </div>
   </section>
@@ -197,9 +277,12 @@ const CardActions: React.FC<CardActionsProps> = ({
       aria-label={liked ? 'Unlike prayer request' : 'Like prayer request'}
       aria-pressed={liked}
       onPointerDown={onPointerDown}
-      onClick={onLike}
-      className={`flex size-9 shrink-0 items-center justify-center rounded-full bg-white shadow-sm transition duration-200 active:scale-90 ${
-        liked ? 'text-[#e33686]' : 'text-[#9aa9bb]'
+      onClick={(e) => {
+        e.stopPropagation();
+        onLike();
+      }}
+      className={`flex size-9 shrink-0 items-center justify-center rounded-full shadow-sm transition duration-200 active:scale-90 ${
+        liked ? 'bg-[#ffe4f0] text-[#e33686] ring-2 ring-[#e33686]/50 scale-105' : 'bg-white text-[#9aa9bb]'
       }`}
     >
       <HeartIcon />
@@ -326,14 +409,7 @@ const PrayerWallView: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <section className="w-full flex-1 flex min-h-[calc(100dvh-124px)] items-center justify-center bg-[#faf9f7]">
-        <div className="text-center text-navy">
-          <div className="mx-auto size-10 animate-spin rounded-full border-[3px] border-navy/15 border-t-navy" />
-          <p className="mt-4 text-sm font-semibold">Loading prayer wall...</p>
-        </div>
-      </section>
-    );
+    return <PrayerWallStackLoading />;
   }
 
   if (!topCard) {
@@ -348,9 +424,9 @@ const PrayerWallView: React.FC = () => {
   return (
     <section
       aria-label="Community prayer requests"
-      className="relative w-full flex-1 h-[calc(100dvh-124px)] min-h-125 overflow-hidden bg-[radial-gradient(circle_at_50%_42%,#ffffff_0%,#faf8f6_55%,#f2eeea_100%)]"
+      className="fixed inset-0 z-10 min-h-dvh w-full overflow-hidden bg-[radial-gradient(circle_at_50%_42%,#ffffff_0%,#faf8f6_55%,#f2eeea_100%)]"
     >
-      <div className="relative mx-auto h-full w-full max-w-md overflow-hidden">
+      <div className="relative mx-auto h-dvh min-h-[540px] w-full max-w-[448px] overflow-hidden border-x border-black/10 shadow-[0_0_24px_rgba(27,50,82,0.1)]">
         <div className="pointer-events-none absolute left-1/2 top-[47%] h-[clamp(420px,64vh,500px)] w-[clamp(288px,86vw,360px)] -translate-x-1/2 -translate-y-1/2">
           {cardsBehind.map((card, index) => {
             const stackStyle = PRAYER_STACK_STYLES[index];
@@ -358,7 +434,7 @@ const PrayerWallView: React.FC = () => {
             return (
               <div
                 key={card.id}
-                className="absolute inset-0 rounded-3xl shadow-[0_14px_35px_rgba(30,58,95,0.16)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                className="absolute inset-0 rounded-[24px] shadow-[0_14px_35px_rgba(30,58,95,0.16)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]"
                 style={{
                   backgroundColor: card.accentColor,
                   transform: `translate(${stackStyle.offsetX}px, ${stackStyle.offsetY}px) rotate(${stackStyle.rotation}deg) scale(${stackStyle.scale})`,
@@ -398,7 +474,7 @@ const PrayerWallView: React.FC = () => {
               }}
             >
               <article
-                className="absolute inset-0 flex flex-col rounded-3xl px-5 pb-6 pt-5 text-white shadow-[0_22px_50px_rgba(22,46,76,0.3)] transition-colors duration-300 sm:px-6"
+                className="absolute inset-0 flex flex-col rounded-[24px] px-5 pb-6 pt-5 text-white shadow-[0_22px_50px_rgba(22,46,76,0.3)] transition-colors duration-300 sm:px-6"
                 style={{
                   backfaceVisibility: 'hidden',
                   backgroundColor: topCard.accentColor,
@@ -414,17 +490,34 @@ const PrayerWallView: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex min-h-0 flex-1 items-center justify-center px-2 py-5 text-center">
-                  <p className="max-w-65 text-[clamp(22px,6.4vw,28px)] font-black leading-[1.42] tracking-[-0.035em]">
+                <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-2 py-4 text-center">
+                  <div className="flex flex-wrap items-center justify-center gap-1.5 mb-2">
+                    {topCard.isUrgent && (
+                      <span className="rounded-full bg-rose-500/30 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-rose-200 border border-rose-300/30">
+                        Urgent
+                      </span>
+                    )}
+                    {topCard.audience === 'CHURCH_INTERCESSION' && (
+                      <span className="rounded-full bg-blue-500/30 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-blue-200 border border-blue-300/30">
+                        Intercession
+                      </span>
+                    )}
+                  </div>
+                  <p className="max-w-[260px] text-[clamp(20px,6vw,26px)] font-black leading-[1.42] tracking-[-0.035em]">
                     {topCard.frontMessage}
                   </p>
+                  {topCard.isPrayedByChurch && (
+                    <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-[11px] font-bold text-emerald-200 border border-emerald-300/30">
+                      <span>✓ Church Leadership Prayed</span>
+                    </div>
+                  )}
                 </div>
 
                 <CardActions {...cardActions} showPrayerMenu={!isFlipped} />
               </article>
 
               <article
-                className="absolute inset-0 flex flex-col rounded-3xl px-5 pb-6 pt-5 text-white shadow-[0_22px_50px_rgba(22,46,76,0.3)] transition-colors duration-300 sm:px-6"
+                className="absolute inset-0 flex flex-col rounded-[24px] px-5 pb-6 pt-5 text-white shadow-[0_22px_50px_rgba(22,46,76,0.3)] transition-colors duration-300 sm:px-6"
                 style={{
                   backfaceVisibility: 'hidden',
                   transform: 'rotateY(180deg)',
@@ -442,7 +535,7 @@ const PrayerWallView: React.FC = () => {
                 </div>
 
                 <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-2 py-5 text-center">
-                  <p className="max-w-65 text-[14px] leading-6 text-white/78">
+                  <p className="max-w-[260px] text-[14px] leading-6 text-white/78">
                     {topCard.backDetails}
                   </p>
                 </div>
@@ -462,7 +555,7 @@ const PrayerWallView: React.FC = () => {
         <Link
           to="/prayer-history"
           aria-label="View prayer post history"
-          className="absolute bottom-5 right-22 z-20 flex size-14 items-center justify-center rounded-full border border-[#171f5e]/15 bg-white text-[#171f5e] shadow-[0_14px_28px_rgba(23,31,94,0.2)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#f5f6ff] active:scale-95"
+          className="absolute bottom-20 right-[88px] z-20 flex size-14 items-center justify-center rounded-full border border-[#171f5e]/15 bg-white text-[#171f5e] shadow-[0_14px_28px_rgba(23,31,94,0.2)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#f5f6ff] active:scale-95"
         >
           <HistoryIcon />
         </Link>
@@ -470,7 +563,7 @@ const PrayerWallView: React.FC = () => {
         <Link
           to="/prayer-request"
           aria-label="Add prayer request"
-          className="absolute bottom-5 right-5 z-20 flex size-14 items-center justify-center rounded-full bg-[#171f5e] text-white shadow-[0_14px_28px_rgba(23,31,94,0.32)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#202c78] active:scale-95"
+          className="absolute bottom-20 right-5 z-20 flex size-14 items-center justify-center rounded-full bg-[#171f5e] text-white shadow-[0_14px_28px_rgba(23,31,94,0.32)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#202c78] active:scale-95"
         >
           <PlusIcon />
         </Link>
