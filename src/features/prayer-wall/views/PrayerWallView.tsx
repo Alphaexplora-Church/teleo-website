@@ -8,16 +8,10 @@ const PRAYER_STACK_STYLES = [
   { rotation: -2.5, offsetX: -4, offsetY: -2, scale: 0.96 },
 ] as const;
 
-const HeartIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="m12 21.35-1.45-1.32C5.4 15.36 2 12.28 2 8.5A5.5 5.5 0 0 1 7.5 3c1.74 0 3.41.81 4.5 2.09A6.02 6.02 0 0 1 16.5 3 5.5 5.5 0 0 1 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35Z" />
-  </svg>
-);
-
 const PrayIcon = () => (
   <svg
-    width="17"
-    height="17"
+    width={17}
+    height={17}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -33,19 +27,19 @@ const PrayIcon = () => (
   </svg>
 );
 
-const ChevronUpIcon = () => (
+const BookmarkIcon = ({ filled = false, size = 16 }: { filled?: boolean; size?: number }) => (
   <svg
-    width="12"
-    height="12"
+    width={size}
+    height={size}
     viewBox="0 0 24 24"
-    fill="none"
+    fill={filled ? 'currentColor' : 'none'}
     stroke="currentColor"
-    strokeWidth="2.4"
+    strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
     aria-hidden="true"
   >
-    <path d="m18 15-6-6-6 6" />
+    <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
   </svg>
 );
 
@@ -243,119 +237,70 @@ const PrayerWallStackLoading: React.FC = () => (
 interface CardActionsProps {
   prayerId: string;
   isAnswered: boolean;
-  liked: boolean;
   prayed: boolean;
+  bookmarked: boolean;
+  isTogglingBookmark: boolean;
+  isAdminOrMinistry: boolean;
   isOwnPrayerRequest: boolean;
-  isPrayerMenuOpen: boolean;
-  showPrayerMenu: boolean;
-  prayerResponses: readonly string[];
-  selectedPrayerResponse: string | null;
-  selectedPrayerCommentStatus: 'sending' | 'sent' | null;
-  onLike: () => void;
   onPray: () => void;
-  onSelectPrayerResponse: (response: string) => void;
+  onBookmark: () => void;
   onPointerDown: (event: React.PointerEvent<HTMLElement>) => void;
 }
 
 const CardActions: React.FC<CardActionsProps> = ({
   prayerId,
   isAnswered,
-  liked,
   prayed,
+  bookmarked,
+  isTogglingBookmark,
+  isAdminOrMinistry,
   isOwnPrayerRequest,
-  isPrayerMenuOpen,
-  showPrayerMenu,
-  prayerResponses,
-  selectedPrayerResponse,
-  selectedPrayerCommentStatus,
-  onLike,
   onPray,
-  onSelectPrayerResponse,
+  onBookmark,
   onPointerDown,
 }) => (
   <div className="flex w-full items-center justify-between gap-3">
+    {/* Left: Bookmark Button */}
     <button
       type="button"
-      aria-label={
-        isAnswered
-          ? 'Prayer is marked as answered'
-          : liked
-          ? 'Unlike prayer request'
-          : 'Like prayer request'
-      }
-      aria-pressed={liked}
-      disabled={isAnswered}
+      aria-label={bookmarked ? 'Remove from bookmarks' : 'Save to bookmarks'}
+      aria-pressed={bookmarked}
+      disabled={isTogglingBookmark}
       onPointerDown={onPointerDown}
       onClick={(e) => {
         e.stopPropagation();
-        if (!isAnswered) {
-          onLike();
-        }
+        onBookmark();
       }}
-      title={isAnswered ? 'Prayer is marked as answered' : undefined}
-      className={`flex size-9 shrink-0 items-center justify-center rounded-full shadow-sm transition duration-200 active:scale-90 ${
-        isAnswered
-          ? 'bg-white/40 text-white/70 cursor-not-allowed opacity-60'
-          : liked
-          ? 'bg-[#ffe4f0] text-[#e33686] ring-2 ring-[#e33686]/50 scale-105'
-          : 'bg-white text-[#9aa9bb]'
+      title={bookmarked ? 'Saved to Bookmarks' : 'Bookmark this prayer'}
+      className={`flex size-10 shrink-0 items-center justify-center rounded-full shadow-sm transition duration-200 active:scale-90 ${
+        bookmarked
+          ? 'bg-white text-navy shadow-md scale-105'
+          : 'bg-white/25 text-white hover:bg-white/35'
       }`}
     >
-      <HeartIcon />
+      <BookmarkIcon filled={bookmarked} size={17} />
     </button>
 
+    {/* Center Hero: Pray / Amen Button */}
     <div className="relative min-w-0 flex-1">
-      {isPrayerMenuOpen && showPrayerMenu && !isAnswered && (
-        <div
-          role="menu"
-          aria-label="Choose a prayer response"
-          className="absolute bottom-[calc(100%+8px)] left-1/2 z-40 w-[min(256px,74vw)] -translate-x-1/2 overflow-hidden rounded-[4px] border border-[#d3e2e1] bg-[#eef8f8] text-left text-[#385153] shadow-[0_14px_30px_rgba(12,25,48,0.22)]"
-        >
-          {prayerResponses.map((response) => {
-            const isSelected = selectedPrayerResponse === response;
-
-            return (
-              <button
-                key={response}
-                type="button"
-                role="menuitem"
-                onPointerDown={onPointerDown}
-                onClick={() => onSelectPrayerResponse(response)}
-                className={`flex min-h-7 w-full items-center justify-between gap-2 px-2.5 py-1.5 text-left text-[11px] leading-4 transition ${
-                  isSelected
-                    ? 'bg-white text-[#2f484b]'
-                    : 'text-[#5b6e70] hover:bg-white/70'
-                }`}
-              >
-                <span className="truncate">{response}</span>
-                {isSelected && <ChevronUpIcon />}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {selectedPrayerResponse && selectedPrayerCommentStatus && !(isPrayerMenuOpen && showPrayerMenu) && (
-        <div className="absolute bottom-[calc(100%+8px)] left-1/2 z-30 -translate-x-1/2 whitespace-nowrap rounded-full bg-white px-3 py-1 text-[10px] font-bold text-[#1e3a5f] shadow-sm">
-          {selectedPrayerCommentStatus === 'sent' ? 'Comment sent' : 'Sending...'}
-        </div>
-      )}
-
       <button
         type="button"
         aria-pressed={isOwnPrayerRequest || isAnswered ? undefined : prayed}
-        aria-expanded={isOwnPrayerRequest || isAnswered ? undefined : isPrayerMenuOpen && showPrayerMenu}
-        aria-haspopup={isOwnPrayerRequest || isAnswered ? undefined : 'menu'}
         disabled={isOwnPrayerRequest || isAnswered}
         onPointerDown={onPointerDown}
-        onClick={isAnswered ? undefined : onPray}
-        className={`flex w-full min-w-0 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-[15px] font-semibold transition duration-200 active:scale-[0.97] ${
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!isAnswered && !isOwnPrayerRequest) {
+            onPray();
+          }
+        }}
+        className={`flex h-10 w-full min-w-0 items-center justify-center gap-2 rounded-full px-5 text-[14px] font-bold shadow-sm transition duration-200 active:scale-[0.98] ${
           isAnswered
             ? 'cursor-default bg-white/20 text-white/95 border border-white/30 backdrop-blur-sm'
             : isOwnPrayerRequest
             ? 'cursor-not-allowed bg-white/75 text-[#5d6c7c]'
             : prayed
-            ? 'bg-white text-[#1e3a5f]'
+            ? 'bg-white text-navy shadow-md scale-[1.01]'
             : 'bg-white/28 text-white hover:bg-white/35'
         }`}
       >
@@ -365,17 +310,24 @@ const CardActions: React.FC<CardActionsProps> = ({
             ? '✨ Answered'
             : isOwnPrayerRequest
             ? 'Your request'
-            : selectedPrayerResponse ?? (prayed ? 'Prayed' : 'Pray')}
+            : isAdminOrMinistry
+            ? prayed
+              ? '✓ Leadership Prayed'
+              : 'Mark as Prayed'
+            : prayed
+            ? 'Amen 🙏'
+            : 'Pray / Amen'}
         </span>
-        {!isOwnPrayerRequest && !isAnswered && selectedPrayerResponse && <ChevronUpIcon />}
       </button>
     </div>
 
+    {/* Right: Details / Pastoral Updates */}
     <Link
       to={`/prayer/${prayerId}`}
-      aria-label="View prayer comments"
+      aria-label="View prayer comments and details"
       onPointerDown={onPointerDown}
-      className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white text-[#9aa9bb] shadow-sm transition duration-200 active:scale-90"
+      className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-[#9aa9bb] shadow-sm transition duration-200 hover:bg-white/90 hover:text-navy active:scale-90"
+      title="View Details & Comments"
     >
       <CommentIcon />
     </Link>
@@ -393,39 +345,32 @@ const PrayerWallView: React.FC = () => {
     isOutOfPosts,
     errorMessage,
     isFlipped,
-    isLiked,
     isPrayed,
+    isBookmarked,
+    isTogglingBookmark,
+    isAdminOrMinistry,
     isOwnPrayerRequest,
-    isPrayerMenuOpen,
-    prayerResponses,
-    selectedPrayerResponse,
     handleActionPointerDown,
     handleCardKeyDown,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
     handlePointerCancel,
-    toggleLike,
-    togglePrayerMenu,
-    selectPrayerResponse,
+    togglePray,
+    toggleBookmark,
     refreshPrayers,
   } = viewModel;
 
   const cardActions = {
     prayerId: topCard?.id ?? '',
     isAnswered: topCard?.isAnswered ?? false,
-    liked: isLiked,
     prayed: isPrayed,
+    bookmarked: isBookmarked,
+    isTogglingBookmark,
+    isAdminOrMinistry,
     isOwnPrayerRequest,
-    isPrayerMenuOpen,
-    prayerResponses,
-    selectedPrayerResponse,
-    selectedPrayerCommentStatus: viewModel.selectedPrayerCommentStatus,
-    onLike: toggleLike,
-    onPray: togglePrayerMenu,
-    onSelectPrayerResponse: (response: string) => {
-      void selectPrayerResponse(response);
-    },
+    onPray: togglePray,
+    onBookmark: toggleBookmark,
     onPointerDown: handleActionPointerDown,
   };
 
@@ -544,7 +489,7 @@ const PrayerWallView: React.FC = () => {
                   )}
                 </div>
 
-                <CardActions {...cardActions} showPrayerMenu={!isFlipped} />
+                <CardActions {...cardActions} />
               </article>
 
               <article
@@ -576,7 +521,7 @@ const PrayerWallView: React.FC = () => {
                   </p>
                 </div>
 
-                <CardActions {...cardActions} showPrayerMenu={isFlipped} />
+                <CardActions {...cardActions} />
               </article>
             </div>
           </div>

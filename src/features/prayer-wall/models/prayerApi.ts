@@ -122,6 +122,28 @@ const getPrayerAuthorName = (record: PrayerApiRecord) => {
   )?.trim() ?? null;
 };
 
+export const isUserMinistryOrAdmin = (): boolean => {
+  const token = localStorage.getItem('access_token');
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const roles: string[] = Array.isArray(payload.userRoles)
+      ? payload.userRoles
+      : Array.isArray(payload.roles)
+      ? payload.roles
+      : payload.role
+      ? [payload.role]
+      : [];
+    const ministryRoles = ['admin', 'pastor', 'ministry', 'church', 'superadmin', 'churchadmin', 'leader'];
+    return (
+      roles.some((r) => typeof r === 'string' && ministryRoles.includes(r.toLowerCase())) ||
+      Boolean(payload.isMinistry || payload.isChurchAdmin || payload.isSuperAdmin)
+    );
+  } catch {
+    return false;
+  }
+};
+
 const applyCurrentUserAuthorFallback = async (prayers: PrayerCard[]) => {
   const currentUserId = getCurrentUserId();
 
