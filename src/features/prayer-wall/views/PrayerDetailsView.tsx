@@ -35,22 +35,6 @@ const PrayIcon = () => (
   </svg>
 );
 
-const HeartIcon = ({ filled = false }: { filled?: boolean }) => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill={filled ? 'currentColor' : 'none'}
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-  >
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
-  </svg>
-);
-
 const CommentIcon = () => (
   <svg
     width="17"
@@ -127,8 +111,9 @@ const PrayerDetailsView: React.FC = () => {
     isAnswerModalOpen,
     answerTestimony,
     setAnswerTestimony,
-    hasHeartReacted,
-    reactToPost,
+    isPrayed,
+    isAdminOrMinistry,
+    togglePray,
     startEditing,
     openAnswerModal,
     closeAnswerModal,
@@ -393,42 +378,31 @@ const PrayerDetailsView: React.FC = () => {
 
         {/* Reaction Bar */}
         {!prayer.isAnswered && (
-          <div className="flex items-center gap-3 border-y border-white/22 px-4 py-3">
+          <div className="border-y border-white/20 px-5 py-3">
             <button
               type="button"
-              onClick={() => reactToPost('AMEN')}
-              disabled={Boolean(reactingAction)}
-              aria-label="Amen react to prayer"
-              className={`flex size-11 shrink-0 items-center justify-center rounded-full transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-60 ${
-                hasHeartReacted
-                  ? 'bg-white text-[#d92d20] hover:bg-white/92'
-                  : 'bg-white/22 text-white hover:bg-white/32'
+              disabled={isOwner || Boolean(reactingAction)}
+              onClick={togglePray}
+              className={`flex h-11 w-full items-center justify-center gap-2 rounded-full px-6 text-[14px] font-bold shadow-sm transition duration-200 active:scale-[0.98] disabled:cursor-not-allowed ${
+                isOwner
+                  ? 'cursor-not-allowed bg-white/75 text-[#5d6c7c]'
+                  : isPrayed
+                  ? 'bg-white text-navy shadow-md scale-[1.01]'
+                  : 'bg-white/28 text-white hover:bg-white/35'
               }`}
-            >
-              <HeartIcon filled={hasHeartReacted || reactingAction === 'AMEN'} />
-            </button>
-            <button
-              type="button"
-              onClick={() => reactToPost('AMEN')}
-              disabled={Boolean(reactingAction)}
-              className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-white/35 px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-white/45 active:scale-[0.98]"
             >
               <PrayIcon />
-              {reactingAction === 'AMEN' ? 'Amen...' : 'Amen / Pray'}
-            </button>
-            <button
-              type="button"
-              onClick={toggleBookmark}
-              disabled={isTogglingBookmark}
-              aria-label={isBookmarked ? 'Remove from bookmarks' : 'Save to bookmarks'}
-              className={`flex size-11 shrink-0 items-center justify-center rounded-full transition active:scale-95 ${
-                isBookmarked
-                  ? 'bg-white text-navy shadow-md'
-                  : 'bg-white/22 text-white hover:bg-white/32'
-              }`}
-              title={isBookmarked ? 'Bookmarked' : 'Save to bookmarks'}
-            >
-              <BookmarkIcon filled={isBookmarked} />
+              <span>
+                {isOwner
+                  ? 'Your Request'
+                  : isAdminOrMinistry
+                  ? isPrayed
+                    ? '✓ Leadership Prayed'
+                    : 'Mark as Prayed'
+                  : isPrayed
+                  ? 'Amen 🙏'
+                  : 'Pray / Amen'}
+              </span>
             </button>
           </div>
         )}

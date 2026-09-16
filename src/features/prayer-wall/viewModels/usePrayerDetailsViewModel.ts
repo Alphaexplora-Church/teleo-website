@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   addPrayerBookmark,
@@ -7,6 +7,7 @@ import {
   getCurrentUserId,
   getPrayerCardById,
   getPrayerComments,
+  isUserMinistryOrAdmin,
   markPrayerAsAnswered,
   removePrayerBookmark,
   togglePrayerReaction,
@@ -16,9 +17,31 @@ import type { PrayerComment } from '../models/commentTypes';
 import type { PrayerAudience, PrayerCard, PrayerReactionType } from '../models/prayerTypes';
 import type { DashboardTab } from '../../../shared/models/navigationTypes';
 
+const getStoredPrayedCardIds = (userId: string | null): Record<string, boolean> => {
+  if (!userId) return {};
+  try {
+    const raw = localStorage.getItem(`teleo_prayed_cards_${userId}`);
+    return raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
+  } catch {
+    return {};
+  }
+};
+
+const saveStoredPrayedCardIds = (
+  userId: string | null,
+  ids: Record<string, boolean>,
+) => {
+  if (!userId) return;
+  try {
+    localStorage.setItem(`teleo_prayed_cards_${userId}`, JSON.stringify(ids));
+  } catch {}
+};
+
 export const usePrayerDetailsViewModel = () => {
   const navigate = useNavigate();
   const { prayerId = '' } = useParams<{ prayerId: string }>();
+  const currentUserId = getCurrentUserId();
+  const isAdminOrMinistry = useMemo(() => isUserMinistryOrAdmin(), []);
   const [prayer, setPrayer] = useState<PrayerCard | null>(null);
   const [comments, setComments] = useState<PrayerComment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,7 +61,11 @@ export const usePrayerDetailsViewModel = () => {
   const [isMarkingAnswered, setIsMarkingAnswered] = useState(false);
   const [isAnswerModalOpen, setIsAnswerModalOpen] = useState(false);
   const [answerTestimony, setAnswerTestimony] = useState('');
-  const [hasHeartReacted, setHasHeartReacted] = useState(false);
+  const [isPrayed, setIsPrayed] = useState(() =>
+    Boolean(getStoredPrayedCardIds(getCurrentUserId())[prayerId]),
+  );
+
+  const isOwner = Boolean(prayer && prayer.ownerId === currentUserId);
 
   useEffect(() => {
     void (async () => {
@@ -69,9 +96,20 @@ export const usePrayerDetailsViewModel = () => {
     })();
   }, [prayerId]);
 
-  const reactToPost = async (reactionType: PrayerReactionType = 'AMEN') => {
-    if (!prayer || reactingAction || prayer.isAnswered) {
+  const togglePray = async () => {
+    if (!prayer || reactingAction || prayer.isAnswered || isOwner) {
       return;
+    }
+
+    const reactionType: PrayerReactionType = isAdminOrMinistry ? 'PRAYED' : 'AMEN';
+    const nextState = !isPrayed;
+    const stored = getStoredPrayedCardIds(currentUserId);
+    stored[prayer.id] = nextState;
+    saveStoredPrayedCardIds(currentUserId, stored);
+    setIsPrayed(nextState);
+
+    if (isAdminOrMinistry) {
+      setPrayer((prev) => (prev ? { ...prev, isPrayedByChurch: nextState } : null));
     }
 
     setReactingAction(reactionType);
@@ -79,8 +117,13 @@ export const usePrayerDetailsViewModel = () => {
 
     try {
       await togglePrayerReaction(prayer.id, reactionType);
-      setHasHeartReacted((current) => !current);
     } catch (error) {
+      stored[prayer.id] = !nextState;
+      saveStoredPrayedCardIds(currentUserId, stored);
+      setIsPrayed(!nextState);
+      if (isAdminOrMinistry) {
+        setPrayer((prev) => (prev ? { ...prev, isPrayedByChurch: !nextState } : null));
+      }
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to react to this prayer request.',
       );
@@ -254,8 +297,9 @@ export const usePrayerDetailsViewModel = () => {
     isAnswerModalOpen,
     answerTestimony,
     setAnswerTestimony,
-    hasHeartReacted,
-    reactToPost,
+    isPrayed,
+    isAdminOrMinistry,
+    togglePray,
     startEditing,
     openAnswerModal,
     closeAnswerModal,
