@@ -204,6 +204,11 @@ const PrayerHistoryView: React.FC = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5">
+                      {prayer.isAnswered && (
+                        <span className="rounded-full bg-emerald-500/40 border border-emerald-300/40 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-emerald-100">
+                          ✨ Answered
+                        </span>
+                      )}
                       {historyFilter === 'bookmarks' ? (
                         <button
                           type="button"
@@ -228,6 +233,11 @@ const PrayerHistoryView: React.FC = () => {
                   <p className="mt-5 text-center text-[17px] font-black leading-[1.45] tracking-[-0.025em]">
                     {prayer.frontMessage}
                   </p>
+                  {prayer.isAnswered && prayer.answerNote && (
+                    <p className="mt-2 text-center text-[11px] italic text-emerald-100/90 line-clamp-2">
+                      "{prayer.answerNote}"
+                    </p>
+                  )}
                 </Link>
               </div>
             ))}

@@ -148,7 +148,7 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
 
   const toggleFlip = () => toggleRecord(setFlippedCardIds);
   const toggleLike = async () => {
-    if (!topCard) {
+    if (!topCard || topCard.isAnswered) {
       return;
     }
 
@@ -160,7 +160,7 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     }));
 
     try {
-      await togglePrayerReaction(topCard.id, 'AMEN');
+      await togglePrayerReaction(topCard.id, 'HEART');
       setErrorMessage(null);
     } catch (error) {
       setLikedCardIds((current) => ({
@@ -173,7 +173,7 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     }
   };
   const togglePrayerMenu = () => {
-    if (!topCard) {
+    if (!topCard || topCard.isAnswered) {
       return;
     }
 
@@ -181,7 +181,7 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
   };
 
   const selectPrayerResponse = async (response: string) => {
-    if (!topCard) {
+    if (!topCard || topCard.isAnswered) {
       return;
     }
 
@@ -247,7 +247,7 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
             : card,
         ),
       );
-      await togglePrayerReaction(topCard.id, 'AMEN');
+      await togglePrayerReaction(topCard.id, 'PRAYING');
       setPrayerCommentStatusByCard((current) => ({
         ...current,
         [topCard.id]: 'sent',

@@ -242,6 +242,7 @@ const PrayerWallStackLoading: React.FC = () => (
 
 interface CardActionsProps {
   prayerId: string;
+  isAnswered: boolean;
   liked: boolean;
   prayed: boolean;
   isOwnPrayerRequest: boolean;
@@ -258,6 +259,7 @@ interface CardActionsProps {
 
 const CardActions: React.FC<CardActionsProps> = ({
   prayerId,
+  isAnswered,
   liked,
   prayed,
   isOwnPrayerRequest,
@@ -274,22 +276,36 @@ const CardActions: React.FC<CardActionsProps> = ({
   <div className="flex w-full items-center justify-between gap-3">
     <button
       type="button"
-      aria-label={liked ? 'Unlike prayer request' : 'Like prayer request'}
+      aria-label={
+        isAnswered
+          ? 'Prayer is marked as answered'
+          : liked
+          ? 'Unlike prayer request'
+          : 'Like prayer request'
+      }
       aria-pressed={liked}
+      disabled={isAnswered}
       onPointerDown={onPointerDown}
       onClick={(e) => {
         e.stopPropagation();
-        onLike();
+        if (!isAnswered) {
+          onLike();
+        }
       }}
+      title={isAnswered ? 'Prayer is marked as answered' : undefined}
       className={`flex size-9 shrink-0 items-center justify-center rounded-full shadow-sm transition duration-200 active:scale-90 ${
-        liked ? 'bg-[#ffe4f0] text-[#e33686] ring-2 ring-[#e33686]/50 scale-105' : 'bg-white text-[#9aa9bb]'
+        isAnswered
+          ? 'bg-white/40 text-white/70 cursor-not-allowed opacity-60'
+          : liked
+          ? 'bg-[#ffe4f0] text-[#e33686] ring-2 ring-[#e33686]/50 scale-105'
+          : 'bg-white text-[#9aa9bb]'
       }`}
     >
       <HeartIcon />
     </button>
 
     <div className="relative min-w-0 flex-1">
-      {isPrayerMenuOpen && showPrayerMenu && (
+      {isPrayerMenuOpen && showPrayerMenu && !isAnswered && (
         <div
           role="menu"
           aria-label="Choose a prayer response"
@@ -327,14 +343,16 @@ const CardActions: React.FC<CardActionsProps> = ({
 
       <button
         type="button"
-        aria-pressed={isOwnPrayerRequest ? undefined : prayed}
-        aria-expanded={isOwnPrayerRequest ? undefined : isPrayerMenuOpen && showPrayerMenu}
-        aria-haspopup={isOwnPrayerRequest ? undefined : 'menu'}
-        disabled={isOwnPrayerRequest}
+        aria-pressed={isOwnPrayerRequest || isAnswered ? undefined : prayed}
+        aria-expanded={isOwnPrayerRequest || isAnswered ? undefined : isPrayerMenuOpen && showPrayerMenu}
+        aria-haspopup={isOwnPrayerRequest || isAnswered ? undefined : 'menu'}
+        disabled={isOwnPrayerRequest || isAnswered}
         onPointerDown={onPointerDown}
-        onClick={onPray}
+        onClick={isAnswered ? undefined : onPray}
         className={`flex w-full min-w-0 items-center justify-center gap-2 rounded-full px-5 py-2.5 text-[15px] font-semibold transition duration-200 active:scale-[0.97] ${
-          isOwnPrayerRequest
+          isAnswered
+            ? 'cursor-default bg-white/20 text-white/95 border border-white/30 backdrop-blur-sm'
+            : isOwnPrayerRequest
             ? 'cursor-not-allowed bg-white/75 text-[#5d6c7c]'
             : prayed
             ? 'bg-white text-[#1e3a5f]'
@@ -343,11 +361,13 @@ const CardActions: React.FC<CardActionsProps> = ({
       >
         <PrayIcon />
         <span className="min-w-0 truncate">
-          {isOwnPrayerRequest
+          {isAnswered
+            ? '✨ Answered'
+            : isOwnPrayerRequest
             ? 'Your request'
             : selectedPrayerResponse ?? (prayed ? 'Prayed' : 'Pray')}
         </span>
-        {!isOwnPrayerRequest && selectedPrayerResponse && <ChevronUpIcon />}
+        {!isOwnPrayerRequest && !isAnswered && selectedPrayerResponse && <ChevronUpIcon />}
       </button>
     </div>
 
@@ -393,6 +413,7 @@ const PrayerWallView: React.FC = () => {
 
   const cardActions = {
     prayerId: topCard?.id ?? '',
+    isAnswered: topCard?.isAnswered ?? false,
     liked: isLiked,
     prayed: isPrayed,
     isOwnPrayerRequest,
@@ -492,7 +513,12 @@ const PrayerWallView: React.FC = () => {
 
                 <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-2 py-4 text-center">
                   <div className="flex flex-wrap items-center justify-center gap-1.5 mb-2">
-                    {topCard.isUrgent && (
+                    {topCard.isAnswered && (
+                      <span className="rounded-full bg-emerald-500/35 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-100 border border-emerald-300/40 shadow-sm flex items-center gap-1">
+                        <span>✨</span> Answered
+                      </span>
+                    )}
+                    {topCard.isUrgent && !topCard.isAnswered && (
                       <span className="rounded-full bg-rose-500/30 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-rose-200 border border-rose-300/30">
                         Urgent
                       </span>
@@ -506,7 +532,12 @@ const PrayerWallView: React.FC = () => {
                   <p className="max-w-[260px] text-[clamp(20px,6vw,26px)] font-black leading-[1.42] tracking-[-0.035em]">
                     {topCard.frontMessage}
                   </p>
-                  {topCard.isPrayedByChurch && (
+                  {topCard.isAnswered && topCard.answerNote && (
+                    <p className="mt-2.5 max-w-[260px] text-[12px] italic leading-relaxed text-emerald-100/90 line-clamp-2">
+                      "{topCard.answerNote}"
+                    </p>
+                  )}
+                  {topCard.isPrayedByChurch && !topCard.isAnswered && (
                     <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-3 py-1 text-[11px] font-bold text-emerald-200 border border-emerald-300/30">
                       <span>✓ Church Leadership Prayed</span>
                     </div>
@@ -535,7 +566,12 @@ const PrayerWallView: React.FC = () => {
                 </div>
 
                 <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-2 py-5 text-center">
-                  <p className="max-w-[260px] text-[14px] leading-6 text-white/78">
+                  {topCard.isAnswered && (
+                    <div className="mb-3 rounded-full bg-emerald-500/30 border border-emerald-300/40 px-3 py-1 text-[11px] font-bold text-emerald-100">
+                      ✨ Praise Report / Answered
+                    </div>
+                  )}
+                  <p className="max-w-[260px] text-[14px] leading-6 text-white/78 whitespace-pre-wrap">
                     {topCard.backDetails}
                   </p>
                 </div>
