@@ -5,15 +5,17 @@ import type {
   PointerEvent,
   SetStateAction,
 } from 'react';
-import { createPrayerComment } from '../models/commentApi';
 import {
+  addPrayerBookmark,
+  checkPrayerBookmark,
   getCurrentUserId,
   getPrayerCardsPage,
+  isUserMinistryOrAdmin,
+  removePrayerBookmark,
   sortPrayerCardsByRecent,
   togglePrayerReaction,
 } from '../models/prayerApi';
-import type { PrayerCard } from '../models/prayerTypes';
-import { useLocation } from 'react-router-dom';
+import type { PrayerCard, PrayerReactionType } from '../models/prayerTypes';
 
 const PRAYER_GESTURE = {
   swipeDistance: 90,
@@ -23,20 +25,7 @@ const PRAYER_GESTURE = {
   dragLimit: 190,
 } as const;
 
-// Temporary switch: taps still flip the card, while horizontal swipes are no-ops.
-const HORIZONTAL_SWIPE_ENABLED = true; // set to false to disable horizontal swipes and only allow taps to flip the card
-
-const PRAYER_RESPONSES = [
-  'I have prayed for you 🙏',
-  'Wishing you the best 🤞',
-  'Sending you positive thoughts ✨',
-  "I'm holding you in my prayers today 💛🤲",
-  'Sending you strength and support! 💪',
-] as const;
-
-const COMMENT_SENT_INDICATOR_MS = 2000;
-
-type PrayerCommentStatus = 'sending' | 'sent';
+const HORIZONTAL_SWIPE_ENABLED = true;
 
 interface PointerDragState {
   pointerId: number;
@@ -52,16 +41,14 @@ export interface PrayerWallViewModel {
   dragOffsetX: number;
   isDragging: boolean;
   isFlipped: boolean;
-  isLiked: boolean;
   isPrayed: boolean;
+  isBookmarked: boolean;
+  isTogglingBookmark: boolean;
+  isAdminOrMinistry: boolean;
   isOwnPrayerRequest: boolean;
   isLoading: boolean;
   isLoadingMore: boolean;
   isOutOfPosts: boolean;
-  isPrayerMenuOpen: boolean;
-  prayerResponses: readonly string[];
-  selectedPrayerResponse: string | null;
-  selectedPrayerCommentStatus: PrayerCommentStatus | null;
   errorMessage: string | null;
   handleActionPointerDown: (event: PointerEvent<HTMLElement>) => void;
   handleCardKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
@@ -70,9 +57,8 @@ export interface PrayerWallViewModel {
   handlePointerUp: (event: PointerEvent<HTMLDivElement>) => void;
   handlePointerCancel: (event: PointerEvent<HTMLDivElement>) => void;
   toggleFlip: () => void;
-  toggleLike: () => Promise<void>;
-  togglePrayerMenu: () => void;
-  selectPrayerResponse: (response: string) => Promise<void>;
+  togglePray: () => Promise<void>;
+  toggleBookmark: () => Promise<void>;
   refreshPrayers: () => Promise<void>;
 }
 
@@ -86,95 +72,80 @@ const mergeUniquePrayers = (
   return sortPrayerCardsByRecent([...currentPrayers, ...uniqueNextPrayers]);
 };
 
-let cachedState: {
-  cards: PrayerCard[];
-  currentIndex: number;
-  nextCursor: string | null;
-  hasMore: boolean;
-  flippedCardIds: Record<string, boolean>;
-  likedCardIds: Record<string, boolean>;
-  prayedCardIds: Record<string, boolean>;
-  prayerResponsesByCard: Record<string, string>;
-  prayerCommentStatusByCard: Record<string, PrayerCommentStatus>;
-} | null = null;
-let lastRefreshTime = 0;
+const getStoredPrayedCardIds = (userId: string | null): Record<string, boolean> => {
+  if (!userId) return {};
+  try {
+    const raw = localStorage.getItem(`teleo_prayed_cards_${userId}`);
+    return raw ? (JSON.parse(raw) as Record<string, boolean>) : {};
+  } catch {
+    return {};
+  }
+};
+
+const saveStoredPrayedCardIds = (
+  userId: string | null,
+  ids: Record<string, boolean>,
+) => {
+  if (!userId) return;
+  try {
+    localStorage.setItem(`teleo_prayed_cards_${userId}`, JSON.stringify(ids));
+  } catch {}
+};
 
 export const usePrayerWallViewModel = (): PrayerWallViewModel => {
-  const location = useLocation();
-  const refreshRequestedTime = (location.state as { prayerWallRefresh?: number } | null)?.prayerWallRefresh;
-
-  const [cards, setCards] = useState<PrayerCard[]>(cachedState?.cards ?? []);
-  const [flippedCardIds, setFlippedCardIds] = useState<Record<string, boolean>>(cachedState?.flippedCardIds ?? {});
-  const [likedCardIds, setLikedCardIds] = useState<Record<string, boolean>>(cachedState?.likedCardIds ?? {});
-  const [prayedCardIds, setPrayedCardIds] = useState<Record<string, boolean>>(cachedState?.prayedCardIds ?? {});
-  const [prayerResponsesByCard, setPrayerResponsesByCard] = useState<
-    Record<string, string>
-  >(cachedState?.prayerResponsesByCard ?? {});
-  const [prayerCommentStatusByCard, setPrayerCommentStatusByCard] = useState<
-    Record<string, PrayerCommentStatus>
-  >(cachedState?.prayerCommentStatusByCard ?? {});
-  const [isPrayerMenuOpen, setIsPrayerMenuOpen] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(cachedState?.currentIndex ?? 0);
+  const currentUserId = getCurrentUserId();
+  const [cards, setCards] = useState<PrayerCard[]>([]);
+  const [flippedCardIds, setFlippedCardIds] = useState<Record<string, boolean>>({});
+  const [prayedCardIds, setPrayedCardIds] = useState<Record<string, boolean>>(() =>
+    getStoredPrayedCardIds(getCurrentUserId()),
+  );
+  const [bookmarkedCardIds, setBookmarkedCardIds] = useState<Record<string, boolean>>({});
+  const [isTogglingBookmark, setIsTogglingBookmark] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [dragOffsetX, setDragOffsetX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [isLoading, setIsLoading] = useState(!cachedState);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | null>(cachedState?.nextCursor ?? null);
-  const [hasMore, setHasMore] = useState(cachedState?.hasMore ?? false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const dragRef = useRef<PointerDragState | null>(null);
-  const sentIndicatorTimersRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const topCard = cards[currentIndex] ?? null;
   const isOutOfPosts = cards.length > 0 && currentIndex >= cards.length;
+  const isAdminOrMinistry = useMemo(() => isUserMinistryOrAdmin(), []);
+
   const cardsBehind = useMemo(
     () => cards.slice(currentIndex + 1, currentIndex + 4),
     [cards, currentIndex],
   );
 
   useEffect(() => {
-    const needsRefresh = !cachedState || (refreshRequestedTime && refreshRequestedTime > lastRefreshTime);
+    void (async () => {
+      await refreshPrayers();
+    })();
+  }, []);
 
-    if (needsRefresh) {
-      if (refreshRequestedTime) {
-        lastRefreshTime = refreshRequestedTime;
-      }
+  // Preload bookmark status for current top card
+  useEffect(() => {
+    if (!topCard) {
+      return;
+    }
+
+    if (bookmarkedCardIds[topCard.id] === undefined) {
       void (async () => {
-        await refreshPrayers();
+        try {
+          const isSaved = await checkPrayerBookmark(topCard.id);
+          setBookmarkedCardIds((current) => ({
+            ...current,
+            [topCard.id]: isSaved,
+          }));
+        } catch {
+          // ignore background check failure
+        }
       })();
     }
-
-    return () => {
-      Object.values(sentIndicatorTimersRef.current).forEach(clearTimeout);
-    };
-  }, [refreshRequestedTime]);
-
-  useEffect(() => {
-    if (!isLoading) {
-      cachedState = {
-        cards,
-        currentIndex,
-        nextCursor,
-        hasMore,
-        flippedCardIds,
-        likedCardIds,
-        prayedCardIds,
-        prayerResponsesByCard,
-        prayerCommentStatusByCard,
-      };
-    }
-  }, [
-    cards,
-    currentIndex,
-    nextCursor,
-    hasMore,
-    flippedCardIds,
-    likedCardIds,
-    prayedCardIds,
-    prayerResponsesByCard,
-    prayerCommentStatusByCard,
-    isLoading
-  ]);
+  }, [bookmarkedCardIds, topCard]);
 
   useEffect(() => {
     const remainingCards = cards.length - currentIndex - 1;
@@ -198,150 +169,92 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
   };
 
   const toggleFlip = () => toggleRecord(setFlippedCardIds);
-  const toggleLike = async () => {
-    if (!topCard) {
+
+  const togglePray = async () => {
+    if (!topCard || topCard.isAnswered) {
       return;
     }
 
-    const nextLikedState = !likedCardIds[topCard.id];
+    if (topCard.ownerId === getCurrentUserId()) {
+      return;
+    }
 
-    setLikedCardIds((current) => ({
-      ...current,
-      [topCard.id]: nextLikedState,
-    }));
+    const reactionType: PrayerReactionType = isAdminOrMinistry ? 'PRAYED' : 'AMEN';
+    const nextPrayedState = !prayedCardIds[topCard.id];
+    const nextPrayedMap = {
+      ...prayedCardIds,
+      [topCard.id]: nextPrayedState,
+    };
+
+    setPrayedCardIds(nextPrayedMap);
+    saveStoredPrayedCardIds(currentUserId, nextPrayedMap);
+
+    if (isAdminOrMinistry) {
+      setCards((currentCards) =>
+        currentCards.map((card) =>
+          card.id === topCard.id
+            ? { ...card, isPrayedByChurch: nextPrayedState }
+            : card,
+        ),
+      );
+    }
 
     try {
-      await togglePrayerReaction(topCard.id, 'HEART');
+      await togglePrayerReaction(topCard.id, reactionType);
       setErrorMessage(null);
     } catch (error) {
-      setLikedCardIds((current) => ({
-        ...current,
-        [topCard.id]: !nextLikedState,
-      }));
+      const revertedPrayedMap = {
+        ...prayedCardIds,
+        [topCard.id]: !nextPrayedState,
+      };
+      setPrayedCardIds(revertedPrayedMap);
+      saveStoredPrayedCardIds(currentUserId, revertedPrayedMap);
+      if (isAdminOrMinistry) {
+        setCards((currentCards) =>
+          currentCards.map((card) =>
+            card.id === topCard.id
+              ? { ...card, isPrayedByChurch: !nextPrayedState }
+              : card,
+          ),
+        );
+      }
       setErrorMessage(
         error instanceof Error ? error.message : 'Unable to react to this prayer.',
       );
     }
   };
-  const togglePrayerMenu = () => {
-    if (!topCard) {
+
+  const toggleBookmark = async () => {
+    if (!topCard || isTogglingBookmark) {
       return;
     }
 
-    setIsPrayerMenuOpen((current) => !current);
-  };
+    const currentBookmarked = Boolean(bookmarkedCardIds[topCard.id]);
+    const nextBookmarked = !currentBookmarked;
 
-  const selectPrayerResponse = async (response: string) => {
-    if (!topCard) {
-      return;
-    }
-
-    if (topCard.ownerId === getCurrentUserId()) {
-      setIsPrayerMenuOpen(false);
-      return;
-    }
-
-    const wasPrayed = Boolean(prayedCardIds[topCard.id]);
-    const previousResponse = prayerResponsesByCard[topCard.id] ?? null;
-
-    setPrayedCardIds((current) => ({
+    setIsTogglingBookmark(true);
+    setBookmarkedCardIds((current) => ({
       ...current,
-      [topCard.id]: true,
+      [topCard.id]: nextBookmarked,
     }));
-    setPrayerResponsesByCard((current) => ({
-      ...current,
-      [topCard.id]: response,
-    }));
-    setPrayerCommentStatusByCard((current) => ({
-      ...current,
-      [topCard.id]: 'sending',
-    }));
-    clearTimeout(sentIndicatorTimersRef.current[topCard.id]);
-    delete sentIndicatorTimersRef.current[topCard.id];
-    setIsPrayerMenuOpen(false);
-
-    if (wasPrayed) {
-      setPrayerCommentStatusByCard((current) => ({
-        ...current,
-        [topCard.id]: 'sent',
-      }));
-      sentIndicatorTimersRef.current[topCard.id] = setTimeout(() => {
-        setPrayedCardIds((current) => ({
-          ...current,
-          [topCard.id]: false,
-        }));
-        setPrayerResponsesByCard((current) => {
-          const { [topCard.id]: _removedResponse, ...rest } = current;
-          return rest;
-        });
-        setPrayerCommentStatusByCard((current) => {
-          const { [topCard.id]: _removedStatus, ...rest } = current;
-          return rest;
-        });
-        delete sentIndicatorTimersRef.current[topCard.id];
-      }, COMMENT_SENT_INDICATOR_MS);
-      return;
-    }
 
     try {
-      const newComment = await createPrayerComment(topCard.id, response);
-
-      setCards((currentCards) =>
-        currentCards.map((card) =>
-          card.id === topCard.id
-            ? {
-                ...card,
-                comments: card.comments.some((comment) => comment.id === newComment.id)
-                  ? card.comments
-                  : [...card.comments, newComment],
-              }
-            : card,
-        ),
-      );
-      await togglePrayerReaction(topCard.id, 'PRAYING');
-      setPrayerCommentStatusByCard((current) => ({
-        ...current,
-        [topCard.id]: 'sent',
-      }));
-      sentIndicatorTimersRef.current[topCard.id] = setTimeout(() => {
-        setPrayedCardIds((current) => ({
-          ...current,
-          [topCard.id]: false,
-        }));
-        setPrayerResponsesByCard((current) => {
-          const { [topCard.id]: _removedResponse, ...rest } = current;
-          return rest;
-        });
-        setPrayerCommentStatusByCard((current) => {
-          const { [topCard.id]: _removedStatus, ...rest } = current;
-          return rest;
-        });
-        delete sentIndicatorTimersRef.current[topCard.id];
-      }, COMMENT_SENT_INDICATOR_MS);
+      if (nextBookmarked) {
+        await addPrayerBookmark(topCard.id);
+      } else {
+        await removePrayerBookmark(topCard.id);
+      }
       setErrorMessage(null);
     } catch (error) {
-      setPrayedCardIds((current) => ({
+      setBookmarkedCardIds((current) => ({
         ...current,
-        [topCard.id]: false,
+        [topCard.id]: currentBookmarked,
       }));
-      setPrayerResponsesByCard((current) => {
-        if (previousResponse) {
-          return {
-            ...current,
-            [topCard.id]: previousResponse,
-          };
-        }
-
-        const { [topCard.id]: _removedResponse, ...rest } = current;
-        return rest;
-      });
-      setPrayerCommentStatusByCard((current) => {
-        const { [topCard.id]: _removedStatus, ...rest } = current;
-        return rest;
-      });
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to send your prayer reaction.',
+        error instanceof Error ? error.message : 'Unable to update bookmark.',
       );
+    } finally {
+      setIsTogglingBookmark(false);
     }
   };
 
@@ -356,7 +269,6 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     }
 
     resetDragState();
-    setIsPrayerMenuOpen(false);
 
     if (currentIndex < cards.length - 1) {
       setCurrentIndex((index) => Math.min(index + 1, cards.length - 1));
@@ -421,7 +333,6 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
 
     dragRef.current = null;
 
-    // Movement inside the click tolerance is still treated as a tap.
     if (!drag.moved) {
       resetDragState();
       toggleFlip();
@@ -491,17 +402,12 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     }
 
     setFlippedCardIds({});
-    setLikedCardIds({});
-    setPrayedCardIds({});
-    setPrayerResponsesByCard({});
-    setPrayerCommentStatusByCard({});
-    Object.values(sentIndicatorTimersRef.current).forEach(clearTimeout);
-    sentIndicatorTimersRef.current = {};
-    setIsPrayerMenuOpen(false);
+    setPrayedCardIds(getStoredPrayedCardIds(currentUserId));
+    setBookmarkedCardIds({});
     setCurrentIndex(0);
     setDragOffsetX(0);
     setIsDragging(false);
-  };
+  }
 
   async function loadMorePrayers(advanceAfterLoad = false) {
     if (!hasMore || isLoadingMore) {
@@ -543,20 +449,14 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     dragOffsetX,
     isDragging,
     isFlipped: topCard ? Boolean(flippedCardIds[topCard.id]) : false,
-    isLiked: topCard ? Boolean(likedCardIds[topCard.id]) : false,
     isPrayed: topCard ? Boolean(prayedCardIds[topCard.id]) : false,
+    isBookmarked: topCard ? Boolean(bookmarkedCardIds[topCard.id]) : false,
+    isTogglingBookmark,
+    isAdminOrMinistry,
     isOwnPrayerRequest: topCard ? topCard.ownerId === getCurrentUserId() : false,
     isLoading,
     isLoadingMore,
     isOutOfPosts,
-    isPrayerMenuOpen,
-    prayerResponses: PRAYER_RESPONSES,
-    selectedPrayerResponse: topCard
-      ? prayerResponsesByCard[topCard.id] ?? null
-      : null,
-    selectedPrayerCommentStatus: topCard
-      ? prayerCommentStatusByCard[topCard.id] ?? null
-      : null,
     errorMessage,
     handleActionPointerDown,
     handleCardKeyDown,
@@ -565,9 +465,8 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
     handlePointerUp,
     handlePointerCancel,
     toggleFlip,
-    toggleLike,
-    togglePrayerMenu,
-    selectPrayerResponse,
+    togglePray,
+    toggleBookmark,
     refreshPrayers,
   };
 };
