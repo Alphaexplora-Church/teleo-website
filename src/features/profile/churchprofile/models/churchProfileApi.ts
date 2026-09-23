@@ -78,3 +78,72 @@ export const leaveChurch = async (): Promise<LeaveChurchResponse> => {
 
   return response.json();
 };
+
+import { mapContentFeedRecord } from '../../../home/models/homeApi';
+import type { FeedPostModel, ContentFeedRecord } from '../../../home/models/homeTypes';
+
+interface PublicContentsResponse {
+  data: ContentFeedRecord[];
+}
+
+/**
+ * Fetches active public announcements for a specific church.
+ * GET /api/contents/public/announcements/:churchId
+ */
+export const fetchChurchAnnouncements = async (churchId: number): Promise<FeedPostModel[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/contents/public/announcements/${churchId}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) return [];
+
+    const json: PublicContentsResponse = await response.json();
+    if (!Array.isArray(json?.data)) return [];
+
+    return json.data.map(mapContentFeedRecord).filter((post) => post.category === 'Announcement');
+  } catch (err) {
+    console.error('Failed to fetch church announcements:', err);
+    return [];
+  }
+};
+
+/**
+ * Fetches active public events for a specific church.
+ * GET /api/contents/public/events/:churchId
+ */
+export const fetchChurchEvents = async (churchId: number): Promise<FeedPostModel[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/contents/public/events/${churchId}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!response.ok) return [];
+
+    const json: PublicContentsResponse = await response.json();
+    if (!Array.isArray(json?.data)) return [];
+
+    return json.data.map(mapContentFeedRecord).filter((post) => post.category === 'Events');
+  } catch (err) {
+    console.error('Failed to fetch church events:', err);
+    return [];
+  }
+};
+
+/**
+ * Fetches both announcements and events for a church in parallel.
+ */
+export const fetchChurchContents = async (
+  churchId: number
+): Promise<{ announcements: FeedPostModel[]; events: FeedPostModel[] }> => {
+  const [announcements, events] = await Promise.all([
+    fetchChurchAnnouncements(churchId),
+    fetchChurchEvents(churchId),
+  ]);
+
+  return { announcements, events };
+};

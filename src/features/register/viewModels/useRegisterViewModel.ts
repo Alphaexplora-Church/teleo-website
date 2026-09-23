@@ -4,7 +4,7 @@
 
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { registerAccount, createProfile } from '../models/registerApi';
+import { registerAccount, createProfile, uploadProfilePicture } from '../models/registerApi';
 import type {
   RegistrationStep,
   RegistrationFormData,
@@ -50,7 +50,7 @@ export interface RegisterViewModelReturn {
   handleStep4Submit: () => void;
   handleStep5Submit: (location: LocationData) => void;
   handleSkipLocation: () => void;
-  handleStep6Submit: (file: File) => void;
+  handleStep6Submit: (file: File) => Promise<void>;
   handleSkipProfilePic: () => void;
   handleFinalSubmit: () => Promise<void>;
   goBack: () => void;
@@ -176,9 +176,6 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
 
     if (!formData.firstName.trim()) newErrors.firstName = 'First name is required.';
     if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required.';
-    if (!formData.birthMonth) newErrors.birthMonth = 'Select a month.';
-    if (!formData.birthDay) newErrors.birthDay = 'Select a day.';
-    if (!formData.birthYear) newErrors.birthYear = 'Select a year.';
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -194,11 +191,6 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
     const newErrors: RegistrationErrors = {};
 
     if (!formData.gender) newErrors.gender = 'Please select a gender identity.';
-    if (!formData.username.trim()) newErrors.username = 'Username is required.';
-    else if (formData.username.trim().length < 3) newErrors.username = 'Username must be at least 3 characters.';
-    else if (!/^[a-zA-Z0-9_]+$/.test(formData.username.trim())) {
-      newErrors.username = 'Only letters, numbers, and underscores allowed.';
-    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -207,7 +199,7 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
 
     setErrors({});
     setCurrentStep(5);
-  }, [formData.gender, formData.username]);
+  }, [formData.gender]);
 
   // ── Step 5: Location ──────────────────────────────────────
   const handleStep5Submit = useCallback((location: LocationData) => {
@@ -222,11 +214,31 @@ export const useRegisterViewModel = (): RegisterViewModelReturn => {
   }, []);
 
   // ── Step 6: Profile Picture ───────────────────────────────
-  const handleStep6Submit = useCallback((file: File) => {
-    const url = URL.createObjectURL(file);
-    setFormData((prev) => ({ ...prev, profilePictureFile: file, profilePictureUrl: url }));
-    setCurrentStep(7);
-  }, []);
+  const handleStep6Submit = useCallback(async (file: File) => {
+    if (!accessToken) {
+      setErrors({ general: 'Session expired. Please restart registration.' });
+      return;
+    }
+
+    setErrors({});
+    setIsLoading(true);
+
+    try {
+      const result = await uploadProfilePicture(file, accessToken);
+
+      if (!result.success || !result.url) {
+        setErrors({ general: result.error ?? 'Image upload failed.' });
+        return;
+      }
+
+      setFormData((prev) => ({ ...prev, profilePictureFile: file, profilePictureUrl: result.url as string }));
+      setCurrentStep(7);
+    } catch {
+      setErrors({ general: 'An unexpected error occurred. Please try again.' });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [accessToken]);
 
   const handleSkipProfilePic = useCallback(() => {
     setCurrentStep(7);

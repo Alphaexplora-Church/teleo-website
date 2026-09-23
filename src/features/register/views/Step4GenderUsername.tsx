@@ -37,7 +37,7 @@ const GENDER_OPTIONS: { value: GenderOption; label: string; Icon: React.FC<{ act
 
 // ── Props ─────────────────────────────────────────────────────
 interface Step4Props {
-  formData: Pick<RegistrationFormData, 'gender' | 'username'>;
+  formData: Pick<RegistrationFormData, 'gender'>;
   errors: RegistrationErrors;
   isLoading: boolean;
   setGender: (gender: GenderOption) => void;
@@ -47,7 +47,7 @@ interface Step4Props {
 
 // ── Component ─────────────────────────────────────────────────
 const Step4GenderUsername: React.FC<Step4Props> = ({
-  formData, errors, isLoading, setGender, updateField, onSubmit,
+  formData, errors, isLoading, setGender, onSubmit,
 }) => {
   return (
     <div className="flex flex-col gap-0 w-full animate-page-fade-in">
@@ -95,46 +95,6 @@ const Step4GenderUsername: React.FC<Step4Props> = ({
         {errors.gender && (
           <p className="text-xs text-error font-medium text-center" role="alert">{errors.gender}</p>
         )}
-      </div>
-
-      {/* ── Divider ── */}
-      <div className="flex items-center gap-3 mb-6">
-        <span className="flex-1 h-px bg-gray-border" />
-        <span className="text-[13px] text-gray-placeholder font-normal whitespace-nowrap">Username</span>
-        <span className="flex-1 h-px bg-gray-border" />
-      </div>
-
-      {/* ── Username Section ── */}
-      <div className="flex flex-col gap-4 mb-8">
-        <div className="flex flex-col gap-1">
-          <h3 className="text-[20px] font-bold text-navy leading-tight">How should we call you?</h3>
-          <p className="text-[14px] text-gray-placeholder">Give yourself a cool nickname</p>
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <div className="relative flex items-center">
-            <span className="absolute left-3.5 text-gray-placeholder font-medium text-[15px] select-none pointer-events-none">@</span>
-            <input
-              id="reg-username"
-              type="text"
-              placeholder="username"
-              value={formData.username}
-              onChange={(e) => updateField('username', e.target.value.toLowerCase().replace(/\s/g, ''))}
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck={false}
-              autoComplete="username"
-              className={`w-full min-h-[52px] pl-8 pr-3.5 rounded-[10px] border-[1.5px] font-sans text-[15px] text-gray-label bg-white outline-none transition-all
-                ${errors.username
-                  ? 'border-error focus:border-error focus:shadow-[0_0_0_3px_rgba(220,38,38,0.10)]'
-                  : 'border-gray-border focus:border-navy focus:shadow-[0_0_0_3px_rgba(27,50,82,0.10)]'
-                }`}
-            />
-          </div>
-          {errors.username && (
-            <p className="text-xs text-error font-medium">{errors.username}</p>
-          )}
-        </div>
       </div>
 
       {/* ── Next ── */}

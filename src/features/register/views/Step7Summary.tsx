@@ -95,11 +95,6 @@ const Step7Summary: React.FC<Step7Props> = ({ formData, errors, isLoading, onSub
         <SummaryRow label="Birthday" value={birthday} isProvided={!!(formData.birthMonth && formData.birthDay && formData.birthYear)} />
         <SummaryRow label="Gender" value={genderLabel(formData.gender)} isProvided={!!formData.gender} />
         <SummaryRow
-          label="Username"
-          value={formData.username ? `@${formData.username}` : 'Not provided'}
-          isProvided={!!formData.username}
-        />
-        <SummaryRow
           label="Location"
           value={locationText ?? 'Not provided'}
           isProvided={!!locationText}
