@@ -40,7 +40,6 @@ import FriendsView from '../../profile/views/FriendsView';
 import PublicProfileView from '../../profile/views/PublicProfileView';
 import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
 import ChatView from '../../chat/views/ChatView';
-import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
 
 const TAB_PAGES: Record<string, React.FC> = {
   home: HomeFeedView,
