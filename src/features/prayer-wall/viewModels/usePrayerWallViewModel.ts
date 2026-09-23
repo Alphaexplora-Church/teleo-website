@@ -104,10 +104,10 @@ export const usePrayerWallViewModel = (): PrayerWallViewModel => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [dragOffsetX, setDragOffsetX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-  const [isLoading, setIsLoading] = useState(!cachedState);
+  const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [nextCursor, setNextCursor] = useState<string | null>(cachedState?.nextCursor ?? null);
-  const [hasMore, setHasMore] = useState(cachedState?.hasMore ?? false);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const dragRef = useRef<PointerDragState | null>(null);
 
