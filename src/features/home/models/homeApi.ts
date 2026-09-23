@@ -1,6 +1,7 @@
 import {
   EVENT_IMAGE,
   GOSPEL_SLIDE,
+  STATIC_SAMPLE_EVENT_POSTS,
   type ContentFeedRecord,
   type ContentFeedResponse,
   type FeedPostModel,
@@ -47,10 +48,10 @@ const formatDate = (value: string | null) => {
   const date = parseDate(value);
   return date
     ? new Intl.DateTimeFormat(undefined, {
-        weekday: 'long',
-        month: 'long',
-        day: 'numeric',
-      }).format(date)
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+    }).format(date)
     : 'Date to be announced';
 };
 
@@ -58,9 +59,9 @@ const formatTime = (value?: string | null) => {
   const date = parseDate(value);
   return date
     ? new Intl.DateTimeFormat(undefined, {
-        hour: 'numeric',
-        minute: '2-digit',
-      }).format(date)
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(date)
     : null;
 };
 
@@ -73,39 +74,93 @@ const getTags = (record: ContentFeedRecord) =>
     .map((tag) => tag.trim())
     .filter(Boolean) ?? [];
 
+// TO DO: Replace static church fallback with live author church relation once backend exposes author home church
+const resolvePostAuthor = (record: ContentFeedRecord): string => {
+  const raw = record as unknown as Record<string, unknown>;
+  const username = record.author_username?.trim();
+  const rawChurchName =
+    (typeof raw.church_name === 'string' && raw.church_name.trim()) ||
+    (typeof raw.author_church_name === 'string' && raw.author_church_name.trim()) ||
+    (typeof raw.home_church_name === 'string' && raw.home_church_name.trim());
+
+  const isAdmin =
+    raw.is_admin === true ||
+    raw.role === 'admin' ||
+    raw.role === 'system_admin' ||
+    !username ||
+    username.toLowerCase() === 'admin' ||
+    username.toLowerCase() === 'church admin' ||
+    username.toLowerCase() === 'system admin';
+
+  if (isAdmin) {
+    return 'System Admin';
+  }
+
+  if (rawChurchName) {
+    return rawChurchName;
+  }
+
+  // Static fallback data for church name if post is authored by a user
+  return 'Grace Community Church';
+};
+
 export const mapContentFeedRecord = (record: ContentFeedRecord): FeedPostModel => {
   const startTime = formatTime(record.start_date);
   const endTime = formatTime(record.end_date);
   const time =
     startTime && endTime
       ? `${startTime} – ${endTime}`
-      : startTime ?? 'Time to be announced';
+      : startTime ?? undefined;
   const isEvent = record.type_content === 'event';
   const tags = getTags(record);
+  const formattedDate = formatDate(record.start_date);
+  const location = record.location?.trim() || undefined;
+
+  const raw = record as unknown as Record<string, unknown>;
+  const fee = typeof raw.fee === 'string' && raw.fee.trim() ? raw.fee.trim() : undefined;
+  const speakers =
+    typeof raw.speakers === 'string' && raw.speakers.trim()
+      ? raw.speakers.trim()
+      : undefined;
+  const participants =
+    typeof raw.participants === 'string' && raw.participants.trim()
+      ? raw.participants.trim()
+      : undefined;
+  const rawDressCode =
+    typeof raw.dress_code === 'string' && raw.dress_code.trim()
+      ? raw.dress_code.trim()
+      : typeof raw.dressCode === 'string' && raw.dressCode.trim()
+        ? raw.dressCode.trim()
+        : undefined;
+  const isDressCodeSpecified =
+    rawDressCode &&
+    !['not specified', 'none', 'n/a', 'null', 'undefined'].includes(
+      rawDressCode.toLowerCase(),
+    );
+  const dressCode = isDressCodeSpecified ? rawDressCode : undefined;
 
   return {
     id: String(record.id),
-    author: record.author_username?.trim() || 'Church Admin',
+    author: resolvePostAuthor(record),
     meta: formatTimeAgo(record.created_at),
     category: isEvent ? 'Events' : 'Announcement',
     title: record.title,
     tags: tags.length > 0 ? tags : [isEvent ? 'Event' : 'Church Update'],
-    body: record.description?.trim() || 'More details will be shared soon.',
+    body: record.description?.trim() || '',
     details: isEvent
-      ? [record.location, formatDate(record.start_date), startTime]
-          .filter((value): value is string => Boolean(value))
+      ? [location, formattedDate, startTime]
+        .filter((value): value is string => Boolean(value))
       : undefined,
     imageUrl: getImageUrl(record) ?? undefined,
     imageAlt: record.title,
-    date: formatDate(record.start_date),
-    time,
-    location: record.location?.trim() || 'Location to be announced',
-    locationNote: record.location?.trim() ? 'Event location' : 'Check back for updates',
-    fee: 'Not specified',
-    organizer: record.author_username?.trim() || 'Church Admin',
-    speakers: 'To be announced',
-    participants: 'Open to church members',
-    dressCode: 'Not specified',
+    date: isEvent && record.start_date ? formattedDate : undefined,
+    time: isEvent ? time : undefined,
+    location: isEvent ? location : undefined,
+    locationNote: isEvent && location ? 'Event location' : undefined,
+    fee: isEvent ? fee : undefined,
+    speakers: isEvent ? speakers : undefined,
+    participants: isEvent ? participants : undefined,
+    dressCode: isEvent ? dressCode : undefined,
     startDate: record.start_date,
     createdAt: record.created_at,
   };
@@ -143,8 +198,8 @@ export const toEventHeroSlide = (post: FeedPostModel): HeroSlide => {
     location: post.location,
     month: date
       ? new Intl.DateTimeFormat(undefined, { month: 'short' })
-          .format(date)
-          .toUpperCase()
+        .format(date)
+        .toUpperCase()
       : 'TBA',
     day: date ? String(date.getDate()) : '—',
     time: formatTime(post.startDate) ?? 'Time TBA',
@@ -174,7 +229,11 @@ export const fetchHomeFeed = async (): Promise<FeedPostModel[]> => {
     throw new Error('The home feed returned an invalid response.');
   }
 
-  return json.data.map(mapContentFeedRecord);
+  // TO DO: DELETE STATIC DATA - Prepending static sample event posts for testing UI designs
+  return [
+    ...STATIC_SAMPLE_EVENT_POSTS,
+    ...json.data.map(mapContentFeedRecord),
+  ];
 };
 
 export const buildHeroSlides = (posts: FeedPostModel[]): HeroSlide[] => [

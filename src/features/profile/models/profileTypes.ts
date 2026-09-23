@@ -10,6 +10,8 @@ export interface ProfileSettingsView {
   home_church_id: number | null;
   profile_picture_url: string | null;
   email?: string;
+  friends_count?: number;
+  church_following_count?: number;
 }
 
 export interface ProfileSettingsViewResponse {
@@ -19,6 +21,12 @@ export interface ProfileSettingsViewResponse {
 }
 
 // ── Design data types ─────────────────────────────────────────────────────────
+
+export interface QuickActionItem {
+  id: string;
+  label: string;
+  iconType: 'giving' | 'prayers' | 'history';
+}
 
 export interface RecentActivityItem {
   id: string;

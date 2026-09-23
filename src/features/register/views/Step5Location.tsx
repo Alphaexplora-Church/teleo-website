@@ -196,7 +196,7 @@ const Step5Location: React.FC<Step5Props> = ({ currentLocation, onSubmit, onSkip
             id="btn-reg-step5-submit"
             type="button"
             onClick={handleConfirm}
-            disabled={true}
+            disabled={isGeocoding}
             className="w-full min-h-[52px] flex items-center justify-center gap-2.5 rounded-full border-none bg-navy text-white font-sans text-[15px] font-semibold tracking-[0.1px] cursor-pointer px-6 transition-all shadow-btn hover:bg-navy-hover hover:shadow-[0_4px_16px_rgba(27,50,82,0.28)] active:bg-navy-active active:scale-95 active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed select-none"
           >
             {isGeocoding ? (

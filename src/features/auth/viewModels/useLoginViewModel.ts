@@ -2,7 +2,7 @@
 // ViewModel: manages all login form state and actions
 
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { loginWithEmail } from '../../../shared/models/authService';
 import type { LoginCredentials } from '../../../shared/models/types';
 
@@ -23,6 +23,9 @@ interface LoginViewModel {
 
 export const useLoginViewModel = (): LoginViewModel => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const redirectTarget = location.state?.from || searchParams.get('redirect') || searchParams.get('from') || '/home';
 
   // Form state
   const [email, setEmail] = useState<string>('');
@@ -44,7 +47,7 @@ export const useLoginViewModel = (): LoginViewModel => {
       setError('Please enter your email address.');
       return;
     }
-    
+
     // Simple email validation to match Zod requirements
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
@@ -65,7 +68,7 @@ export const useLoginViewModel = (): LoginViewModel => {
       const result = await loginWithEmail(credentials);
 
       if (result.success) {
-        navigate('/home', { replace: true });
+        navigate(redirectTarget, { replace: true });
       } else {
         setError(result.error ?? 'Login failed. Please try again.');
       }
