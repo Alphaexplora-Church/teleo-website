@@ -1,15 +1,15 @@
-import { LinkButton } from "../../../../shared/components/Button/LinkButton";
-import type { DiscipleshipEmptyStateProps } from "../../models/discipleshipEmptyState.types";
+import { LinkButton } from "../../../../../shared/components/Button/LinkButton";
+import type { MyDiscipleshipEmptyStateProps } from "../../../models/myDiscipleshipEmptyState.types";
 
-interface DiscipleshipJoinCardProps {
-  joinCardLink: DiscipleshipEmptyStateProps;
+export interface MyDiscipleshipEmptyStateJoinCardProps {
+  joinCardLink: MyDiscipleshipEmptyStateProps;
   className?: string;
 }
 
-export function DiscipleshipEmptyStateJoinCard({
+export function MyDiscipleshipEmptyStateJoinCard({
   joinCardLink,
   className = "",
-}: DiscipleshipJoinCardProps) {
+}: MyDiscipleshipEmptyStateJoinCardProps) {
   const HeaderIcon = joinCardLink.icon;
   const { title, description, buttonJoin } = joinCardLink.joinCard;
   const ButtonIcon = buttonJoin.icon;
@@ -48,4 +48,4 @@ export function DiscipleshipEmptyStateJoinCard({
   );
 }
 
-export default DiscipleshipEmptyStateJoinCard;
+export default MyDiscipleshipEmptyStateJoinCard;

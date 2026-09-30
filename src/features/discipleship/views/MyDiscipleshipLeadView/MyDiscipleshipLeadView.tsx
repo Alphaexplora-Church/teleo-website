@@ -1,4 +1,4 @@
-import { MyDiscipleshipLeadEmptyState } from "./MyDiscipleshipLeadEmptyState";
+import { MyDiscipleshipLeadEmptyState } from "./MyDiscipleshipLeadEmptyState/MyDiscipleshipLeadEmptyState";
 
 export interface MyDiscipleshipLeadViewProps {
   className?: string;

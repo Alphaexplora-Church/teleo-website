@@ -14,8 +14,8 @@ export interface ButtonDiscipleshipProps {
   className?: string;
 }
 
-// ── Discipleship Empty State Props ───────────────────────────
-export interface DiscipleshipEmptyStateProps {
+// ── My Discipleship Empty State Props ────────────────────────
+export interface MyDiscipleshipEmptyStateProps {
   icon: DiscipleshipIcon;
   titleHeader: string;
   joinCard: {
@@ -33,8 +33,8 @@ export interface DiscipleshipChurch {
   active_groups_count: number;
 }
 
-// ── Discipleship Empty State List Props Config ────────────────
-export interface DiscipleshipEmptyStateListPropsConfig {
+// ── My Discipleship Empty State List Props Config ────────────
+export interface MyDiscipleshipEmptyStateListPropsConfig {
   homeChurchHeader: string;
   exploreOtherHeader: string;
   noChurchesCallout: string;

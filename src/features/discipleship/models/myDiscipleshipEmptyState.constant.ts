@@ -2,11 +2,11 @@ import { Church } from "lucide-react";
 import { ArrowRight } from "lucide-react";
 
 import type {
-  DiscipleshipEmptyStateListPropsConfig,
-  DiscipleshipEmptyStateProps,
-} from "./discipleshipEmptyState.types";
+  MyDiscipleshipEmptyStateListPropsConfig,
+  MyDiscipleshipEmptyStateProps,
+} from "./myDiscipleshipEmptyState.types";
 
-export const discipleshipEmptyStateConst: DiscipleshipEmptyStateProps = {
+export const myDiscipleshipEmptyStateConst: MyDiscipleshipEmptyStateProps = {
   icon: Church,
   titleHeader: "Groups",
   joinCard: {
@@ -21,7 +21,7 @@ export const discipleshipEmptyStateConst: DiscipleshipEmptyStateProps = {
   },
 };
 
-export const discipleshipEmptyStateListConst: DiscipleshipEmptyStateListPropsConfig = {
+export const myDiscipleshipEmptyStateListConst: MyDiscipleshipEmptyStateListPropsConfig = {
   homeChurchHeader: "Your Home Church",
   exploreOtherHeader: "Explore Other Churches",
   noChurchesCallout: "No churches found",

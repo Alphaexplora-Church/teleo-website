@@ -17,6 +17,6 @@ export const NAV_TABS: NavTabConfig[] = [
   { id: 'prayer-wall', label: 'Prayer Wall' },
   { id: 'content', label: 'Content' },
   { id: 'discipleship', label: 'Discipleship' },
-  { id: 'giving', label: 'Giving' },
   { id: 'chat', label: 'Chat' },
 ];
+

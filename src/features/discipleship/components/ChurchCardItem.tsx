@@ -1,8 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import { Badge } from "../../../shared/components/Badge/Badge";
-import { discipleshipEmptyStateListConst } from "../models/discipleshipEmptyState.constant";
-import type { DiscipleshipChurch } from "../models/discipleshipEmptyState.types";
-
+import { myDiscipleshipEmptyStateListConst } from "../models/myDiscipleshipEmptyState.constant";
+import type { DiscipleshipChurch } from "../models/myDiscipleshipEmptyState.types";
 
 export interface ChurchCardItemProps {
   church: DiscipleshipChurch;
@@ -14,11 +13,12 @@ export interface ChurchCardItemProps {
 
 export function ChurchCardItem({
   church,
-  homeChurchBadgeLabel = discipleshipEmptyStateListConst.homeChurchBadgeLabel,
-  activeGroupsLabel = discipleshipEmptyStateListConst.activeGroupsLabel,
+  homeChurchBadgeLabel = myDiscipleshipEmptyStateListConst.homeChurchBadgeLabel,
+  activeGroupsLabel = myDiscipleshipEmptyStateListConst.activeGroupsLabel,
   onClick,
   className = "",
 }: ChurchCardItemProps) {
+
   return (
     <button
       type="button"

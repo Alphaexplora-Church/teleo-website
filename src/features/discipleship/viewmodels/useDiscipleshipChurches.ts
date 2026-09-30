@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { mockDiscipleshipChurches } from "../mocks/discipleshipChurches.mocks";
-import type { DiscipleshipChurch } from "../models/discipleshipEmptyState.types";
+import type { DiscipleshipChurch } from "../models/myDiscipleshipEmptyState.types";
+
 
 export interface UseDiscipleshipChurchesOptions {
   churches?: DiscipleshipChurch[];

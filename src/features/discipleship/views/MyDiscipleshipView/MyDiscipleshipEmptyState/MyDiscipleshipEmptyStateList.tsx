@@ -1,25 +1,24 @@
-import { ChurchCardItem } from "../../components/ChurchCardItem";
-import { discipleshipEmptyStateListConst } from "../../models/discipleshipEmptyState.constant";
+import { ChurchCardItem } from "../../../components/ChurchCardItem";
+import { myDiscipleshipEmptyStateListConst } from "../../../models/myDiscipleshipEmptyState.constant";
 import type {
   DiscipleshipChurch,
-  DiscipleshipEmptyStateListPropsConfig,
-} from "../../models/discipleshipEmptyState.types";
+  MyDiscipleshipEmptyStateListPropsConfig,
+} from "../../../models/myDiscipleshipEmptyState.types";
+import { useDiscipleshipChurches } from "../../../viewmodels/useDiscipleshipChurches";
 
-import { useDiscipleshipChurches } from "../../viewmodels/useDiscipleshipChurches";
-
-export interface DiscipleshipEmptyStateListProps {
+export interface MyDiscipleshipEmptyStateListProps {
   churches?: DiscipleshipChurch[];
-  config?: DiscipleshipEmptyStateListPropsConfig;
+  config?: MyDiscipleshipEmptyStateListPropsConfig;
   onSelectChurch?: (church: DiscipleshipChurch) => void;
   className?: string;
 }
 
-export function DiscipleshipEmptyStateList({
+export function MyDiscipleshipEmptyStateList({
   churches,
-  config = discipleshipEmptyStateListConst,
+  config = myDiscipleshipEmptyStateListConst,
   onSelectChurch,
   className = "",
-}: DiscipleshipEmptyStateListProps = {}) {
+}: MyDiscipleshipEmptyStateListProps = {}) {
   const { homeChurches, otherChurches, hasHomeChurch, hasOtherChurches } =
     useDiscipleshipChurches({ churches });
 
@@ -73,4 +72,4 @@ export function DiscipleshipEmptyStateList({
   );
 }
 
-export default DiscipleshipEmptyStateList;
+export default MyDiscipleshipEmptyStateList;

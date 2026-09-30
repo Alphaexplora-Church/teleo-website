@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { GroupsTabSwitcher, type DiscipleshipTab } from "../components/GroupsTabSwitcher";
-import { discipleshipEmptyStateConst } from "../models/discipleshipEmptyState.constant";
-import { DiscipleshipEmptyStateView } from "./DiscipleshipEmptyStateView/DiscipleshipEmptyStateView";
+import { myDiscipleshipEmptyStateConst } from "../models/myDiscipleshipEmptyState.constant";
+import MyDiscipleshipView from "./MyDiscipleshipView/MyDiscipleshipView";
 import MyDiscipleshipLeadView from "./MyDiscipleshipLeadView/MyDiscipleshipLeadView";
 
 export function DiscipleshipView() {
@@ -12,7 +12,7 @@ export function DiscipleshipView() {
       {/* ── Header ─────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-[#0E172A] tracking-tight">
-          {discipleshipEmptyStateConst.titleHeader}
+          {myDiscipleshipEmptyStateConst.titleHeader}
         </h1>
       </div>
 
@@ -21,7 +21,7 @@ export function DiscipleshipView() {
 
       {/* ── Dynamic Tab Content ─────────────────────────────────── */}
       {activeTab === "my-discipleship" ? (
-        <DiscipleshipEmptyStateView />
+        <MyDiscipleshipView />
       ) : (
         <MyDiscipleshipLeadView />
       )}
