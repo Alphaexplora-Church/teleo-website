@@ -40,12 +40,14 @@ import FriendsView from '../../profile/views/FriendsView';
 import PublicProfileView from '../../profile/views/PublicProfileView';
 import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
 import ChatView from '../../chat/views/ChatView';
+import DiscipleshipView from '../../discipleship/views/DiscipleshipView';
 
 const TAB_PAGES: Record<string, React.FC> = {
   home: HomeFeedView,
   services: ServicesView,
   'prayer-wall': PrayerWallView,
   content: ContentCatalogView,
+  discipleship: DiscipleshipView,
   giving: GivingView,
   chat: ChatView,
   'find-my-church': FindMyChurchView,

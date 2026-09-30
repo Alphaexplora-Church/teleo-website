@@ -80,6 +80,7 @@ function App() {
           <Route path="/my-list" element={<AppShell />} />
           <Route path="/content/:id" element={<AppShell />} />
           <Route path="/content/:seriesId" element={<AppShell />} />
+          <Route path="/discipleship" element={<AppShell />} />
           <Route path="/giving" element={<AppShell />} />
           <Route path="/chat" element={<AppShell />} />
 
