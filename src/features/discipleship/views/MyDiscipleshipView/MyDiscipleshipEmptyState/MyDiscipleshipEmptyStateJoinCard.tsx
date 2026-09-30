@@ -30,7 +30,7 @@ export function MyDiscipleshipEmptyStateJoinCard({
         <h3 className="text-[17px] font-bold text-[#0E172A] leading-snug mb-2">
           {title}
         </h3>
-        <p className="text-[13px] text-[#62718A] leading-relaxed max-w-[280px] mx-auto">
+        <p className="text-[13px] text-[#62718A] leading-relaxed max-w-70 mx-auto">
           {description}
         </p>
       </div>
