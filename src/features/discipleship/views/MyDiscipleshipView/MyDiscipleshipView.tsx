@@ -1,10 +1,15 @@
+import type { DiscipleshipChurch } from "../../models/types/myDiscipleshipEmptyState.types";
 import { MyDiscipleshipEmptyState } from "./MyDiscipleshipEmptyState/MyDiscipleshipEmptyState";
 
 export interface MyDiscipleshipViewProps {
+  onSelectChurch?: (church: DiscipleshipChurch) => void;
+  onNavigateToChurchList?: () => void;
   className?: string;
 }
 
 export function MyDiscipleshipView({
+  onSelectChurch,
+  onNavigateToChurchList,
   className = "",
 }: MyDiscipleshipViewProps = {}) {
   // NOTE: When a user has a group, group view will be rendered here.
@@ -14,7 +19,10 @@ export function MyDiscipleshipView({
   return (
     <div className={`w-full ${className}`.trim()}>
       {!hasGroup ? (
-        <MyDiscipleshipEmptyState />
+        <MyDiscipleshipEmptyState
+          onSelectChurch={onSelectChurch}
+          onNavigateToChurchList={onNavigateToChurchList}
+        />
       ) : (
         <div>{/* Active group view content */}</div>
       )}

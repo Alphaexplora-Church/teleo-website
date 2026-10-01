@@ -1,5 +1,5 @@
-import { myDiscipleshipLeadCardConst } from "../../../models/myDiscipleshipLead.constant";
-import type { MyDiscipleshipLeadCardProps } from "../../../models/myDiscipleshipLead.types";
+import { myDiscipleshipLeadCardConst } from "../../../models/constants/myDiscipleshipLeadEmptyState.constant";
+import type { MyDiscipleshipLeadCardProps } from "../../../models/types/myDiscipleshipLeadEmptyState.types";
 
 
 export interface MyDiscipleshipLeadEmptyStateProps {

@@ -1,15 +1,17 @@
+import { LinkButton } from "../../../../../shared/components/Button/LinkButton";
 import { ChurchCardItem } from "../../../components/ChurchCardItem";
-import { myDiscipleshipEmptyStateListConst } from "../../../models/myDiscipleshipEmptyState.constant";
+import { myDiscipleshipEmptyStateListConst } from "../../../models/constants/myDiscipleshipEmptyState.constant";
 import type {
   DiscipleshipChurch,
   MyDiscipleshipEmptyStateListPropsConfig,
-} from "../../../models/myDiscipleshipEmptyState.types";
+} from "../../../models/types/myDiscipleshipEmptyState.types";
 import { useDiscipleshipChurches } from "../../../viewmodels/useDiscipleshipChurches";
 
 export interface MyDiscipleshipEmptyStateListProps {
   churches?: DiscipleshipChurch[];
   config?: MyDiscipleshipEmptyStateListPropsConfig;
   onSelectChurch?: (church: DiscipleshipChurch) => void;
+  onMoreChurches?: () => void;
   className?: string;
 }
 
@@ -17,10 +19,14 @@ export function MyDiscipleshipEmptyStateList({
   churches,
   config = myDiscipleshipEmptyStateListConst,
   onSelectChurch,
+  onMoreChurches,
   className = "",
 }: MyDiscipleshipEmptyStateListProps = {}) {
-  const { homeChurches, otherChurches, hasHomeChurch, hasOtherChurches } =
-    useDiscipleshipChurches({ churches });
+  const maxDisplayed = config.maxDisplayedChurches ?? 3;
+  const { homeChurches, displayedOtherChurches, hasHomeChurch, hasOtherChurches } =
+    useDiscipleshipChurches({ churches, maxDisplayed });
+
+  const MoreIcon = config.buttonMore?.icon;
 
   return (
     <div className={`w-full space-y-6 ${className}`.trim()}>
@@ -52,7 +58,7 @@ export function MyDiscipleshipEmptyStateList({
 
         {hasOtherChurches ? (
           <div className="space-y-3">
-            {otherChurches.map((church) => (
+            {displayedOtherChurches.map((church) => (
               <ChurchCardItem
                 key={church.church_id}
                 church={church}
@@ -61,6 +67,27 @@ export function MyDiscipleshipEmptyStateList({
                 onClick={onSelectChurch}
               />
             ))}
+
+            {/* ── More Churches Button ────────────────────────────── */}
+            {config.buttonMore && (
+              <div className="pt-1">
+                <LinkButton
+                  to={config.buttonMore.to ?? "/discipleship/church-list"}
+                  onClick={(e) => {
+                    if (onMoreChurches) {
+                      e.preventDefault();
+                      onMoreChurches();
+                    }
+                  }}
+                  variant={config.buttonMore.variant ?? "outline"}
+                  fullWidth
+                  className="flex items-center justify-center gap-1.5"
+                >
+                  <span>{config.buttonMore.label}</span>
+                  {MoreIcon && <MoreIcon className="w-4 h-4" />}
+                </LinkButton>
+              </div>
+            )}
           </div>
         ) : (
           <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-[#62718A] text-center">

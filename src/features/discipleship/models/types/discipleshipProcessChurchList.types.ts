@@ -1,0 +1,38 @@
+import type {
+  SharedButtonProps,
+  ComponentIcon,
+} from "../../../../shared/models/types/components.types";
+import type { DiscipleshipChurch } from "./myDiscipleshipEmptyState.types";
+
+export interface DiscipleshipChurchItem extends DiscipleshipChurch {
+  city?: string;
+}
+
+export interface DiscipleshipProcessChurchListConfig {
+  buttonBack: SharedButtonProps;
+  searchBar: {
+    icon: ComponentIcon;
+    clearIcon?: ComponentIcon;
+    placeHolder?: string;
+    placeholder?: string;
+  };
+  icons: {
+    chevronRight: ComponentIcon;
+  };
+  homeChurchHeader: string;
+  allChurchesHeader: string;
+  homeBadgeLabel: string;
+  activeGroupsSuffix: string;
+  availableSuffix: string;
+  noResultsMessage: string;
+}
+
+export type DiscipleshipChurchListProps = DiscipleshipProcessChurchListConfig;
+
+export interface DiscipleshipProcessChurchListViewProps {
+  config?: Partial<DiscipleshipProcessChurchListConfig>;
+  churches?: DiscipleshipChurchItem[];
+  onSelectChurch?: (church: DiscipleshipChurchItem) => void;
+  onBack?: () => void;
+  className?: string;
+}

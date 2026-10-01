@@ -1,13 +1,15 @@
 import { LinkButton } from "../../../../../shared/components/Button/LinkButton";
-import type { MyDiscipleshipEmptyStateProps } from "../../../models/myDiscipleshipEmptyState.types";
+import type { MyDiscipleshipEmptyStateProps } from "../../../models/types/myDiscipleshipEmptyState.types";
 
 export interface MyDiscipleshipEmptyStateJoinCardProps {
   joinCardLink: MyDiscipleshipEmptyStateProps;
+  onJoin?: () => void;
   className?: string;
 }
 
 export function MyDiscipleshipEmptyStateJoinCard({
   joinCardLink,
+  onJoin,
   className = "",
 }: MyDiscipleshipEmptyStateJoinCardProps) {
   const HeaderIcon = joinCardLink.icon;
@@ -37,7 +39,13 @@ export function MyDiscipleshipEmptyStateJoinCard({
 
       {/* ── Join Button ────────────────────────────────────── */}
       <LinkButton
-        to={buttonJoin.to ?? ""}
+        to={buttonJoin.to ?? "/discipleship/church-list"}
+        onClick={(e) => {
+          if (onJoin) {
+            e.preventDefault();
+            onJoin();
+          }
+        }}
         fullWidth
         className="flex items-center justify-center gap-2"
       >

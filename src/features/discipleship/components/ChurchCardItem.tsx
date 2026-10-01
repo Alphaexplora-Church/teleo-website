@@ -1,7 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import { Badge } from "../../../shared/components/Badge/Badge";
-import { myDiscipleshipEmptyStateListConst } from "../models/myDiscipleshipEmptyState.constant";
-import type { DiscipleshipChurch } from "../models/myDiscipleshipEmptyState.types";
+import { myDiscipleshipEmptyStateListConst } from "../models/constants/myDiscipleshipEmptyState.constant";
+import type { DiscipleshipChurch } from "../models/types/myDiscipleshipEmptyState.types";
 
 export interface ChurchCardItemProps {
   church: DiscipleshipChurch;
@@ -47,8 +47,9 @@ export function ChurchCardItem({
             </div>
           )}
 
-          <span className="text-[13px] text-[#62718A] font-normal mt-1">
+          <span className="text-[13px] text-[#62718A] font-normal mt-1 truncate">
             {church.active_groups_count} {activeGroupsLabel}
+            {church.city ? ` · ${church.city}` : ""}
           </span>
         </div>
       </div>
