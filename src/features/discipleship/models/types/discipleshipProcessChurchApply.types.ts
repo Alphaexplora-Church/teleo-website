@@ -2,7 +2,7 @@ import type {
   SharedButtonProps,
   ComponentIcon,
 } from "../../../../shared/models/types/components.types";
-import type { DiscipleshipIntakeQuestion } from "../mocks/discipleshipIntakeQuestion";
+import type { DiscipleshipIntakeQuestion } from "../mocks/discipleshipIntakeQuestion.mocks";
 import type { DiscipleshipChurch } from "./myDiscipleshipEmptyState.types";
 
 export interface DiscipleshipProcessChurchApplyConfig {

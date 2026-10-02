@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { discipleshipProcessIntroConst } from "../../models/constants/discipleshipProcessIntro.constant";
-import { getDiscipleshipProgramByChurchId } from "../../models/mocks/discipleshipProgramIntro.mock";
+import { getDiscipleshipProgramByChurchId } from "../../models/mocks/discipleshipProgramIntro.mocks";
 import type {
   DiscipleshipProcessIntroConfig,
   DiscipleshipProcessIntroProps,
@@ -74,7 +74,9 @@ export function DiscipleshipProcessIntro({
         {resolvedProgram?.format && (
           <div>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#F1F3F6] rounded-lg text-xs font-medium text-[#475569]">
-              {FormatIcon && <FormatIcon className="w-3.5 h-3.5 text-[#62718A]" />}
+              {FormatIcon && (
+                <FormatIcon className="w-3.5 h-3.5 text-[#62718A]" />
+              )}
               <span>
                 {resolvedConfig.formatPrefix}
                 {resolvedProgram.format}
@@ -110,7 +112,9 @@ export function DiscipleshipProcessIntro({
         </button>
 
         <div className="flex items-center justify-center gap-1.5 text-xs text-[#62718A]">
-          {LockIcon && <LockIcon className="w-3.5 h-3.5 text-[#62718A] shrink-0" />}
+          {LockIcon && (
+            <LockIcon className="w-3.5 h-3.5 text-[#62718A] shrink-0" />
+          )}
           <span>{resolvedConfig.footnoteText}</span>
         </div>
       </div>

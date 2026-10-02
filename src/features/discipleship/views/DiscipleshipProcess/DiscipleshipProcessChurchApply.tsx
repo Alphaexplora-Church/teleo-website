@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { discipleshipProcessChurchApplyConst } from "../../models/constants/discipleshipProcessChurchApply.constant";
-import { getIntakeQuestionsByChurchId } from "../../models/mocks/discipleshipIntakeQuestion";
+import { getIntakeQuestionsByChurchId } from "../../models/mocks/discipleshipIntakeQuestion.mocks";
 import { mockDiscipleshipChurches } from "../../models/mocks/discipleshipChurches.mocks";
 import type {
   DiscipleshipProcessChurchApplyConfig,

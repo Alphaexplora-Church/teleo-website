@@ -10,6 +10,7 @@ import { useDiscipleshipProcessChurchList } from "../../viewmodels/useDisciplesh
 export function DiscipleshipProcessChurchList({
   config: userConfig,
   churches,
+  pendingChurchIds = [],
   onSelectChurch,
   onBack,
   className = "",
@@ -40,7 +41,7 @@ export function DiscipleshipProcessChurchList({
     availableCount,
     hasResults,
     hasQuery,
-  } = useDiscipleshipProcessChurchList({ churches });
+  } = useDiscipleshipProcessChurchList({ churches, pendingChurchIds });
 
   // Icons are injected exclusively from Model/Constant layer
   const BackIcon = config.buttonBack.icon;
@@ -130,43 +131,65 @@ export function DiscipleshipProcessChurchList({
           </div>
 
           <div className="space-y-3">
-            {homeChurches.map((church) => (
-              <button
-                key={church.church_id}
-                type="button"
-                onClick={() => handleCardClick(church)}
-                className="w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 hover:border-slate-200 hover:shadow-md cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5 min-w-0">
-                  {/* Gray placeholder for future church image */}
-                  <div
-                    className="w-14 h-14 rounded-2xl bg-[#E2E8F0] shrink-0"
-                    aria-hidden="true"
-                  />
+            {homeChurches.map((church) => {
+              const isPending = pendingChurchIds.includes(church.church_id);
+              return (
+                <button
+                  key={church.church_id}
+                  type="button"
+                  disabled={isPending}
+                  aria-disabled={isPending}
+                  onClick={() => !isPending && handleCardClick(church)}
+                  className={`w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 select-none ${
+                    isPending
+                      ? "opacity-60 cursor-not-allowed bg-slate-50/70"
+                      : "hover:border-slate-200 hover:shadow-md cursor-pointer"
+                  }`}
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    {/* Gray placeholder for future church image */}
+                    <div
+                      className="w-14 h-14 rounded-2xl bg-[#E2E8F0] shrink-0"
+                      aria-hidden="true"
+                    />
 
-                  {/* Church Details */}
-                  <div className="flex flex-col items-start min-w-0">
-                    <h3 className="text-[15px] font-semibold text-[#0E172A] truncate">
-                      {church.name}
-                    </h3>
+                    {/* Church Details */}
+                    <div className="flex flex-col items-start min-w-0">
+                      <h3 className="text-[15px] font-semibold text-[#0E172A] truncate">
+                        {church.name}
+                      </h3>
 
-                    {/* Soft Gray Home Church Badge */}
-                    <div className="mt-1">
-                      <Badge label={config.homeBadgeLabel} size="sm" />
+                      {/* Badges Container */}
+                      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                        <Badge label={config.homeBadgeLabel} size="sm" />
+                        {isPending && (
+                          <Badge
+                            label={config.applicationPendingBadgeLabel}
+                            variant="warning"
+                            size="sm"
+                            dotVisible={false}
+                          />
+                        )}
+                      </div>
+
+                      <span className="text-[13px] text-[#62718A] font-normal mt-1 truncate">
+                        {church.active_groups_count} {config.activeGroupsSuffix}
+                        {church.city ? ` · ${church.city}` : ""}
+                      </span>
                     </div>
-
-                    <span className="text-[13px] text-[#62718A] font-normal mt-1 truncate">
-                      {church.active_groups_count} {config.activeGroupsSuffix}
-                      {church.city ? ` · ${church.city}` : ""}
-                    </span>
                   </div>
-                </div>
 
-                {ChevronIcon && (
-                  <ChevronIcon className="w-5 h-5 text-[#62718A] shrink-0" aria-hidden="true" />
-                )}
-              </button>
-            ))}
+                  {ChevronIcon && (
+                    <ChevronIcon
+                      className={`w-5 h-5 shrink-0 ${
+                        isPending ? "text-slate-300" : "text-[#62718A]"
+                      }`}
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </section>
       )}
@@ -187,37 +210,63 @@ export function DiscipleshipProcessChurchList({
           </div>
 
           <div className="space-y-3">
-            {otherChurches.map((church) => (
-              <button
-                key={church.church_id}
-                type="button"
-                onClick={() => handleCardClick(church)}
-                className="w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 hover:border-slate-200 hover:shadow-md cursor-pointer"
-              >
-                <div className="flex items-center gap-3.5 min-w-0">
-                  {/* Gray placeholder for future church image */}
-                  <div
-                    className="w-14 h-14 rounded-2xl bg-[#E2E8F0] shrink-0"
-                    aria-hidden="true"
-                  />
+            {otherChurches.map((church) => {
+              const isPending = pendingChurchIds.includes(church.church_id);
+              return (
+                <button
+                  key={church.church_id}
+                  type="button"
+                  disabled={isPending}
+                  aria-disabled={isPending}
+                  onClick={() => !isPending && handleCardClick(church)}
+                  className={`w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 select-none ${
+                    isPending
+                      ? "opacity-60 cursor-not-allowed bg-slate-50/70"
+                      : "hover:border-slate-200 hover:shadow-md cursor-pointer"
+                  }`}
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    {/* Gray placeholder for future church image */}
+                    <div
+                      className="w-14 h-14 rounded-2xl bg-[#E2E8F0] shrink-0"
+                      aria-hidden="true"
+                    />
 
-                  {/* Church Details */}
-                  <div className="flex flex-col items-start min-w-0">
-                    <h3 className="text-[15px] font-semibold text-[#0E172A] truncate">
-                      {church.name}
-                    </h3>
-                    <span className="text-[13px] text-[#62718A] font-normal mt-1 truncate">
-                      {church.active_groups_count} {config.activeGroupsSuffix}
-                      {church.city ? ` · ${church.city}` : ""}
-                    </span>
+                    {/* Church Details */}
+                    <div className="flex flex-col items-start min-w-0">
+                      <h3 className="text-[15px] font-semibold text-[#0E172A] truncate">
+                        {church.name}
+                      </h3>
+
+                      {isPending && (
+                        <div className="mt-1">
+                          <Badge
+                            label={config.applicationPendingBadgeLabel}
+                            variant="warning"
+                            size="sm"
+                            dotVisible={false}
+                          />
+                        </div>
+                      )}
+
+                      <span className="text-[13px] text-[#62718A] font-normal mt-1 truncate">
+                        {church.active_groups_count} {config.activeGroupsSuffix}
+                        {church.city ? ` · ${church.city}` : ""}
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                {ChevronIcon && (
-                  <ChevronIcon className="w-5 h-5 text-[#62718A] shrink-0" aria-hidden="true" />
-                )}
-              </button>
-            ))}
+                  {ChevronIcon && (
+                    <ChevronIcon
+                      className={`w-5 h-5 shrink-0 ${
+                        isPending ? "text-slate-300" : "text-[#62718A]"
+                      }`}
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </section>
       )}

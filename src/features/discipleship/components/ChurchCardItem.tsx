@@ -7,6 +7,8 @@ export interface ChurchCardItemProps {
   church: DiscipleshipChurch;
   homeChurchBadgeLabel?: string;
   activeGroupsLabel?: string;
+  isPending?: boolean;
+  pendingBadgeLabel?: string;
   onClick?: (church: DiscipleshipChurch) => void;
   className?: string;
 }
@@ -15,6 +17,8 @@ export function ChurchCardItem({
   church,
   homeChurchBadgeLabel = myDiscipleshipEmptyStateListConst.homeChurchBadgeLabel,
   activeGroupsLabel = myDiscipleshipEmptyStateListConst.activeGroupsLabel,
+  isPending = false,
+  pendingBadgeLabel = "Pending Application",
   onClick,
   className = "",
 }: ChurchCardItemProps) {
@@ -22,11 +26,17 @@ export function ChurchCardItem({
   return (
     <button
       type="button"
-      onClick={() => onClick?.(church)}
+      disabled={isPending}
+      aria-disabled={isPending}
+      onClick={() => !isPending && onClick?.(church)}
       className={`
         w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm
-        flex items-center justify-between gap-4 text-left transition-all duration-200
-        hover:border-slate-200 hover:shadow-md cursor-pointer select-none
+        flex items-center justify-between gap-4 text-left transition-all duration-200 select-none
+        ${
+          isPending
+            ? "opacity-60 cursor-not-allowed bg-slate-50/70"
+            : "hover:border-slate-200 hover:shadow-md cursor-pointer"
+        }
         ${className}
       `.trim()}
     >
@@ -40,12 +50,20 @@ export function ChurchCardItem({
             {church.name}
           </h4>
 
-          {/* Home Church Badge */}
-          {church.is_home_church && (
-            <div className="mt-1">
+          {/* Badges container */}
+          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+            {church.is_home_church && (
               <Badge label={homeChurchBadgeLabel} size="sm" />
-            </div>
-          )}
+            )}
+            {isPending && (
+              <Badge
+                label={pendingBadgeLabel}
+                variant="warning"
+                size="sm"
+                dotVisible={false}
+              />
+            )}
+          </div>
 
           <span className="text-[13px] text-[#62718A] font-normal mt-1 truncate">
             {church.active_groups_count} {activeGroupsLabel}
@@ -54,9 +72,12 @@ export function ChurchCardItem({
         </div>
       </div>
 
-
       {/* Right chevron navigation */}
-      <ChevronRight className="w-5 h-5 text-[#62718A] shrink-0" />
+      <ChevronRight
+        className={`w-5 h-5 shrink-0 ${
+          isPending ? "text-slate-300" : "text-[#62718A]"
+        }`}
+      />
     </button>
   );
 }

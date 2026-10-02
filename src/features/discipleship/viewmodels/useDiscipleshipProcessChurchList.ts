@@ -4,12 +4,14 @@ import type { DiscipleshipChurchItem } from "../models/types/discipleshipProcess
 
 export interface UseDiscipleshipProcessChurchListOptions {
   churches?: DiscipleshipChurchItem[];
+  pendingChurchIds?: number[];
 }
 
 export function useDiscipleshipProcessChurchList(
   options?: UseDiscipleshipProcessChurchListOptions
 ) {
   const [searchQuery, setSearchQuery] = useState("");
+  const pendingIds = options?.pendingChurchIds ?? [];
 
   const allChurches: DiscipleshipChurchItem[] = useMemo(() => {
     return options?.churches ?? mockDiscipleshipChurches;
@@ -32,12 +34,28 @@ export function useDiscipleshipProcessChurchList(
   }, [allChurches, normalizedQuery]);
 
   const homeChurches = useMemo(() => {
-    return filteredChurches.filter((church) => church.is_home_church);
-  }, [filteredChurches]);
+    return filteredChurches
+      .filter((church) => church.is_home_church)
+      .sort((a, b) => {
+        const aPending = pendingIds.includes(a.church_id);
+        const bPending = pendingIds.includes(b.church_id);
+        if (aPending && !bPending) return -1;
+        if (!aPending && bPending) return 1;
+        return 0;
+      });
+  }, [filteredChurches, pendingIds]);
 
   const otherChurches = useMemo(() => {
-    return filteredChurches.filter((church) => !church.is_home_church);
-  }, [filteredChurches]);
+    return filteredChurches
+      .filter((church) => !church.is_home_church)
+      .sort((a, b) => {
+        const aPending = pendingIds.includes(a.church_id);
+        const bPending = pendingIds.includes(b.church_id);
+        if (aPending && !bPending) return -1;
+        if (!aPending && bPending) return 1;
+        return 0;
+      });
+  }, [filteredChurches, pendingIds]);
 
   const availableCount = otherChurches.length;
   const hasResults = homeChurches.length > 0 || otherChurches.length > 0;

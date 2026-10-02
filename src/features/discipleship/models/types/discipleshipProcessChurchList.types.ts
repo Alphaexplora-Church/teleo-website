@@ -22,6 +22,7 @@ export interface DiscipleshipProcessChurchListConfig {
   homeChurchHeader: string;
   allChurchesHeader: string;
   homeBadgeLabel: string;
+  applicationPendingBadgeLabel: string;
   activeGroupsSuffix: string;
   availableSuffix: string;
   noResultsMessage: string;
@@ -32,6 +33,7 @@ export type DiscipleshipChurchListProps = DiscipleshipProcessChurchListConfig;
 export interface DiscipleshipProcessChurchListViewProps {
   config?: Partial<DiscipleshipProcessChurchListConfig>;
   churches?: DiscipleshipChurchItem[];
+  pendingChurchIds?: number[];
   onSelectChurch?: (church: DiscipleshipChurchItem) => void;
   onBack?: () => void;
   className?: string;

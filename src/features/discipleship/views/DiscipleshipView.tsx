@@ -4,21 +4,33 @@ import { GroupsTabSwitcher, type DiscipleshipTab } from "../components/GroupsTab
 import { myDiscipleshipEmptyStateConst } from "../models/constants/myDiscipleshipEmptyState.constant";
 import MyDiscipleshipView from "./MyDiscipleshipView/MyDiscipleshipView";
 import MyDiscipleshipLeadView from "./MyDiscipleshipLeadView/MyDiscipleshipLeadView";
+import MyDiscipleshipGroupsStatus from "./MyDiscipleshipView/MyDiscipleshipGroups/MyDiscipleshipGroupsStatus";
 import DiscipleshipProcessChurchList from "./DiscipleshipProcess/DiscipleshipProcessChurchList";
 import DiscipleshipProcessIntro from "./DiscipleshipProcess/DiscipleshipProcessIntro";
 import DiscipleshipProcessChurchApply from "./DiscipleshipProcess/DiscipleshipProcessChurchApply";
+import {
+  createPendingApplicationMock,
+  mockDiscipleshipDashboard,
+  type DiscipleshipDashboardMock,
+} from "../models/mocks/discipleshipDashboard.mocks";
 import type { DiscipleshipChurch } from "../models/types/myDiscipleshipEmptyState.types";
 
 export type DiscipleshipViewMode =
   | "dashboard"
   | "church-list"
   | "church-intro"
-  | "church-apply";
+  | "church-apply"
+  | "application-status";
 
 export function DiscipleshipView() {
   const containerRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<DiscipleshipTab>("my-discipleship");
+
+  // Dynamic dashboard data state for groups and applications
+  const [dashboardData, setDashboardData] = useState<DiscipleshipDashboardMock>(
+    () => mockDiscipleshipDashboard
+  );
 
   const isInitialChurchList =
     location.pathname.startsWith("/discipleship/church") ||
@@ -28,6 +40,7 @@ export function DiscipleshipView() {
     isInitialChurchList ? "church-list" : "dashboard"
   );
   const [selectedChurchId, setSelectedChurchId] = useState<number | undefined>(undefined);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | undefined>(undefined);
 
   // Sync with route changes (e.g., when clicking Join a Discipleship / More Churches links)
   useEffect(() => {
@@ -136,13 +149,45 @@ export function DiscipleshipView() {
     scrollToTop();
   };
 
-  const handleSubmitApplication = () => {
+  const handleSubmitApplication = (answers: Record<string, string> = {}) => {
+    const newApp = createPendingApplicationMock(selectedChurchId ?? 101, answers);
+    setDashboardData((prev) => ({
+      ...prev,
+      applications: [newApp, ...prev.applications],
+    }));
+    setViewMode("dashboard");
+    scrollToTop();
+  };
+
+  const handleTrackApplication = (applicationId: string) => {
+    setSelectedApplicationId(applicationId);
+    setViewMode("application-status");
+    scrollToTop();
+  };
+
+  const handleWithdrawApplication = (applicationId: string) => {
+    setDashboardData((prev) => ({
+      ...prev,
+      applications: prev.applications.filter((app) => app.id !== applicationId),
+    }));
     setViewMode("dashboard");
     scrollToTop();
   };
 
   return (
     <div ref={containerRef} className="w-full">
+      {/* ── 0. Application Status Sub-View ─────────────────────────── */}
+      {viewMode === "application-status" && (
+        <MyDiscipleshipGroupsStatus
+          applicationId={selectedApplicationId}
+          application={dashboardData.applications.find(
+            (app) => app.id === selectedApplicationId
+          )}
+          onBack={handleBackToDashboard}
+          onWithdrawApplication={handleWithdrawApplication}
+        />
+      )}
+
       {/* ── 1. Church Apply Form Sub-View ──────────────────────────── */}
       {viewMode === "church-apply" && (
         <DiscipleshipProcessChurchApply
@@ -164,6 +209,9 @@ export function DiscipleshipView() {
       {/* ── 3. Church List Sub-View ────────────────────────────────── */}
       {viewMode === "church-list" && (
         <DiscipleshipProcessChurchList
+          pendingChurchIds={dashboardData.applications
+            .filter((app) => app.status === "pending")
+            .map((app) => app.church_id)}
           onBack={handleBackToDashboard}
           onSelectChurch={handleSelectChurch}
         />
@@ -191,8 +239,10 @@ export function DiscipleshipView() {
           {/* ── Dynamic Tab Content ─────────────────────────────────── */}
           {activeTab === "my-discipleship" ? (
             <MyDiscipleshipView
+              dashboardData={dashboardData}
               onSelectChurch={handleSelectChurch}
               onNavigateToChurchList={handleNavigateToChurchList}
+              onTrackApplication={handleTrackApplication}
             />
           ) : (
             <MyDiscipleshipLeadView />

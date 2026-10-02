@@ -2,7 +2,7 @@ import type {
   SharedButtonProps,
   ComponentIcon,
 } from "../../../../shared/models/types/components.types";
-import type { DiscipleshipProgramDetail } from "../mocks/discipleshipProgramIntro.mock";
+import type { DiscipleshipProgramDetail } from "../mocks/discipleshipProgramIntro.mocks";
 
 export interface DiscipleshipProcessIntroConfig {
   buttonBack: SharedButtonProps;
