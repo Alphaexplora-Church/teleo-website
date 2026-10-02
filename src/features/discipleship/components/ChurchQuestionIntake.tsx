@@ -12,13 +12,14 @@ export interface ChurchQuestionIntakeProps {
   maxLength?: number;
   disabled?: boolean;
   className?: string;
+  placeholder?: string;
 }
 
 const DEFAULT_MOCK_QUESTION: DiscipleshipIntakeQuestion =
   mockDiscipleshipIntakeQuestions[101]?.questions[0] ?? {
     id: "q1",
     label: "Where are you in your walk with God?",
-    placeholder: "",
+    placeholder: "Write your response here...",
     field_type: "textarea",
     required: true,
     max_length: 500,
@@ -32,9 +33,15 @@ export function ChurchQuestionIntake({
   maxLength,
   disabled = false,
   className = "",
+  placeholder,
 }: ChurchQuestionIntakeProps = {}) {
   const activeQuestion = question ?? DEFAULT_MOCK_QUESTION;
   const maxLen = maxLength ?? activeQuestion.max_length ?? 500;
+  const placeholderText =
+    placeholder ??
+    (activeQuestion.placeholder && activeQuestion.placeholder.trim().length > 0
+      ? activeQuestion.placeholder
+      : "Write your response here...");
 
   const [internalValue, setInternalValue] = useState(defaultValue);
   const textValue = value !== undefined ? value : internalValue;
@@ -71,13 +78,14 @@ export function ChurchQuestionIntake({
         </span>
       </div>
 
-      {/* ── Input Card (No Placeholder) ────────────────── */}
+      {/* ── Input Card ─────────────────────────────────────── */}
       <div className="w-full bg-[#F8FAFC] border border-slate-200/80 rounded-2xl p-4 transition-all duration-200 focus-within:border-slate-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-slate-100">
         {activeQuestion.field_type === "text" ? (
           <input
             type="text"
             id={activeQuestion.id}
             value={textValue}
+            placeholder={placeholderText}
             onChange={(e) => {
               const nextVal = e.target.value;
               if (value === undefined) {
@@ -87,17 +95,18 @@ export function ChurchQuestionIntake({
             }}
             maxLength={maxLen}
             disabled={disabled}
-            className="w-full bg-transparent border-none outline-none text-[15px] text-[#0E172A] leading-normal p-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-transparent border-none outline-none text-[15px] text-[#0E172A] placeholder-[#94A3B8] leading-normal p-0 disabled:opacity-50 disabled:cursor-not-allowed"
           />
         ) : (
           <textarea
             id={activeQuestion.id}
             value={textValue}
+            placeholder={placeholderText}
             onChange={handleChange}
             maxLength={maxLen}
             disabled={disabled}
             rows={4}
-            className="w-full bg-transparent border-none outline-none resize-none text-[15px] text-[#0E172A] leading-relaxed p-0 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-transparent border-none outline-none resize-none text-[15px] text-[#0E172A] placeholder-[#94A3B8] leading-relaxed p-0 disabled:opacity-50 disabled:cursor-not-allowed"
           />
         )}
       </div>

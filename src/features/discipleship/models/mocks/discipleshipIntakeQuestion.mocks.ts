@@ -26,7 +26,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q1",
         label: "Where are you in your walk with God?",
-        placeholder: "A few honest sentences is plenty.",
+        placeholder: "Write your response here...",
         field_type: "textarea",
         required: true,
         max_length: 500,
@@ -34,7 +34,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q2",
         label: "What are you hoping to find in a group?",
-        placeholder: "Community, accountability, study...",
+        placeholder: "Write your response here...",
         field_type: "textarea",
         required: true,
         max_length: 500,
@@ -42,7 +42,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q3",
         label: "Preferred meeting time / schedule",
-        placeholder: "Weekday evenings work best",
+        placeholder: "Write your response here...",
         field_type: "text",
         required: true,
         max_length: 100,
@@ -57,7 +57,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q1",
         label: "Where are you in your walk with God?",
-        placeholder: "Share where you currently stand in your faith.",
+        placeholder: "Write your response here...",
         field_type: "textarea",
         required: true,
         max_length: 500,
@@ -65,8 +65,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q2",
         label: "What are you hoping to find in a group?",
-        placeholder:
-          "e.g., Biblical guidance, life transitions, prayer support",
+        placeholder: "Write your response here...",
         field_type: "textarea",
         required: true,
         max_length: 500,
@@ -74,7 +73,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q3",
         label: "Preferred meeting time / schedule",
-        placeholder: "e.g., Weekday evenings (Wed/Thu after 6:30 PM)",
+        placeholder: "Write your response here...",
         field_type: "text",
         required: true,
         max_length: 100,
@@ -89,7 +88,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q1",
         label: "How long have you been attending Victory?",
-        placeholder: "e.g., Just visited, 6 months, 2 years",
+        placeholder: "Write your response here...",
         field_type: "text",
         required: true,
         max_length: 100,
@@ -97,7 +96,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q2",
         label: "Have you completed the ONE 2 ONE foundations booklet?",
-        placeholder: "Yes / No / In Progress",
+        placeholder: "Write your response here...",
         field_type: "text",
         required: true,
         max_length: 100,
@@ -105,7 +104,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q3",
         label: "What are your primary goals for joining a Victory group?",
-        placeholder: "Share your expectations for spiritual growth.",
+        placeholder: "Write your response here...",
         field_type: "textarea",
         required: true,
         max_length: 500,
@@ -113,7 +112,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q4",
         label: "Preferred meeting setup",
-        placeholder: "e.g., Saturday mornings, Online via Zoom",
+        placeholder: "Write your response here...",
         field_type: "text",
         required: true,
         max_length: 100,
@@ -129,7 +128,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
         id: "q1",
         label:
           "Where are you currently in your personal walk with Jesus Christ?",
-        placeholder: "Briefly share where you are spiritually right now.",
+        placeholder: "Write your response here...",
         field_type: "textarea",
         required: true,
         max_length: 500,
@@ -138,7 +137,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
         id: "q2",
         label:
           "Have you received Jesus Christ as your personal Lord and Savior?",
-        placeholder: "Yes, No, or Still seeking answers",
+        placeholder: "Write your response here...",
         field_type: "text",
         required: true,
         max_length: 100,
@@ -146,7 +145,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q3",
         label: "What life stage group fits you best?",
-        placeholder: "e.g., Youth, Single Professional, Married, Couple",
+        placeholder: "Write your response here...",
         field_type: "text",
         required: true,
         max_length: 100,
@@ -154,7 +153,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q4",
         label: "What areas in life do you want prayer and accountability for?",
-        placeholder: "Share what you are comfortable with leadership knowing.",
+        placeholder: "Write your response here...",
         field_type: "textarea",
         required: true,
         max_length: 500,
@@ -162,7 +161,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q5",
         label: "Preferred day and time for weekly D-Group",
-        placeholder: "e.g., Friday nights or Sunday afternoons",
+        placeholder: "Write your response here...",
         field_type: "text",
         required: true,
         max_length: 100,
@@ -177,7 +176,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q1",
         label: "How did you hear about Faith Community Bible Church?",
-        placeholder: "Attended a service, friend invite, social media...",
+        placeholder: "Write your response here...",
         field_type: "text",
         required: true,
         max_length: 100,
@@ -185,8 +184,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q2",
         label: "What are you hoping to learn or study together?",
-        placeholder:
-          "e.g., Book of Romans, Christian family life, theology basics",
+        placeholder: "Write your response here...",
         field_type: "textarea",
         required: true,
         max_length: 500,
@@ -201,7 +199,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q1",
         label: "Briefly share how you came to know Christ.",
-        placeholder: "A few honest sentences about your testimony.",
+        placeholder: "Write your response here...",
         field_type: "textarea",
         required: true,
         max_length: 500,
@@ -209,7 +207,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q2",
         label: "Are you currently involved in any other church or small group?",
-        placeholder: "Yes / No (specify church if applicable)",
+        placeholder: "Write your response here...",
         field_type: "text",
         required: true,
         max_length: 100,
@@ -217,7 +215,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
       {
         id: "q3",
         label: "What area of Parañaque are you located in?",
-        placeholder: "e.g., BF Homes, Sucat, Moonwalk",
+        placeholder: "Write your response here...",
         field_type: "text",
         required: true,
         max_length: 100,
@@ -233,8 +231,7 @@ export const mockDiscipleshipIntakeQuestions: Record<
         id: "q1",
         label:
           "Tell us about yourself and what you are looking for in an online group.",
-        placeholder:
-          "Share your background, faith journey, and preferred online meeting hours.",
+        placeholder: "Write your response here...",
         field_type: "textarea",
         required: true,
         max_length: 500,

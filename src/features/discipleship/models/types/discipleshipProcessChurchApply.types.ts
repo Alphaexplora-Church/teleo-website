@@ -11,6 +11,7 @@ export interface DiscipleshipProcessChurchApplyConfig {
   titleHeader: string;
   subtitle: string;
   footnoteText: string;
+  inputPlaceholder: string;
   icons: {
     clock: ComponentIcon;
     footnote: ComponentIcon;

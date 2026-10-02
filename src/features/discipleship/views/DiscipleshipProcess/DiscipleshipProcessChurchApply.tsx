@@ -116,6 +116,7 @@ export function DiscipleshipProcessChurchApply({
           <ChurchQuestionIntake
             key={question.id}
             question={question}
+            placeholder={question.placeholder || resolvedConfig.inputPlaceholder}
             value={answers[question.id] || ""}
             onChange={(val) => handleAnswerChange(question.id, val)}
           />
