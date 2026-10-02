@@ -158,6 +158,7 @@ interface ApiPart {
   status: ContentStatus;
   isCompleted?: boolean;
   lastResumedPositionSeconds?: number;
+  lastScrollPercentage?: number;
 }
 
 const toContentPart = (row: ApiPart, seriesId: string): ContentPart => ({
@@ -172,6 +173,7 @@ const toContentPart = (row: ApiPart, seriesId: string): ContentPart => ({
   estimated_read_time_minutes: row.estimatedReadTimeMinutes ?? null,
   status: row.status,
   is_completed: row.isCompleted === true,
+  last_scroll_percentage: Number(row.lastScrollPercentage ?? 0),
 });
 
 export async function fetchSeriesDetail(seriesId: string): Promise<ContentSeriesDetail> {
@@ -245,6 +247,25 @@ export async function startPart(seriesId: string, partId: string): Promise<void>
 
   if (!response.ok) {
     throw new Error(`Failed to open this part (${response.status})`);
+  }
+}
+
+export async function savePartReadingProgress(
+  seriesId: string,
+  partId: string,
+  scrollPercentage: number,
+  keepalive = false,
+): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/journeys/${seriesId}/parts/${partId}/progress`, {
+    method: 'PATCH',
+    credentials: 'include',
+    keepalive,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ scrollPercentage }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to save reading progress (${response.status})`);
   }
 }
 

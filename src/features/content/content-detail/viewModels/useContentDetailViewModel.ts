@@ -26,6 +26,7 @@ export interface ContentDetailViewModelReturn {
   completedCount: number;
   totalCount: number;
   nextIncompletePartOrder: number | null;
+  resumePartOrder: number | null;
   churchName: string;
   previewSnippet: string | null;
   relatedSeries: ContentSeriesSummary[];
@@ -34,6 +35,17 @@ export interface ContentDetailViewModelReturn {
   handleToggleBookmark: () => void;
   handleSelectPart: (partId: string) => void;
   handlePrimaryReadAction: () => void;
+}
+
+function progressFromParts(parts: ContentSeriesDetail['parts']): number {
+  if (parts.length === 0) return 0;
+
+  const total = parts.reduce((sum, part) => {
+    if (part.is_completed) return sum + 100;
+    return sum + Math.min(100, Math.max(0, Number(part.last_scroll_percentage ?? 0)));
+  }, 0);
+
+  return Math.round(total / parts.length);
 }
 
 export const useContentDetailViewModel = (
@@ -71,12 +83,17 @@ export const useContentDetailViewModel = (
         ]);
         if (cancelled) return;
 
+        const savedPartProgress = progressFromParts(series.parts);
+
         setDetail({
           ...series,
           is_bookmarked: bookmarked,
           completed_parts: progress?.completed_parts ?? series.parts.filter((p) => p.is_completed).length,
           total_parts: progress?.total_parts ?? series.parts.length,
-          percent_complete: progress?.percent_complete ?? 0,
+          // The detail response contains each Part's saved percentage. Keep
+          // the visible bar truthful even when the separate summary request
+          // is temporarily unavailable.
+          percent_complete: progress?.percent_complete ?? savedPartProgress,
         });
         setResumePartId(progress?.resume_part_id ?? null);
         setLoading(false);
@@ -105,10 +122,11 @@ export const useContentDetailViewModel = (
   }, [seriesId, reloadToken]);
 
   const hasProgress = useMemo(() => {
-    return Boolean(
-      detail?.percent_complete !== undefined && detail.percent_complete > 0
-    );
-  }, [detail]);
+    return Boolean(resumePartId || (detail && (
+      (detail.percent_complete ?? 0) > 0 ||
+      detail.parts.some((part) => part.is_completed || (part.last_scroll_percentage ?? 0) > 0)
+    )));
+  }, [detail, resumePartId]);
 
   const completedCount = useMemo(() => {
     if (!detail) return 0;
@@ -125,6 +143,11 @@ export const useContentDetailViewModel = (
     const next = detail.parts.find((p) => !p.is_completed);
     return next ? next.part_order : null;
   }, [detail]);
+
+  const resumePartOrder = useMemo(() => {
+    if (!detail?.parts || !resumePartId) return null;
+    return detail.parts.find((part) => part.part_id === resumePartId)?.part_order ?? null;
+  }, [detail, resumePartId]);
 
   const previewSnippet = useMemo(() => {
     if (!detail) return null;
@@ -160,9 +183,8 @@ export const useContentDetailViewModel = (
     navigate(`/content/${detail.series_id}/part/${partId}`);
   }, [detail, navigate]);
 
-  // resumePartId is the server's own resume point: the first published Part
-  // not yet completed, in display order. It survives reordering, so prefer it
-  // over recomputing the answer from the local parts array.
+  // resumePartId is the server's most recently opened published Part. Prefer
+  // it over local guesses so Continue Reading always returns to that chapter.
   const handlePrimaryReadAction = useCallback(() => {
     if (!detail || !detail.parts || detail.parts.length === 0) return;
 
@@ -186,6 +208,7 @@ export const useContentDetailViewModel = (
     completedCount,
     totalCount,
     nextIncompletePartOrder,
+    resumePartOrder,
     churchName,
     previewSnippet,
     relatedSeries,

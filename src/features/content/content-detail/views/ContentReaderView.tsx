@@ -29,8 +29,19 @@ export const ContentReaderView: React.FC = () => {
     chapter,
     error,
     readProgress,
+    isSaving,
     contentContainerRef,
+    handleAdvanceChapter,
   } = useContentReaderViewModel(seriesId, partId);
+
+  const handleNextChapter = async (nextPartId?: string | null) => {
+    if (!chapter) return;
+    const saved = await handleAdvanceChapter();
+    if (!saved) return;
+    navigate(nextPartId
+      ? `/content/${chapter.series_id}/part/${nextPartId}`
+      : `/content/${chapter.series_id}`);
+  };
 
   const embed = toMediaEmbed(chapter?.media_url, chapter?.last_media_timestamp_seconds || 0);
 
@@ -208,16 +219,18 @@ export const ContentReaderView: React.FC = () => {
             {chapter.next_part_id ? (
               <button
                 type="button"
-                onClick={() => navigate(`/content/${chapter.series_id}/part/${chapter.next_part_id}`)}
-                className="flex-1 py-3 bg-[#1f2156] hover:bg-[#2c2f6d] text-white text-xs font-semibold rounded-xl shadow-sm transition-all cursor-pointer border-none"
+                onClick={() => { void handleNextChapter(chapter.next_part_id); }}
+                disabled={isSaving}
+                className="flex-1 py-3 bg-[#1f2156] hover:bg-[#2c2f6d] disabled:bg-[#1f2156]/60 text-white text-xs font-semibold rounded-xl shadow-sm transition-all cursor-pointer disabled:cursor-wait border-none"
               >
                 Next Chapter →
               </button>
             ) : (
               <button
                 type="button"
-                onClick={() => navigate(`/content/${chapter.series_id}`)}
-                className="flex-1 py-3 bg-[#1f2156] hover:bg-[#2c2f6d] text-white text-xs font-semibold rounded-xl shadow-sm transition-all cursor-pointer border-none"
+                onClick={() => { void handleNextChapter(); }}
+                disabled={isSaving}
+                className="flex-1 py-3 bg-[#1f2156] hover:bg-[#2c2f6d] disabled:bg-[#1f2156]/60 text-white text-xs font-semibold rounded-xl shadow-sm transition-all cursor-pointer disabled:cursor-wait border-none"
               >
                 Complete Series
               </button>

@@ -75,6 +75,7 @@ export const ContentDetailView: React.FC = () => {
     completedCount,
     totalCount,
     nextIncompletePartOrder,
+    resumePartOrder,
     churchName,
     previewSnippet,
     relatedSeries,
@@ -168,24 +169,6 @@ export const ContentDetailView: React.FC = () => {
               <span>{churchName || 'Affiliated Church'}</span>
             </div>
 
-            {/* ── Progress Indicator ────────────────────────────────────────── */}
-            {hasProgress && detail.percent_complete !== undefined && (
-              <div className="w-full mt-3 flex flex-col gap-1">
-                <div className="flex justify-between items-center text-xs font-semibold">
-                  <span className="text-[#1f2156]">
-                    {completedCount} of {totalCount} chapters completed
-                  </span>
-                  <span className="text-[#336ef9]">{Math.round(detail.percent_complete)}%</span>
-                </div>
-                <div className="w-full bg-zinc-100 rounded-full h-1.5 overflow-hidden">
-                  <div
-                    className="bg-[#336ef9] h-full rounded-full transition-all duration-300"
-                    style={{ width: `${Math.min(100, Math.max(0, detail.percent_complete))}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
             {/* ── 3. Primary CTA: Read (Full Width with smaller height) ──────── */}
             <div className="w-full mt-5">
               <button
@@ -196,12 +179,31 @@ export const ContentDetailView: React.FC = () => {
                 <ReadIcon />
                 <span>
                   {hasProgress
-                    ? nextIncompletePartOrder
-                      ? `Continue Reading: Chapter ${nextIncompletePartOrder}`
+                    ? resumePartOrder
+                      ? `Continue Reading: Chapter ${resumePartOrder}`
                       : 'Continue Reading'
                     : 'Start Reading'}
                 </span>
               </button>
+
+              {/* Keep progress visible before the first read and place it with
+                  the action it describes. */}
+              {detail.percent_complete !== undefined && totalCount > 0 && (
+                <div className="mt-3 flex flex-col gap-1.5" aria-label={`Journey progress: ${Math.round(detail.percent_complete)} percent`}>
+                  <div className="flex justify-between items-center text-xs font-semibold">
+                    <span className="text-[#1f2156]">
+                      {completedCount} of {totalCount} chapters completed
+                    </span>
+                    <span className="text-[#336ef9]">{Math.round(detail.percent_complete)}%</span>
+                  </div>
+                  <div className="w-full bg-zinc-100 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-[#336ef9] h-full rounded-full transition-all duration-300"
+                      style={{ width: `${Math.min(100, Math.max(0, detail.percent_complete))}%` }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Synopsis */}

@@ -22,6 +22,7 @@ export interface ContentPart {
   estimated_read_time_minutes?: number | null;
   status: ContentStatus;
   is_completed?: boolean;
+  last_scroll_percentage?: number;
   published_at?: string | null;
 }
 
