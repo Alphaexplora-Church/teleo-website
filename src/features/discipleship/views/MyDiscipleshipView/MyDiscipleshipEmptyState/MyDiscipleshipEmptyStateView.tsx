@@ -1,19 +1,21 @@
-import type { DiscipleshipChurch } from "../../../models/types/myDiscipleshipEmptyState.types";
-import { myDiscipleshipEmptyStateConst } from "../../../models/constants/myDiscipleshipEmptyState.constant";
+import type { DiscipleshipChurch } from "../../../models/types/myDiscipleshipEmptyStateView.types";
+import { myDiscipleshipEmptyStateConst } from "../../../models/constants/myDiscipleshipEmptyStateView.constant";
 import { MyDiscipleshipEmptyStateJoinCard } from "./MyDiscipleshipEmptyStateJoinCard";
 import { MyDiscipleshipEmptyStateList } from "./MyDiscipleshipEmptyStateList";
 
-export interface MyDiscipleshipEmptyStateProps {
+export interface MyDiscipleshipEmptyStateViewProps {
   onSelectChurch?: (church: DiscipleshipChurch) => void;
   onNavigateToChurchList?: () => void;
   className?: string;
 }
 
-export function MyDiscipleshipEmptyState({
+export type MyDiscipleshipEmptyStateProps = MyDiscipleshipEmptyStateViewProps;
+
+export function MyDiscipleshipEmptyStateView({
   onSelectChurch,
   onNavigateToChurchList,
   className = "",
-}: MyDiscipleshipEmptyStateProps = {}) {
+}: MyDiscipleshipEmptyStateViewProps = {}) {
   return (
     <div className={`w-full space-y-6 ${className}`.trim()}>
       {/* ── Join Discipleship Card ──────────────────────────────── */}
@@ -31,4 +33,4 @@ export function MyDiscipleshipEmptyState({
   );
 }
 
-export default MyDiscipleshipEmptyState;
+export default MyDiscipleshipEmptyStateView;

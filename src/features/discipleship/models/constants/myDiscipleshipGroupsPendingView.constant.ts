@@ -1,6 +1,13 @@
-import type { MyDiscipleshipGroupsStatusConfig } from "../types/myDiscipleshipGroupsStatus.types";
+import type { LucideIcon } from "lucide-react";
+import { ChevronLeft, Clock } from "lucide-react";
+import type { MyDiscipleshipGroupsPendingViewConfig } from "../types/myDiscipleshipGroupsPendingView.types";
 
-export const myDiscipleshipGroupsStatusConst: MyDiscipleshipGroupsStatusConfig = {
+export const MY_DISCIPLESHIP_GROUPS_PENDING_VIEW_ICONS: Record<string, LucideIcon> = {
+  back: ChevronLeft,
+  clock: Clock,
+};
+
+export const myDiscipleshipGroupsPendingViewConst: MyDiscipleshipGroupsPendingViewConfig = {
   // Navigation & Page Title
   buttonBackLabel: "Back to My Discipleships",
   titleHeader: "Application Status",
@@ -37,3 +44,6 @@ export const myDiscipleshipGroupsStatusConst: MyDiscipleshipGroupsStatusConfig =
   withdrawModalConfirmLabel: "Yes, Withdraw Application",
   withdrawModalCancelLabel: "Keep Application",
 };
+
+export { myDiscipleshipGroupsPendingViewConst as myDiscipleshipGroupsStatusConst };
+export default myDiscipleshipGroupsPendingViewConst;

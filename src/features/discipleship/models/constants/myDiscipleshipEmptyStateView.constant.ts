@@ -1,12 +1,19 @@
+import type { LucideIcon } from "lucide-react";
 import { Church, ArrowRight, ChevronRight } from "lucide-react";
 
 import type {
   MyDiscipleshipEmptyStateListPropsConfig,
   MyDiscipleshipEmptyStateProps,
-} from "../types/myDiscipleshipEmptyState.types";
+} from "../types/myDiscipleshipEmptyStateView.types";
+
+export const MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS: Record<string, LucideIcon> = {
+  church: Church,
+  joinArrow: ArrowRight,
+  moreChevron: ChevronRight,
+};
 
 export const myDiscipleshipEmptyStateConst: MyDiscipleshipEmptyStateProps = {
-  icon: Church,
+  icon: MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS.church,
   titleHeader: "Groups",
   joinCard: {
     title: "You're not part of a Discipleship yet",
@@ -14,7 +21,7 @@ export const myDiscipleshipEmptyStateConst: MyDiscipleshipEmptyStateProps = {
       "Connect with a local group to grow in faith, accountability, and community with fellow believers.",
     buttonJoin: {
       to: "/discipleship/church-list",
-      icon: ArrowRight,
+      icon: MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS.joinArrow,
       label: "Join a Discipleship",
     },
   },
@@ -31,7 +38,7 @@ export const myDiscipleshipEmptyStateListConst: MyDiscipleshipEmptyStateListProp
     label: "More Churches",
     to: "/discipleship/church-list",
     variant: "outline",
-    icon: ChevronRight,
+    icon: MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS.moreChevron,
   },
   maxDisplayedChurches: 3,
 };

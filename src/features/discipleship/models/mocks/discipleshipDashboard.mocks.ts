@@ -25,6 +25,20 @@ export interface DiscipleshipApplicationMock {
   review_timing_days: string;
 }
 
+export interface DiscipleshipGroupGatheringMock {
+  timing: string;
+  subtitle?: string;
+  location: string;
+  virtual_link: string;
+  gathering_type: string;
+}
+
+export interface DiscipleshipGroupStudyMock {
+  module_badge?: string;
+  title: string;
+  lesson_subtitle: string;
+}
+
 export interface DiscipleshipGroupMock {
   id: string;
   church_id: number;
@@ -32,9 +46,13 @@ export interface DiscipleshipGroupMock {
   name: string;
   leader_id: string;
   leader_name: string;
+  members_count?: number;
   image_url?: string | null;
   status: DiscipleshipGroupStatus;
   role: DiscipleshipMemberRole;
+  next_gathering?: DiscipleshipGroupGatheringMock;
+  this_week_question?: string;
+  current_study?: DiscipleshipGroupStudyMock;
 }
 
 export interface DiscipleshipDashboardMock {
@@ -96,9 +114,25 @@ export const mockPopulatedDiscipleshipDashboard: DiscipleshipDashboardMock = {
       name: 'The Fig Tree Group',
       leader_id: 'usr-leader-01',
       leader_name: 'Mark Reyes',
+      members_count: 7,
       image_url: null,
       status: 'active',
       role: 'member',
+      next_gathering: {
+        timing: 'Tomorrow at 7:00 PM',
+        subtitle: 'Weekly fellowship & study',
+        location: '123 Acacia St. Room 204',
+        virtual_link: 'meet.google.com/xyz-abc',
+        gathering_type: 'HYBRID',
+      },
+      this_week_question:
+        '“Where have you experienced God’s peace amidst challenges this week?”',
+      current_study: {
+        module_badge: 'Module 2',
+        title: 'Romans 8: Life in the Spirit',
+        lesson_subtitle:
+          'This Week: Lesson 3 of 6 · The Flesh vs. The Spirit',
+      },
     },
     {
       id: 'grp-102-002',
@@ -107,14 +141,30 @@ export const mockPopulatedDiscipleshipDashboard: DiscipleshipDashboardMock = {
       name: 'Overcomers Group',
       leader_id: 'usr-leader-02',
       leader_name: 'Ana Villar',
+      members_count: 5,
       image_url: null,
       status: 'paused',
       role: 'member',
+      next_gathering: {
+        timing: 'Tomorrow at 7:00 PM',
+        subtitle: 'Weekly fellowship & study',
+        location: '123 Acacia St. Room 204',
+        virtual_link: 'meet.google.com/xyz-abc',
+        gathering_type: 'Hybrid',
+      },
+      this_week_question:
+        '“Where have you experienced God’s peace amidst challenges this week?”',
+      current_study: {
+        module_badge: 'Module 2',
+        title: 'Romans 8: Life in the Spirit',
+        lesson_subtitle:
+          'This Week: Lesson 3 of 6 · The Flesh vs. The Spirit',
+      },
     },
   ],
 };
 
 // ── Active Mock for Testing ──────────────────────────────────────────────────
-// Kasalukuyang naka-point sa empty state para ma-test.
-// Palitan lang ng `mockPopulatedDiscipleshipDashboard` para ibalik ang may laman.
-export const mockDiscipleshipDashboard: DiscipleshipDashboardMock = mockEmptyDiscipleshipDashboard;
+// Kasalukuyang naka-point sa populated state para sa active group testing.
+export const mockDiscipleshipDashboard: DiscipleshipDashboardMock = mockPopulatedDiscipleshipDashboard;
+export const mockDefaultActiveGroup: DiscipleshipGroupMock = mockPopulatedDiscipleshipDashboard.groups[0];

@@ -1,4 +1,7 @@
+import type { LucideIcon } from "lucide-react";
 import type { DiscipleshipDashboardMock } from "../mocks/discipleshipDashboard.mocks";
+
+export type MyDiscipleshipGroupsDashboardViewIcons = Record<string, LucideIcon>;
 
 export interface MyDiscipleshipGroupsDashboardConfig {
   // Header

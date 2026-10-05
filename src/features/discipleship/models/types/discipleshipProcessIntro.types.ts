@@ -1,8 +1,11 @@
+import type { LucideIcon } from "lucide-react";
 import type {
   SharedButtonProps,
   ComponentIcon,
 } from "../../../../shared/models/types/components.types";
 import type { DiscipleshipProgramDetail } from "../mocks/discipleshipProgramIntro.mocks";
+
+export type DiscipleshipProcessIntroIcons = Record<string, LucideIcon>;
 
 export interface DiscipleshipProcessIntroConfig {
   buttonBack: SharedButtonProps;

@@ -1,23 +1,26 @@
 import { useMemo, useState } from "react";
-import { ChevronLeft, Clock } from "lucide-react";
 import { Badge } from "../../../../../shared/components/Badge/Badge";
 import {
   StatusReviewTimeLine,
   type ReviewTimelineStep,
 } from "../../../components/StatusReviewTimeLine";
 import { ActionConfirmationModal } from "../../../components/ActionConfirmationModal";
-import { myDiscipleshipGroupsStatusConst } from "../../../models/constants/myDiscipleshipGroupsStatus.constant";
-import type { MyDiscipleshipGroupsStatusProps } from "../../../models/types/myDiscipleshipGroupsStatus.types";
+import {
+  myDiscipleshipGroupsPendingViewConst,
+  MY_DISCIPLESHIP_GROUPS_PENDING_VIEW_ICONS,
+} from "../../../models/constants/myDiscipleshipGroupsPendingView.constant";
+import type { MyDiscipleshipGroupsPendingViewProps } from "../../../models/types/myDiscipleshipGroupsPendingView.types";
 
-export function MyDiscipleshipGroupsStatus({
+export function MyDiscipleshipGroupsPendingView({
   applicationId,
   application,
-  config = myDiscipleshipGroupsStatusConst,
+  config = myDiscipleshipGroupsPendingViewConst,
   onBack,
   onWithdrawApplication,
   className = "",
-}: MyDiscipleshipGroupsStatusProps) {
+}: MyDiscipleshipGroupsPendingViewProps) {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
+  const { back: BackIcon, clock: ClockIcon } = MY_DISCIPLESHIP_GROUPS_PENDING_VIEW_ICONS;
   const displayAppId =
     application?.id ?? applicationId ?? "APP-84920";
 
@@ -72,17 +75,17 @@ export function MyDiscipleshipGroupsStatus({
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-1 text-[17px] font-semibold text-[#0E172A] hover:text-[#042C58] transition-colors cursor-pointer border-none bg-transparent p-0"
+          className="inline-flex items-center gap-1 text-[17px] font-semibold text-slate-900 hover:text-navy-hover transition-colors cursor-pointer border-none bg-transparent p-0"
           aria-label={config.buttonBackLabel}
         >
-          <ChevronLeft className="w-5 h-5 -ml-1 text-[#0E172A]" />
+          <BackIcon className="w-5 h-5 -ml-1 text-slate-900" />
           <span>{config.buttonBackLabel}</span>
         </button>
       </div>
 
       {/* ── Header: Application Status (No church subtitle below) ─ */}
       <div>
-        <h1 className="text-2xl font-bold text-[#0E172A] tracking-tight">
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
           {config.titleHeader}
         </h1>
       </div>
@@ -92,11 +95,11 @@ export function MyDiscipleshipGroupsStatus({
         {/* Card Header: Church Name, Time, and Orange Pending Badge */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <h2 className="text-[17px] font-bold text-[#0E172A] leading-tight truncate">
+            <h2 className="text-[17px] font-bold text-slate-900 leading-tight truncate">
               {churchName}
             </h2>
-            <div className="flex items-center gap-1.5 text-xs text-[#62718A] mt-1">
-              <Clock className="w-3.5 h-3.5 shrink-0" />
+            <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
+              <ClockIcon className="w-3.5 h-3.5 shrink-0" />
               <span>{submittedTimeText}</span>
             </div>
           </div>
@@ -113,7 +116,7 @@ export function MyDiscipleshipGroupsStatus({
         </div>
 
         {/* Notice Box (Pastoral Review Notice) */}
-        <div className="p-3.5 rounded-xl bg-[#F8FAFC] border border-slate-100 text-[13px] text-[#475569] leading-relaxed">
+        <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-[13px] text-slate-600 leading-relaxed">
           {config.pastoralReviewNotice}
         </div>
 
@@ -128,7 +131,7 @@ export function MyDiscipleshipGroupsStatus({
 
       {/* ── Footer Section: Application ID & Withdraw Button ───── */}
       <div className="flex flex-col items-center justify-center pt-2 space-y-2 text-center">
-        <span className="text-xs font-medium text-[#62718A]">
+        <span className="text-xs font-medium text-slate-500">
           {config.applicationIdPrefix}
           {displayAppId}
         </span>
@@ -160,4 +163,4 @@ export function MyDiscipleshipGroupsStatus({
   );
 }
 
-export default MyDiscipleshipGroupsStatus;
+export default MyDiscipleshipGroupsPendingView;

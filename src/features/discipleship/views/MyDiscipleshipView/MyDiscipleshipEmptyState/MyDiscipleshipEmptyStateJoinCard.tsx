@@ -1,5 +1,5 @@
 import { LinkButton } from "../../../../../shared/components/Button/LinkButton";
-import type { MyDiscipleshipEmptyStateProps } from "../../../models/types/myDiscipleshipEmptyState.types";
+import type { MyDiscipleshipEmptyStateProps } from "../../../models/types/myDiscipleshipEmptyStateView.types";
 
 export interface MyDiscipleshipEmptyStateJoinCardProps {
   joinCardLink: MyDiscipleshipEmptyStateProps;
@@ -18,21 +18,21 @@ export function MyDiscipleshipEmptyStateJoinCard({
 
   return (
     <div
-      className={`w-full bg-[#F1F3F6] rounded-3xl p-6 text-center flex flex-col items-center select-none ${className}`.trim()}
+      className={`w-full bg-slate-100 rounded-3xl p-6 text-center flex flex-col items-center select-none ${className}`.trim()}
     >
       {/* ── Circular Icon Container ────────────────────────── */}
       {HeaderIcon && (
-        <div className="w-14 h-14 rounded-full bg-[#E2E8F0] flex items-center justify-center mb-4 shrink-0">
-          <HeaderIcon className="w-6 h-6 text-[#0E172A]" />
+        <div className="w-14 h-14 rounded-full bg-slate-200 flex items-center justify-center mb-4 shrink-0">
+          <HeaderIcon className="w-6 h-6 text-slate-900" />
         </div>
       )}
 
       {/* ── Message Container ──────────────────────────────── */}
       <div className="mb-6">
-        <h3 className="text-[17px] font-bold text-[#0E172A] leading-snug mb-2">
+        <h3 className="text-[17px] font-bold text-slate-900 leading-snug mb-2">
           {title}
         </h3>
-        <p className="text-[13px] text-[#62718A] leading-relaxed max-w-70 mx-auto">
+        <p className="text-[13px] text-slate-500 leading-relaxed max-w-70 mx-auto">
           {description}
         </p>
       </div>

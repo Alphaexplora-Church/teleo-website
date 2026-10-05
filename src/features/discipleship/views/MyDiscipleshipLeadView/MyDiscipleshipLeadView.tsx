@@ -1,4 +1,4 @@
-import { MyDiscipleshipLeadEmptyState } from "./MyDiscipleshipLeadEmptyState/MyDiscipleshipLeadEmptyState";
+import { MyDiscipleshipLeadEmptyStateView } from "./MyDiscipleshipLeadEmptyState/MyDiscipleshipLeadEmptyStateView";
 
 export interface MyDiscipleshipLeadViewProps {
   className?: string;
@@ -9,7 +9,7 @@ export function MyDiscipleshipLeadView({
 }: MyDiscipleshipLeadViewProps = {}) {
   return (
     <div className={`w-full ${className}`.trim()}>
-      <MyDiscipleshipLeadEmptyState />
+      <MyDiscipleshipLeadEmptyStateView />
     </div>
   );
 }

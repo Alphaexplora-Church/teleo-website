@@ -1,7 +1,10 @@
+import type { LucideIcon } from "lucide-react";
 import type {
   ComponentIcon,
   SharedButtonProps,
 } from "../../../../shared/models/types/components.types";
+
+export type MyDiscipleshipEmptyStateViewIcons = Record<string, LucideIcon>;
 
 
 // ── My Discipleship Empty State Props ────────────────────────

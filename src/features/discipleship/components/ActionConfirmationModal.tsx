@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { XCircle } from "lucide-react";
+import { Button } from "../../../shared/components/Button/Button";
 
 export type ActionConfirmationVariant = "danger" | "primary" | "warning";
 
@@ -77,10 +78,10 @@ export function ActionConfirmationModal({
 
   const confirmButtonStyles =
     confirmVariant === "danger"
-      ? "bg-[#B91C1C] hover:bg-[#991B1B] text-white"
+      ? "bg-red-700 hover:bg-red-800 text-white"
       : confirmVariant === "warning"
       ? "bg-amber-600 hover:bg-amber-700 text-white"
-      : "bg-[#0E172A] hover:bg-black text-white";
+      : "bg-slate-900 hover:bg-black text-white";
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex flex-col justify-end">
@@ -126,11 +127,11 @@ export function ActionConfirmationModal({
 
         {/* Title & Description */}
         <div className="space-y-1.5 px-2">
-          <h3 className="text-[19px] font-bold text-[#0E172A] leading-tight">
+          <h3 className="text-[19px] font-bold text-slate-900 leading-tight">
             {title}
           </h3>
           {description && (
-            <p className="text-[13.5px] text-[#62718A] leading-relaxed">
+            <p className="text-[13.5px] text-slate-500 leading-relaxed">
               {description}
             </p>
           )}
@@ -138,24 +139,26 @@ export function ActionConfirmationModal({
 
         {/* Action Buttons */}
         <div className="w-full space-y-2.5 pt-2">
-          <button
+          <Button
             type="button"
             onClick={onConfirm}
+            fullWidth
             className={`
               w-full h-12 font-semibold text-[15px] rounded-2xl flex items-center justify-center transition-all cursor-pointer active:scale-[0.99] shadow-sm
               ${confirmButtonStyles}
             `.trim()}
           >
             {confirmLabel}
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
             onClick={onClose}
-            className="w-full h-12 font-semibold text-[15px] rounded-2xl bg-[#F1F3F6] hover:bg-slate-200 text-[#0E172A] transition-all cursor-pointer active:scale-[0.99]"
+            fullWidth
+            className="w-full h-12 font-semibold text-[15px] rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 transition-all cursor-pointer active:scale-[0.99]"
           >
             {cancelLabel}
-          </button>
+          </Button>
         </div>
       </div>
     </div>,

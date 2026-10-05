@@ -1,10 +1,10 @@
 import { LinkButton } from "../../../../../shared/components/Button/LinkButton";
 import { ChurchCardItem } from "../../../components/ChurchCardItem";
-import { myDiscipleshipEmptyStateListConst } from "../../../models/constants/myDiscipleshipEmptyState.constant";
+import { myDiscipleshipEmptyStateListConst } from "../../../models/constants/myDiscipleshipEmptyStateView.constant";
 import type {
   DiscipleshipChurch,
   MyDiscipleshipEmptyStateListPropsConfig,
-} from "../../../models/types/myDiscipleshipEmptyState.types";
+} from "../../../models/types/myDiscipleshipEmptyStateView.types";
 import { useDiscipleshipChurches } from "../../../viewmodels/useDiscipleshipChurches";
 
 export interface MyDiscipleshipEmptyStateListProps {
@@ -33,7 +33,7 @@ export function MyDiscipleshipEmptyStateList({
       {/* ── Your Home Church Section ───────────────────────────── */}
       {hasHomeChurch && (
         <section className="space-y-3">
-          <h3 className="text-xs font-bold tracking-wider text-[#62718A] uppercase select-none">
+          <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase select-none">
             {config.homeChurchHeader}
           </h3>
           <div className="space-y-3">
@@ -52,7 +52,7 @@ export function MyDiscipleshipEmptyStateList({
 
       {/* ── Explore Other Churches Section ─────────────────────── */}
       <section className="space-y-3">
-        <h3 className="text-xs font-bold tracking-wider text-[#62718A] uppercase select-none">
+        <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase select-none">
           {config.exploreOtherHeader}
         </h3>
 
@@ -90,7 +90,7 @@ export function MyDiscipleshipEmptyStateList({
             )}
           </div>
         ) : (
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-[#62718A] text-center">
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-500 text-center">
             {config.noChurchesCallout}
           </div>
         )}

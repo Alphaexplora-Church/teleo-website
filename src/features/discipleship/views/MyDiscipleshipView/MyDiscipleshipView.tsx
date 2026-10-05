@@ -1,6 +1,6 @@
-import type { DiscipleshipChurch } from "../../models/types/myDiscipleshipEmptyState.types";
-import { MyDiscipleshipEmptyState } from "./MyDiscipleshipEmptyState/MyDiscipleshipEmptyState";
-import { MyDiscipleshipGroupsDashboard } from "./MyDiscipleshipGroups/MyDiscipleshipGroupsDashboard";
+import type { DiscipleshipChurch } from "../../models/types/myDiscipleshipEmptyStateView.types";
+import { MyDiscipleshipEmptyStateView } from "./MyDiscipleshipEmptyState/MyDiscipleshipEmptyStateView";
+import { MyDiscipleshipGroupsDashboardView } from "./MyDiscipleshipGroups/MyDiscipleshipGroupsDashboardView";
 import {
   mockDiscipleshipDashboard,
   type DiscipleshipDashboardMock,
@@ -33,7 +33,7 @@ export function MyDiscipleshipView({
   return (
     <div className={`w-full ${className}`.trim()}>
       {hasGroupsOrApplications ? (
-        <MyDiscipleshipGroupsDashboard
+        <MyDiscipleshipGroupsDashboardView
           dashboardData={dashboardData}
           onNavigateToChurchList={onNavigateToChurchList}
           onOpenGroupRoom={onOpenGroupRoom}
@@ -41,7 +41,7 @@ export function MyDiscipleshipView({
           onResumeGroup={onResumeGroup}
         />
       ) : (
-        <MyDiscipleshipEmptyState
+        <MyDiscipleshipEmptyStateView
           onSelectChurch={onSelectChurch}
           onNavigateToChurchList={onNavigateToChurchList}
         />

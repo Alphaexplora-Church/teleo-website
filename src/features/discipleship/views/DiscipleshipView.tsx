@@ -1,10 +1,11 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { GroupsTabSwitcher, type DiscipleshipTab } from "../components/GroupsTabSwitcher";
-import { myDiscipleshipEmptyStateConst } from "../models/constants/myDiscipleshipEmptyState.constant";
+import { myDiscipleshipEmptyStateConst } from "../models/constants/myDiscipleshipEmptyStateView.constant";
 import MyDiscipleshipView from "./MyDiscipleshipView/MyDiscipleshipView";
 import MyDiscipleshipLeadView from "./MyDiscipleshipLeadView/MyDiscipleshipLeadView";
-import MyDiscipleshipGroupsStatus from "./MyDiscipleshipView/MyDiscipleshipGroups/MyDiscipleshipGroupsStatus";
+import MyDiscipleshipGroupsPendingView from "./MyDiscipleshipView/MyDiscipleshipGroups/MyDiscipleshipGroupsPendingView";
+import MyDiscipleshipGroupsActivePauseView from "./MyDiscipleshipView/MyDiscipleshipGroups/MyDiscipleshipGroupsActivePauseView";
 import DiscipleshipProcessChurchList from "./DiscipleshipProcess/DiscipleshipProcessChurchList";
 import DiscipleshipProcessIntro from "./DiscipleshipProcess/DiscipleshipProcessIntro";
 import DiscipleshipProcessChurchApply from "./DiscipleshipProcess/DiscipleshipProcessChurchApply";
@@ -13,14 +14,15 @@ import {
   mockDiscipleshipDashboard,
   type DiscipleshipDashboardMock,
 } from "../models/mocks/discipleshipDashboard.mocks";
-import type { DiscipleshipChurch } from "../models/types/myDiscipleshipEmptyState.types";
+import type { DiscipleshipChurch } from "../models/types/myDiscipleshipEmptyStateView.types";
 
 export type DiscipleshipViewMode =
   | "dashboard"
   | "church-list"
   | "church-intro"
   | "church-apply"
-  | "application-status";
+  | "application-status"
+  | "group-active";
 
 export function DiscipleshipView() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -41,6 +43,7 @@ export function DiscipleshipView() {
   );
   const [selectedChurchId, setSelectedChurchId] = useState<number | undefined>(undefined);
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | undefined>(undefined);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(undefined);
 
   // Sync with route changes (e.g., when clicking Join a Discipleship / More Churches links)
   useEffect(() => {
@@ -174,11 +177,61 @@ export function DiscipleshipView() {
     scrollToTop();
   };
 
+  const handleResumeGroup = (groupId: string) => {
+    setDashboardData((prev) => ({
+      ...prev,
+      groups: prev.groups.map((g) =>
+        g.id === groupId ? { ...g, status: "active" } : g
+      ),
+    }));
+    setSelectedGroupId(groupId);
+    setViewMode("group-active");
+    scrollToTop();
+  };
+
+  const handleOpenGroupRoom = (groupId: string) => {
+    setSelectedGroupId(groupId);
+    setViewMode("group-active");
+    scrollToTop();
+  };
+
+  const handleLeaveGroup = (groupId: string) => {
+    setDashboardData((prev) => ({
+      ...prev,
+      groups: prev.groups.filter((g) => g.id !== groupId),
+    }));
+    setViewMode("dashboard");
+    scrollToTop();
+  };
+
+  const handlePauseMembership = (groupId: string) => {
+    setDashboardData((prev) => ({
+      ...prev,
+      groups: prev.groups.map((g) =>
+        g.id === groupId ? { ...g, status: "paused" } : g
+      ),
+    }));
+    setViewMode("dashboard");
+    scrollToTop();
+  };
+
   return (
     <div ref={containerRef} className="w-full">
+      {/* ── -1. Group Active / Room Sub-View ──────────────────────── */}
+      {viewMode === "group-active" && (
+        <MyDiscipleshipGroupsActivePauseView
+          groupId={selectedGroupId}
+          group={dashboardData.groups.find((g) => g.id === selectedGroupId)}
+          onBack={handleBackToDashboard}
+          onLeaveGroup={handleLeaveGroup}
+          onPauseMembership={handlePauseMembership}
+          onResumeGroup={handleResumeGroup}
+        />
+      )}
+
       {/* ── 0. Application Status Sub-View ─────────────────────────── */}
       {viewMode === "application-status" && (
-        <MyDiscipleshipGroupsStatus
+        <MyDiscipleshipGroupsPendingView
           applicationId={selectedApplicationId}
           application={dashboardData.applications.find(
             (app) => app.id === selectedApplicationId
@@ -243,6 +296,12 @@ export function DiscipleshipView() {
               onSelectChurch={handleSelectChurch}
               onNavigateToChurchList={handleNavigateToChurchList}
               onTrackApplication={handleTrackApplication}
+              onOpenGroupRoom={handleOpenGroupRoom}
+              onResumeGroup={(groupId) => {
+                setSelectedGroupId(groupId);
+                setViewMode("group-active");
+                scrollToTop();
+              }}
             />
           ) : (
             <MyDiscipleshipLeadView />

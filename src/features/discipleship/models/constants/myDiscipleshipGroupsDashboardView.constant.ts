@@ -1,4 +1,13 @@
-import type { MyDiscipleshipGroupsDashboardConfig } from "../types/myDiscipleshipGroupsDashboard.types";
+import type { LucideIcon } from "lucide-react";
+import { ChevronRight, Clock, Hourglass, PauseCircle } from "lucide-react";
+import type { MyDiscipleshipGroupsDashboardConfig } from "../types/myDiscipleshipGroupsDashboardView.types";
+
+export const MY_DISCIPLESHIP_GROUPS_DASHBOARD_VIEW_ICONS: Record<string, LucideIcon> = {
+  actionChevron: ChevronRight,
+  activeClock: Clock,
+  pendingHourglass: Hourglass,
+  pausedCircle: PauseCircle,
+};
 
 export const myDiscipleshipGroupsDashboardConst: MyDiscipleshipGroupsDashboardConfig = {
   // Header

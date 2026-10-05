@@ -7,10 +7,12 @@ import type {
 } from "../../models/types/discipleshipProcessChurchList.types";
 import { useDiscipleshipProcessChurchList } from "../../viewmodels/useDiscipleshipProcessChurchList";
 
+const EMPTY_PENDING_CHURCH_IDS: number[] = [];
+
 export function DiscipleshipProcessChurchList({
   config: userConfig,
   churches,
-  pendingChurchIds = [],
+  pendingChurchIds = EMPTY_PENDING_CHURCH_IDS,
   onSelectChurch,
   onBack,
   className = "",

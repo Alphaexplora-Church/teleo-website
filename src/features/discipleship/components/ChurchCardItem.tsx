@@ -1,7 +1,9 @@
-import { ChevronRight } from "lucide-react";
 import { Badge } from "../../../shared/components/Badge/Badge";
-import { myDiscipleshipEmptyStateListConst } from "../models/constants/myDiscipleshipEmptyState.constant";
-import type { DiscipleshipChurch } from "../models/types/myDiscipleshipEmptyState.types";
+import {
+  myDiscipleshipEmptyStateListConst,
+  MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS,
+} from "../models/constants/myDiscipleshipEmptyStateView.constant";
+import type { DiscipleshipChurch } from "../models/types/myDiscipleshipEmptyStateView.types";
 
 export interface ChurchCardItemProps {
   church: DiscipleshipChurch;
@@ -73,11 +75,16 @@ export function ChurchCardItem({
       </div>
 
       {/* Right chevron navigation */}
-      <ChevronRight
-        className={`w-5 h-5 shrink-0 ${
-          isPending ? "text-slate-300" : "text-[#62718A]"
-        }`}
-      />
+      {(() => {
+        const ChevronRightIcon = MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS.moreChevron;
+        return (
+          <ChevronRightIcon
+            className={`w-5 h-5 shrink-0 ${
+              isPending ? "text-slate-300" : "text-slate-500"
+            }`}
+          />
+        );
+      })()}
     </button>
   );
 }

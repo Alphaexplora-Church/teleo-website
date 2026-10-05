@@ -1,17 +1,14 @@
 import { useMemo } from "react";
-import {
-  ChevronRight,
-  Clock,
-  Hourglass,
-  PauseCircle,
-} from "lucide-react";
 import { Button } from "../../../../../shared/components/Button/Button";
 import { DiscipleshipDashboardCard } from "../../../components/DiscipleshipDashboardCard";
-import { myDiscipleshipGroupsDashboardConst } from "../../../models/constants/myDiscipleshipGroupsDashboard.constant";
+import {
+  myDiscipleshipGroupsDashboardConst,
+  MY_DISCIPLESHIP_GROUPS_DASHBOARD_VIEW_ICONS,
+} from "../../../models/constants/myDiscipleshipGroupsDashboardView.constant";
 import { mockDiscipleshipDashboard } from "../../../models/mocks/discipleshipDashboard.mocks";
-import type { MyDiscipleshipGroupsDashboardProps } from "../../../models/types/myDiscipleshipGroupsDashboard.types";
+import type { MyDiscipleshipGroupsDashboardProps } from "../../../models/types/myDiscipleshipGroupsDashboardView.types";
 
-export function MyDiscipleshipGroupsDashboard({
+export function MyDiscipleshipGroupsDashboardView({
   config = myDiscipleshipGroupsDashboardConst,
   dashboardData = mockDiscipleshipDashboard,
   onNavigateToChurchList,
@@ -20,6 +17,12 @@ export function MyDiscipleshipGroupsDashboard({
   onResumeGroup,
   className = "",
 }: MyDiscipleshipGroupsDashboardProps) {
+  const {
+    actionChevron: ActionChevronIcon,
+    activeClock: ActiveClockIcon,
+    pendingHourglass: PendingHourglassIcon,
+    pausedCircle: PausedCircleIcon,
+  } = MY_DISCIPLESHIP_GROUPS_DASHBOARD_VIEW_ICONS;
   // ── Filter Groups and Applications from Mock / API ───────────
   const activeGroups = useMemo(
     () => dashboardData.groups.filter((group) => group.status === "active"),
@@ -44,10 +47,10 @@ export function MyDiscipleshipGroupsDashboard({
       {/* ── Dashboard Header ───────────────────────────────────── */}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-[18px] font-bold text-[#0E172A] leading-tight">
+          <h2 className="text-[18px] font-bold text-slate-900 leading-tight">
             {config.headerTitle}
           </h2>
-          <p className="text-[12px] text-[#62718A] mt-0.5">
+          <p className="text-[12px] text-slate-500 mt-0.5">
             {config.headerSubtitle}
           </p>
         </div>
@@ -58,7 +61,7 @@ export function MyDiscipleshipGroupsDashboard({
           variant="outline"
           size="sm"
           onClick={onNavigateToChurchList}
-          className="rounded-full px-3.5 py-1 text-xs font-semibold border-slate-300 text-[#0E172A] hover:bg-slate-50 transition-colors"
+          className="rounded-full px-3.5 py-1 text-xs font-semibold border-slate-300 text-slate-900 hover:bg-slate-50 transition-colors"
         >
           {config.exploreButtonLabel}
         </Button>
@@ -67,23 +70,23 @@ export function MyDiscipleshipGroupsDashboard({
       {/* ── Active Groups Section ──────────────────────────────── */}
       {activeGroups.length > 0 && (
         <section className="space-y-3">
-          <h3 className="text-xs font-bold tracking-wider text-[#62718A] uppercase select-none">
+          <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase select-none">
             {config.activeGroupsHeader} ({activeGroups.length})
           </h3>
           <div className="space-y-3">
             {activeGroups.map((group) => (
-              <DiscipleshipDashboardCard
+               <DiscipleshipDashboardCard
                 key={group.id}
                 imageUrl={group.image_url}
                 title={group.name}
                 subtitle={`${group.church_name} · Led by ${group.leader_name}`}
                 badgeLabel={config.activeBadgeLabel}
                 badgeVariant="success"
-                infoIcon={<Clock className="w-4 h-4" />}
+                infoIcon={<ActiveClockIcon className="w-4 h-4" />}
                 infoTitle={config.defaultActiveMeetingTime}
                 infoSubtitle={config.defaultActiveMeetingTopic}
                 actionLabel={config.openGroupRoomActionLabel}
-                actionIcon={<ChevronRight className="w-4 h-4" />}
+                actionIcon={<ActionChevronIcon className="w-4 h-4" />}
                 onAction={() => onOpenGroupRoom?.(group.id)}
               />
             ))}
@@ -94,7 +97,7 @@ export function MyDiscipleshipGroupsDashboard({
       {/* ── Pending Applications Section ───────────────────────── */}
       {pendingApplications.length > 0 && (
         <section className="space-y-3">
-          <h3 className="text-xs font-bold tracking-wider text-[#62718A] uppercase select-none">
+          <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase select-none">
             {config.pendingApplicationsHeader} ({pendingApplications.length})
           </h3>
           <div className="space-y-3">
@@ -107,11 +110,11 @@ export function MyDiscipleshipGroupsDashboard({
                 badgeLabel={config.pendingBadgeLabel}
                 badgeVariant="warning"
                 badgeDotVisible={false}
-                infoIcon={<Hourglass className="w-4 h-4" />}
+                infoIcon={<PendingHourglassIcon className="w-4 h-4" />}
                 infoTitle={config.pendingStatusTitle}
                 infoSubtitle={`${config.pendingResponseEstimatePrefix}${app.review_timing_days}`}
                 actionLabel={config.trackApplicationActionLabel}
-                actionIcon={<ChevronRight className="w-4 h-4" />}
+                actionIcon={<ActionChevronIcon className="w-4 h-4" />}
                 onAction={() => onTrackApplication?.(app.id)}
               />
             ))}
@@ -122,7 +125,7 @@ export function MyDiscipleshipGroupsDashboard({
       {/* ── Paused Groups Section ──────────────────────────────── */}
       {pausedGroups.length > 0 && (
         <section className="space-y-3">
-          <h3 className="text-xs font-bold tracking-wider text-[#62718A] uppercase select-none">
+          <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase select-none">
             {config.pausedGroupsHeader} ({pausedGroups.length})
           </h3>
           <div className="space-y-3">
@@ -134,10 +137,10 @@ export function MyDiscipleshipGroupsDashboard({
                 subtitle={`${group.church_name} · Led by ${group.leader_name}`}
                 badgeLabel={config.pausedBadgeLabel}
                 badgeVariant="outline"
-                infoIcon={<PauseCircle className="w-4 h-4" />}
+                infoIcon={<PausedCircleIcon className="w-4 h-4" />}
                 infoTitle={config.pausedMeetingNotice}
                 actionLabel={config.resumeGroupActionLabel}
-                actionIcon={<ChevronRight className="w-4 h-4" />}
+                actionIcon={<ActionChevronIcon className="w-4 h-4" />}
                 onAction={() => onResumeGroup?.(group.id)}
               />
             ))}
@@ -148,4 +151,4 @@ export function MyDiscipleshipGroupsDashboard({
   );
 }
 
-export default MyDiscipleshipGroupsDashboard;
+export default MyDiscipleshipGroupsDashboardView;

@@ -12,7 +12,7 @@ export const variantStyles: Record<ButtonVariant, string> = {
   ghost:
     'bg-transparent text-navy hover:bg-navy/5 active:bg-navy/10 border-none shadow-none',
   danger:
-    'bg-error text-white hover:bg-red-700 active:bg-red-800 shadow-sm',
+    'bg-error text-red-800 hover:bg-red-700 active:bg-red-800 shadow-sm',
 };
 
 export const sizeStyles: Record<ButtonSize, string> = {

@@ -1,6 +1,9 @@
+import type { LucideIcon } from "lucide-react";
 import type { DiscipleshipApplicationMock } from "../mocks/discipleshipDashboard.mocks";
 
-export interface MyDiscipleshipGroupsStatusConfig {
+export type MyDiscipleshipGroupsPendingViewIcons = Record<string, LucideIcon>;
+
+export interface MyDiscipleshipGroupsPendingViewConfig {
   buttonBackLabel: string;
   titleHeader: string;
   pendingBadgeLabel: string;
@@ -24,11 +27,16 @@ export interface MyDiscipleshipGroupsStatusConfig {
   withdrawModalCancelLabel: string;
 }
 
-export interface MyDiscipleshipGroupsStatusProps {
+export interface MyDiscipleshipGroupsPendingViewProps {
   applicationId?: string;
   application?: DiscipleshipApplicationMock;
-  config?: MyDiscipleshipGroupsStatusConfig;
+  config?: MyDiscipleshipGroupsPendingViewConfig;
   onBack?: () => void;
   onWithdrawApplication?: (applicationId: string) => void;
   className?: string;
 }
+
+// Backward-compatible type aliases
+export type MyDiscipleshipGroupsStatusConfig = MyDiscipleshipGroupsPendingViewConfig;
+export type MyDiscipleshipGroupsStatusProps = MyDiscipleshipGroupsPendingViewProps;
+

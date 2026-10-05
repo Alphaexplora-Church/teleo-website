@@ -73,7 +73,7 @@ export function StatusReviewTimeLine({
     <div className={`w-full select-none ${className}`.trim()}>
       {/* ── Section Title (Optional) ───────────────────────────── */}
       {title && (
-        <h3 className="text-xs font-bold tracking-wider text-[#62718A] uppercase mb-4">
+        <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase mb-4">
           {title}
         </h3>
       )}
@@ -108,8 +108,8 @@ export function StatusReviewTimeLine({
                   <h4
                     className={`text-[15px] leading-tight ${
                       isUpcoming
-                        ? "font-medium text-[#94A3B8]"
-                        : "font-semibold text-[#0E172A]"
+                        ? "font-medium text-slate-400"
+                        : "font-semibold text-slate-900"
                     }`}
                   >
                     {step.title}
@@ -128,7 +128,7 @@ export function StatusReviewTimeLine({
                 {step.description && (
                   <p
                     className={`text-[13px] leading-relaxed mt-0.5 ${
-                      isUpcoming ? "text-[#94A3B8]" : "text-[#62718A]"
+                      isUpcoming ? "text-slate-400" : "text-slate-500"
                     }`}
                   >
                     {step.description}

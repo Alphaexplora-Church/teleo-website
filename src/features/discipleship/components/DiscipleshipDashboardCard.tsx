@@ -72,7 +72,7 @@ export function DiscipleshipDashboardCard({
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {imageUrl ? (
-            <div className="w-11 h-11 rounded-xl bg-[#E2E8F0] shrink-0 overflow-hidden">
+            <div className="w-11 h-11 rounded-xl bg-slate-200 shrink-0 overflow-hidden">
               <img
                 src={imageUrl}
                 alt={imageAlt || title}
@@ -84,22 +84,22 @@ export function DiscipleshipDashboardCard({
               />
             </div>
           ) : avatar ? (
-            <div className="w-11 h-11 rounded-xl bg-[#F1F3F6] flex items-center justify-center shrink-0 overflow-hidden text-[#0E172A]">
+            <div className="w-11 h-11 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 overflow-hidden text-slate-900">
               {avatar}
             </div>
           ) : (
             <div
-              className="w-11 h-11 rounded-xl bg-[#E2E8F0] shrink-0"
+              className="w-11 h-11 rounded-xl bg-slate-200 shrink-0"
               aria-hidden="true"
             />
           )}
 
           <div className="min-w-0 flex-1">
-            <h4 className="text-[15px] font-semibold text-[#0E172A] truncate leading-tight">
+            <h4 className="text-[15px] font-semibold text-slate-900 truncate leading-tight">
               {title}
             </h4>
             {subtitle && (
-              <p className="text-[12px] text-[#62718A] truncate mt-0.5 leading-normal">
+              <p className="text-[12px] text-slate-500 truncate mt-0.5 leading-normal">
                 {subtitle}
               </p>
             )}
@@ -124,20 +124,20 @@ export function DiscipleshipDashboardCard({
       {hasInfo && (
         <div className="mt-3.5">
           {info ?? (
-            <div className="p-3 rounded-xl bg-[#F8FAFC] border border-slate-100 flex items-start gap-2.5">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
               {infoIcon && (
-                <div className="shrink-0 mt-0.5 text-[#62718A] text-sm">
+                <div className="shrink-0 mt-0.5 text-slate-500 text-sm">
                   {infoIcon}
                 </div>
               )}
               <div className="min-w-0 flex-1">
                 {infoTitle && (
-                  <p className="text-[13px] font-semibold text-[#0E172A] leading-snug truncate">
+                  <p className="text-[13px] font-semibold text-slate-900 leading-snug truncate">
                     {infoTitle}
                   </p>
                 )}
                 {infoSubtitle && (
-                  <p className="text-[12px] text-[#62718A] leading-normal truncate mt-0.5">
+                  <p className="text-[12px] text-slate-500 leading-normal truncate mt-0.5">
                     {infoSubtitle}
                   </p>
                 )}
@@ -156,11 +156,11 @@ export function DiscipleshipDashboardCard({
               variant={actionButtonVariant}
               onClick={onAction}
               fullWidth
-              className="w-full !justify-between text-[13px] font-medium text-[#62718A] hover:text-[#0E172A] px-1 py-1 h-auto transition-colors cursor-pointer select-none"
+              className="w-full !justify-between text-[13px] font-medium text-slate-500 hover:text-slate-900 px-1 py-1 h-auto transition-colors cursor-pointer select-none"
             >
               <span>{actionLabel}</span>
               {actionIcon && (
-                <span className="shrink-0 text-[#94A3B8]">{actionIcon}</span>
+                <span className="shrink-0 text-slate-400">{actionIcon}</span>
               )}
             </Button>
           )}

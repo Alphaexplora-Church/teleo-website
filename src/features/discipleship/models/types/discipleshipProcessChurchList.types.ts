@@ -1,8 +1,11 @@
+import type { LucideIcon } from "lucide-react";
 import type {
   SharedButtonProps,
   ComponentIcon,
 } from "../../../../shared/models/types/components.types";
-import type { DiscipleshipChurch } from "./myDiscipleshipEmptyState.types";
+import type { DiscipleshipChurch } from "./myDiscipleshipEmptyStateView.types";
+
+export type DiscipleshipProcessChurchListIcons = Record<string, LucideIcon>;
 
 export interface DiscipleshipChurchItem extends DiscipleshipChurch {
   city?: string;
