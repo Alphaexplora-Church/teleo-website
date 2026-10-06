@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Badge } from "../../../../../shared/components/Badge/Badge";
 import { Button } from "../../../../../shared/components/Button/Button";
 import { ActionConfirmationModal } from "../../../components/ActionConfirmationModal";
+import { CurrentStudyCard } from "../../../components/CurrentStudyCard";
+import { NextGatheringCard } from "../../../components/NextGatheringCard";
+import { ThisWeekQuestionCard } from "../../../components/ThisWeekQuestionCard";
 import {
   myDiscipleshipGroupsActivePauseViewConst,
   MY_DISCIPLESHIP_GROUPS_ACTIVE_PAUSE_VIEW_ICONS,
@@ -20,7 +23,6 @@ export function MyDiscipleshipGroupsActivePauseView({
   onLeaveGroup,
   className = "",
 }: MyDiscipleshipGroupsActivePauseViewProps) {
-  const [hasCopied, setHasCopied] = useState(false);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [isPauseModalOpen, setIsPauseModalOpen] = useState(false);
 
@@ -28,16 +30,6 @@ export function MyDiscipleshipGroupsActivePauseView({
   const {
     back: BackIcon,
     pausedBanner: PausedBannerIcon,
-    calendar: CalendarIcon,
-    clock: ClockIcon,
-    location: LocationIcon,
-    video: VideoIcon,
-    copy: CopyIcon,
-    copied: CopiedIcon,
-    quote: QuoteIcon,
-    lock: LockIcon,
-    study: StudyIcon,
-    openReading: OpenReadingIcon,
     pauseMembership: PauseMembershipIcon,
     leaveGroup: LeaveGroupIcon,
   } = MY_DISCIPLESHIP_GROUPS_ACTIVE_PAUSE_VIEW_ICONS;
@@ -64,14 +56,6 @@ export function MyDiscipleshipGroupsActivePauseView({
   const studyModuleBadge = group?.current_study?.module_badge;
   const studyTitle = group?.current_study?.title ?? "";
   const studySubtitle = group?.current_study?.lesson_subtitle ?? "";
-
-  const handleCopyLink = () => {
-    if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(gatheringLink).catch(() => { });
-    }
-    setHasCopied(true);
-    setTimeout(() => setHasCopied(false), 2000);
-  };
 
   return (
     <div
@@ -138,150 +122,36 @@ export function MyDiscipleshipGroupsActivePauseView({
         </div>
       )}
 
-      {/* ── Card 1: Next Gathering ─────────────────────────────────── */}
-      <div className="w-full bg-white border border-slate-100 rounded-2xl p-5 space-y-3.5 shadow-xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4 text-slate-600" />
-            <span className="text-[11px] font-bold text-slate-600 tracking-wider uppercase select-none">
-              {config.nextGatheringHeader}
-            </span>
-          </div>
-          <Badge
-            label={gatheringType}
-            variant="default"
-            dotVisible={false}
-            size="sm"
-            className="rounded-md font-medium text-[11px] bg-slate-100 text-slate-600 tracking-wide"
-          />
-        </div>
+      {/* ── Card 1: Next Gathering Component ────────────────────────── */}
+      <NextGatheringCard
+        gathering={group?.next_gathering}
+        timing={gatheringTiming}
+        subtitle={gatheringSubtitle}
+        location={gatheringLocation}
+        virtualLink={gatheringLink}
+        gatheringType={gatheringType}
+        headerTitle={config.nextGatheringHeader}
+        copyButtonLabel={config.copyButtonLabel}
+        copiedButtonLabel={config.copiedButtonLabel}
+      />
 
-        <div className="space-y-2.5 pt-0.5">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-              <ClockIcon className="w-4 h-4 text-slate-600" />
-            </div>
-            <div className="space-y-0.5">
-              <p className="font-bold text-[15px] text-slate-900 leading-tight">
-                {gatheringTiming}
-              </p>
-              {gatheringSubtitle && (
-                <p className="text-[12.5px] text-slate-500">
-                  {gatheringSubtitle}
-                </p>
-              )}
-            </div>
-          </div>
+      {/* ── Card 2: This Week's Question Component ──────────────────── */}
+      <ThisWeekQuestionCard
+        question={reflectionQuestion}
+        headerTitle={config.thisWeekQuestionHeader}
+        footnoteText={config.questionFootnoteText}
+      />
 
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
-              <LocationIcon className="w-4 h-4 text-slate-600" />
-            </div>
-            <span className="text-[13.5px] font-medium text-slate-700">
-              {gatheringLocation}
-            </span>
-          </div>
-        </div>
-
-        {/* Virtual Link Box with Copy Button */}
-        <div className="w-full bg-slate-50 rounded-xl border border-slate-100 px-3.5 py-2.5 flex items-center justify-between gap-3 mt-1">
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <VideoIcon className="w-4 h-4 text-slate-500 shrink-0" />
-            <span className="font-mono text-[12.5px] text-slate-700 truncate select-all">
-              {gatheringLink}
-            </span>
-          </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleCopyLink}
-            className="h-7 px-3 rounded-lg bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 font-semibold text-xs flex items-center gap-1.5 transition-all cursor-pointer shrink-0 shadow-2xs"
-          >
-            {hasCopied ? (
-              <>
-                <CopiedIcon className="w-3.5 h-3.5 text-emerald-600" />
-                <span className="text-emerald-700 font-bold">
-                  {config.copiedButtonLabel}
-                </span>
-              </>
-            ) : (
-              <>
-                <CopyIcon className="w-3.5 h-3.5 text-slate-500" />
-                <span>{config.copyButtonLabel}</span>
-              </>
-            )}
-          </Button>
-        </div>
-      </div>
-
-      {/* ── Card 2: This Week's Question ───────────────────────────── */}
-      <div className="w-full bg-white border border-slate-100 rounded-2xl p-5 space-y-3 shadow-xs">
-        <div className="flex items-center gap-2">
-          <QuoteIcon className="w-4 h-4 text-slate-600 rotate-180" />
-          <span className="text-[11px] font-bold text-slate-600 tracking-wider uppercase select-none">
-            {config.thisWeekQuestionHeader}
-          </span>
-        </div>
-
-        <div className="w-full bg-slate-50 rounded-xl border border-slate-100 p-4 flex gap-3">
-          <div className="w-1 bg-slate-300 rounded-full shrink-0 self-stretch my-0.5" />
-          <p className="italic text-[13.5px] text-slate-800 leading-relaxed">
-            {reflectionQuestion}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 text-[12px] text-slate-500 px-0.5">
-          <LockIcon className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-          <span>{config.questionFootnoteText}</span>
-        </div>
-      </div>
-
-      {/* ── Card 3: Current Study ──────────────────────────────────── */}
-      <div className="w-full bg-white border border-slate-100 rounded-2xl p-5 space-y-3 shadow-xs">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <StudyIcon className="w-4 h-4 text-slate-600" />
-            <span className="text-[11px] font-bold text-slate-600 tracking-wider uppercase select-none">
-              {config.currentStudyHeader}
-            </span>
-          </div>
-          {studyModuleBadge && (
-            <Badge
-              label={studyModuleBadge}
-              variant="default"
-              dotVisible={false}
-              size="sm"
-              className="rounded-md font-medium text-[11px] bg-slate-100 text-slate-600 tracking-wide"
-            />
-          )}
-        </div>
-
-        <div className="space-y-0.5">
-          <h3 className="text-[16px] font-bold text-slate-900 leading-tight">
-            {studyTitle}
-          </h3>
-          {studySubtitle && (
-            <p className="text-[12.5px] text-slate-500">
-              {studySubtitle}
-            </p>
-          )}
-        </div>
-
-        <Button
-          variant="outline"
-          size="md"
-          fullWidth
-          onClick={() => onOpenJourneyReading?.(studyTitle)}
-          className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-xl py-3 px-3.5 !justify-between text-[13px] font-semibold text-slate-900 transition-all shadow-2xs mt-1"
-        >
-          <div className="flex items-center gap-2">
-            <StudyIcon className="w-4 h-4 text-slate-600" />
-            <span>{config.openJourneyButtonLabel}</span>
-          </div>
-          <OpenReadingIcon className="w-4 h-4 text-slate-600" />
-        </Button>
-      </div>
+      {/* ── Card 3: Current Study Component ─────────────────────────── */}
+      <CurrentStudyCard
+        study={group?.current_study}
+        title={studyTitle}
+        subtitle={studySubtitle}
+        moduleBadge={studyModuleBadge}
+        headerTitle={config.currentStudyHeader}
+        actionLabel={config.openJourneyButtonLabel}
+        onOpenReading={onOpenJourneyReading}
+      />
 
       {/* ── Bottom Section: Active vs Paused Actions ───────────────── */}
       {isPaused ? (

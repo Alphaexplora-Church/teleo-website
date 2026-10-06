@@ -80,8 +80,8 @@ export function ActionConfirmationModal({
     confirmVariant === "danger"
       ? "bg-red-700 hover:bg-red-800 text-white"
       : confirmVariant === "warning"
-      ? "bg-amber-600 hover:bg-amber-700 text-white"
-      : "bg-slate-900 hover:bg-black text-white";
+        ? "bg-amber-600 hover:bg-amber-700 text-white"
+        : "bg-slate-900 hover:bg-black text-white";
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex flex-col justify-end">
@@ -99,7 +99,8 @@ export function ActionConfirmationModal({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         style={{
-          transform: dragOffsetY > 0 ? `translateY(${dragOffsetY}px)` : undefined,
+          transform:
+            dragOffsetY > 0 ? `translateY(${dragOffsetY}px)` : undefined,
           transition: isDragging
             ? "none"
             : "transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
@@ -162,7 +163,7 @@ export function ActionConfirmationModal({
         </div>
       </div>
     </div>,
-    document.body
+    document.body,
   );
 }
 
