@@ -4,7 +4,6 @@ import {
 } from "../../../models/constants/myDiscipleshipGroupsLeadDashboardView.constant";
 import { mockLeadChurchGroups } from "../../../models/mocks/discipleshipLead.mocks";
 import type { MyDiscipleshipGroupsLeadDashboardViewProps } from "../../../models/types/myDiscipleshipGroupsLeadDashboardView.types";
-import { MyDiscipleshipLeadEmptyStateView } from "../MyDiscipleshipLeadEmptyState/MyDiscipleshipLeadEmptyStateView";
 
 export function MyDiscipleshipGroupsLeadDashboardView({
   config = myDiscipleshipGroupsLeadDashboardViewConst,
@@ -12,14 +11,6 @@ export function MyDiscipleshipGroupsLeadDashboardView({
   onManageGroup,
   className = "",
 }: MyDiscipleshipGroupsLeadDashboardViewProps) {
-  const hasLeadGroups =
-    churchSections.length > 0 &&
-    churchSections.some((section) => (section.groups?.length ?? 0) > 0);
-
-  if (!hasLeadGroups) {
-    return <MyDiscipleshipLeadEmptyStateView className={className} />;
-  }
-
   return (
     <div className={`w-full space-y-6 ${className}`.trim()}>
       {/* ── Dashboard Header ─────────────────────────────────────── */}

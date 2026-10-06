@@ -6,7 +6,7 @@ export const baseButtonStyles =
 
 export const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-navy text-black hover:bg-navy-hover active:bg-navy-active shadow-btn active:text-white",
+    "bg-navy hover:bg-navy-hover active:bg-navy-active shadow-btn active:text-white",
   outline:
     "border border-navy text-navy bg-transparent hover:bg-navy/5 active:bg-navy/10",
   ghost:

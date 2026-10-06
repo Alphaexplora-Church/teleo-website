@@ -9,6 +9,7 @@ export interface LeadGroupItem {
   members_count: number;
   next_gathering_preview: string;
   status: "Active" | "Paused" | string;
+  members?: any[];
 }
 
 export interface ChurchLeadGroupData {

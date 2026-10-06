@@ -156,7 +156,7 @@ export function ActionConfirmationModal({
             type="button"
             onClick={onClose}
             fullWidth
-            className="w-full h-12 font-semibold text-[15px] rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 transition-all cursor-pointer active:scale-[0.99]"
+            className="text-black w-full h-12 font-semibold text-[15px] rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 transition-all cursor-pointer active:scale-[0.99]"
           >
             {cancelLabel}
           </Button>

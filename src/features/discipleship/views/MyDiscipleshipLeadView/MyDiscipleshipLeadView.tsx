@@ -1,5 +1,6 @@
-import { MyDiscipleshipLeadEmptyStateView } from "./MyDiscipleshipLeadEmptyState/MyDiscipleshipLeadEmptyStateView";
+import { useState } from "react";
 import { MyDiscipleshipGroupsLeadDashboardView } from "./MyDiscipleshipGroupsLead/MyDiscipleshipGroupsLeadDashboardView";
+import { MyDiscipleshipGroupsLeadCardView } from "./MyDiscipleshipGroupsLead/MyDiscipleshipGroupsLeadCardView";
 import { mockLeadChurchGroups } from "../../models/mocks/discipleshipLead.mocks";
 import type {
   ChurchLeadGroupData,
@@ -17,20 +18,25 @@ export function MyDiscipleshipLeadView({
   onManageGroup,
   className = "",
 }: MyDiscipleshipLeadViewProps = {}) {
-  // Check if user has any lead groups under their care
-  const hasLeadGroups =
-    churchSections.length > 0 &&
-    churchSections.some((section) => (section.groups?.length ?? 0) > 0);
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+
+  const handleManageGroup = (groupId: string, group: LeadGroupItem) => {
+    setSelectedGroupId(groupId);
+    onManageGroup?.(groupId, group);
+  };
 
   return (
     <div className={`w-full ${className}`.trim()}>
-      {hasLeadGroups ? (
-        <MyDiscipleshipGroupsLeadDashboardView
-          churchSections={churchSections}
-          onManageGroup={onManageGroup}
+      {selectedGroupId ? (
+        <MyDiscipleshipGroupsLeadCardView
+          groupId={selectedGroupId}
+          onBack={() => setSelectedGroupId(null)}
         />
       ) : (
-        <MyDiscipleshipLeadEmptyStateView />
+        <MyDiscipleshipGroupsLeadDashboardView
+          churchSections={churchSections}
+          onManageGroup={handleManageGroup}
+        />
       )}
     </div>
   );
