@@ -1,7 +1,6 @@
 import {
   EVENT_IMAGE,
   GOSPEL_SLIDE,
-  STATIC_SAMPLE_EVENT_POSTS,
   type ContentFeedRecord,
   type ContentFeedResponse,
   type FeedPostModel,
@@ -229,11 +228,7 @@ export const fetchHomeFeed = async (): Promise<FeedPostModel[]> => {
     throw new Error('The home feed returned an invalid response.');
   }
 
-  // TO DO: DELETE STATIC DATA - Prepending static sample event posts for testing UI designs
-  return [
-    ...STATIC_SAMPLE_EVENT_POSTS,
-    ...json.data.map(mapContentFeedRecord),
-  ];
+  return json.data.map(mapContentFeedRecord);
 };
 
 export const buildHeroSlides = (posts: FeedPostModel[]): HeroSlide[] => [
