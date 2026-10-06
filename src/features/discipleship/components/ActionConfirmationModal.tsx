@@ -84,7 +84,7 @@ export function ActionConfirmationModal({
         : "bg-slate-900 hover:bg-black text-white";
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex flex-col justify-end">
+    <div className="fixed inset-0 z-100 flex flex-col justify-end">
       {/* ── Background Blur Backdrop (Tap to Close) ──────────── */}
       <div
         className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
