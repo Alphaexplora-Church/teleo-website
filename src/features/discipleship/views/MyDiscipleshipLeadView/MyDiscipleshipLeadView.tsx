@@ -21,8 +21,11 @@ export function MyDiscipleshipLeadView({
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
 
   const handleManageGroup = (groupId: string, group: LeadGroupItem) => {
-    setSelectedGroupId(groupId);
-    onManageGroup?.(groupId, group);
+    if (onManageGroup) {
+      onManageGroup(groupId, group);
+    } else {
+      setSelectedGroupId(groupId);
+    }
   };
 
   return (

@@ -4,7 +4,8 @@ export type MemberStatus = "Active" | "Paused";
 export interface GroupMemberItem {
   id: string;
   name: string;
-  initials: string;
+  initials?: string;
+  avatar_url?: string;
   joined_date: string;
   note?: string;
   status: MemberStatus;

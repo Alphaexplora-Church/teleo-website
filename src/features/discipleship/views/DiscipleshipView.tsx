@@ -1,9 +1,9 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { GroupsTabSwitcher, type DiscipleshipTab } from "../components/GroupsTabSwitcher";
-import { myDiscipleshipEmptyStateConst } from "../models/constants/myDiscipleshipEmptyStateView.constant";
 import MyDiscipleshipView from "./MyDiscipleshipView/MyDiscipleshipView";
 import MyDiscipleshipLeadView from "./MyDiscipleshipLeadView/MyDiscipleshipLeadView";
+import MyDiscipleshipGroupsLeadCardView from "./MyDiscipleshipLeadView/MyDiscipleshipGroupsLead/MyDiscipleshipGroupsLeadCardView";
 import MyDiscipleshipGroupsPendingView from "./MyDiscipleshipView/MyDiscipleshipGroups/MyDiscipleshipGroupsPendingView";
 import MyDiscipleshipGroupsActivePauseView from "./MyDiscipleshipView/MyDiscipleshipGroups/MyDiscipleshipGroupsActivePauseView";
 import DiscipleshipProcessChurchList from "./DiscipleshipProcess/DiscipleshipProcessChurchList";
@@ -22,7 +22,8 @@ export type DiscipleshipViewMode =
   | "church-intro"
   | "church-apply"
   | "application-status"
-  | "group-active";
+  | "group-active"
+  | "lead-group-card";
 
 export function DiscipleshipView() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,6 +45,7 @@ export function DiscipleshipView() {
   const [selectedChurchId, setSelectedChurchId] = useState<number | undefined>(undefined);
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | undefined>(undefined);
   const [selectedGroupId, setSelectedGroupId] = useState<string | undefined>(undefined);
+  const [selectedLeadGroupId, setSelectedLeadGroupId] = useState<string | undefined>(undefined);
 
   // Sync with route changes (e.g., when clicking Join a Discipleship / More Churches links)
   useEffect(() => {
@@ -115,11 +117,11 @@ export function DiscipleshipView() {
       cancelAnimationFrame(rafId);
       clearTimeout(timeoutId);
     };
-  }, [viewMode, selectedChurchId, activeTab, location.pathname, scrollToTop]);
+  }, [viewMode, selectedChurchId, selectedLeadGroupId, activeTab, location.pathname, scrollToTop]);
 
   useEffect(() => {
     scrollToTop();
-  }, [viewMode, selectedChurchId, activeTab, location.pathname, scrollToTop]);
+  }, [viewMode, selectedChurchId, selectedLeadGroupId, activeTab, location.pathname, scrollToTop]);
 
   const handleSelectChurch = (church: DiscipleshipChurch) => {
     setSelectedChurchId(church.church_id);
@@ -217,6 +219,18 @@ export function DiscipleshipView() {
 
   return (
     <div ref={containerRef} className="w-full">
+      {/* ── -1.5. Lead Group Detail Card Sub-View (No Tab Switcher) ── */}
+      {viewMode === "lead-group-card" && (
+        <MyDiscipleshipGroupsLeadCardView
+          groupId={selectedLeadGroupId}
+          onBack={() => {
+            setViewMode("dashboard");
+            setSelectedLeadGroupId(undefined);
+            scrollToTop();
+          }}
+        />
+      )}
+
       {/* ── -1. Group Active / Room Sub-View ──────────────────────── */}
       {viewMode === "group-active" && (
         <MyDiscipleshipGroupsActivePauseView
@@ -273,13 +287,6 @@ export function DiscipleshipView() {
       {/* ── 4. Main Groups Dashboard ───────────────────────────────── */}
       {viewMode === "dashboard" && (
         <div className="w-full max-w-md mx-auto px-4 py-6 space-y-6">
-          {/* ── Header ─────────────────────────────────────────────── */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-[#0E172A] tracking-tight">
-              {myDiscipleshipEmptyStateConst.titleHeader}
-            </h1>
-          </div>
-
           {/* ── Tab Switcher ────────────────────────────────────────── */}
           <GroupsTabSwitcher
             activeTab={activeTab}
@@ -304,7 +311,13 @@ export function DiscipleshipView() {
               }}
             />
           ) : (
-            <MyDiscipleshipLeadView />
+            <MyDiscipleshipLeadView
+              onManageGroup={(groupId) => {
+                setSelectedLeadGroupId(groupId);
+                setViewMode("lead-group-card");
+                scrollToTop();
+              }}
+            />
           )}
         </div>
       )}

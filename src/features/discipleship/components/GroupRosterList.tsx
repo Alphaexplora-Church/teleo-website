@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { MoreVertical, ChevronDown, ChevronUp } from "lucide-react";
+import { MoreVertical, ChevronDown, ChevronUp, User } from "lucide-react";
 import { Badge } from "../../../shared/components/Badge/Badge";
 import { mockLeadChurchGroups } from "../models/mocks/discipleshipLead.mocks";
 
@@ -40,19 +40,38 @@ export interface GroupRosterListProps {
 
 const DEFAULT_MEMBERS = mockLeadChurchGroups[0]?.groups[0]?.members ?? [];
 
-const AVATAR_PALETTE = [
-    "bg-slate-100 text-slate-700",
-    "bg-blue-100 text-blue-700",
-    "bg-slate-100 text-slate-700",
-    "bg-indigo-100 text-indigo-700",
-    "bg-slate-100 text-slate-700",
-];
+interface MemberAvatarProps {
+    name: string;
+    avatarUrl?: string;
+    sizeClassName?: string;
+    iconClassName?: string;
+}
 
-function getInitials(name: string, fallback?: string): string {
-    if (fallback) return fallback;
-    const parts = name.trim().split(/\s+/);
-    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+function MemberAvatar({
+    name,
+    avatarUrl,
+    sizeClassName = "w-11 h-11",
+    iconClassName = "w-5 h-5",
+}: MemberAvatarProps) {
+    const [imageError, setImageError] = useState(false);
+
+    return (
+        <div
+            className={`${sizeClassName} rounded-full bg-slate-200 flex items-center justify-center shrink-0 overflow-hidden text-slate-400`}
+            aria-hidden="true"
+        >
+            {avatarUrl && !imageError ? (
+                <img
+                    src={avatarUrl}
+                    alt={name}
+                    onError={() => setImageError(true)}
+                    className="w-full h-full object-cover"
+                />
+            ) : (
+                <User className={`${iconClassName} text-slate-400`} />
+            )}
+        </div>
+    );
 }
 
 export function GroupRosterList({
@@ -108,9 +127,7 @@ export function GroupRosterList({
 
             {/* ── Members Card Container ────────────────────────────────── */}
             <div className="w-full bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden divide-y divide-slate-100">
-                {visibleMembers.map((member, index) => {
-                    const initials = getInitials(member.name, member.initials);
-                    const avatarColor = AVATAR_PALETTE[index % AVATAR_PALETTE.length];
+                {visibleMembers.map((member) => {
                     const isActive = member.status === "Active";
 
                     return (
@@ -120,12 +137,10 @@ export function GroupRosterList({
                         >
                             {/* Member Avatar & Details */}
                             <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                                <div
-                                    className={`w-11 h-11 rounded-full ${avatarColor} flex items-center justify-center font-bold text-[13px] tracking-wide shrink-0`}
-                                    aria-hidden="true"
-                                >
-                                    {initials}
-                                </div>
+                                <MemberAvatar
+                                    name={member.name}
+                                    avatarUrl={member.avatar_url}
+                                />
 
                                 <div className="min-w-0 flex-1">
                                     <h4 className="text-[15px] font-bold text-slate-900 leading-snug truncate">
