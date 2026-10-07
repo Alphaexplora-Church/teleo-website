@@ -169,8 +169,7 @@ export const usePrayerHistoryViewModel = () => {
     removeBookmarkItem,
     refreshBookmarks: fetchBookmarks,
     goBack: () => navigate(-1),
-    navigateToTab: (tab: DashboardTab) =>
-      navigate('/dashboard', { state: { activeTab: tab } }),
+    navigateToTab: (tab: DashboardTab) => navigate(`/${tab}`),
   };
 };
 

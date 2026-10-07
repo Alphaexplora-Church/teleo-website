@@ -494,4 +494,8 @@ const ChurchProfileView: React.FC<ChurchProfileViewProps> = ({
   );
 };
 
+<<<<<<< HEAD
 export default ChurchProfileView;
+=======
+export default ChurchProfileView;
+>>>>>>> origin

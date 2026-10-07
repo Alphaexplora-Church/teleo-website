@@ -35,6 +35,10 @@ import PrivacyPolicyView from '../../profile/security/views/PrivacyPolicyView';
 import NotificationView from '../../profile/views/NotificationView';
 import HelpView from '../../profile/views/HelpView';
 import HistoryView from '../../profile/views/HistoryView';
+<<<<<<< HEAD
+=======
+import GivingView from '../../giving/views/GivingView';
+>>>>>>> origin
 import FriendsView from '../../profile/views/FriendsView';
 import PublicProfileView from '../../profile/views/PublicProfileView';
 import ChurchProfileView from '../../profile/churchprofile/views/ChurchProfileView';
@@ -46,7 +50,11 @@ const TAB_PAGES: Record<string, React.FC> = {
   services: ServicesView,
   'prayer-wall': PrayerWallView,
   content: ContentCatalogView,
+<<<<<<< HEAD
   discipleship: DiscipleshipView,
+=======
+  giving: GivingView,
+>>>>>>> origin
   chat: ChatView,
 
   'find-my-church': FindMyChurchView,
