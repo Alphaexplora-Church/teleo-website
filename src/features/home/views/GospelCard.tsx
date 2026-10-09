@@ -2,6 +2,7 @@ import React from 'react';
 import timeIcon from '../../../assets/icons/time icon.svg';
 import type { DailyGospel } from '../models/gospelTypes';
 import type { HeroSlide } from '../models/homeTypes';
+import { RepeatIcon } from './RecurrenceBadge';
 
 const Icon: React.FC<{ children: React.ReactNode; size?: number }> = ({
   children,
@@ -124,6 +125,12 @@ const GospelCard: React.FC<GospelCardProps> = ({
                 </span>
                 {slide.time}
               </p>
+              {slide.recurrenceLabel && (
+                <p className="mt-1 flex items-center gap-2 text-[11px] font-semibold text-[#FFAF00]">
+                  <RepeatIcon size={14} />
+                  {slide.recurrenceLabel}
+                </p>
+              )}
               <div className="absolute right-4 top-5 flex h-[74px] w-[64px] flex-col items-center justify-center rounded-[22px] border border-[#FFAF00] bg-[#001739]/30 leading-none backdrop-blur-sm">
                 <span className="text-[11px] font-bold tracking-wider text-[#FFAF00]">
                   {slide.month}

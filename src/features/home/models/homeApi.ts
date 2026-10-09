@@ -5,6 +5,7 @@ import {
   type ContentFeedResponse,
   type FeedPostModel,
   type HeroSlide,
+  type RecurrenceType,
 } from './homeTypes';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
@@ -64,6 +65,30 @@ const formatTime = (value?: string | null) => {
     : null;
 };
 
+const formatTimeRange = (start?: string | null, end?: string | null) => {
+  const startTime = formatTime(start);
+  const endTime = formatTime(end);
+  return startTime && endTime ? `${startTime} – ${endTime}` : startTime ?? undefined;
+};
+
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const ORDINAL_SUFFIX: Record<number, string> = { 1: 'st', 2: 'nd', 3: 'rd' };
+
+const ordinal = (day: number) => {
+  const isTeen = day % 100 >= 11 && day % 100 <= 13;
+  return `${day}${isTeen ? 'th' : ORDINAL_SUFFIX[day % 10] ?? 'th'}`;
+};
+
+// "Every Thursday" / "Monthly on the 15th" (SCRUM-228). A month without the
+// day (the 31st in November) falls on its last day; the API already returns
+// those dates, so the label stays simple. Undefined for one-off posts.
+export const formatRecurrence = (type?: RecurrenceType | null, day?: number | null) => {
+  if (day === null || day === undefined) return undefined;
+  if (type === 'weekly' && WEEKDAYS[day]) return `Every ${WEEKDAYS[day]}`;
+  if (type === 'monthly' && day >= 1 && day <= 31) return `Monthly on the ${ordinal(day)}`;
+  return undefined;
+};
+
 const getImageUrl = (record: ContentFeedRecord) =>
   record.media.find((item) => item.media_type === 'image' && item.file_url)?.file_url;
 
@@ -104,15 +129,28 @@ const resolvePostAuthor = (record: ContentFeedRecord): string => {
 };
 
 export const mapContentFeedRecord = (record: ContentFeedRecord): FeedPostModel => {
-  const startTime = formatTime(record.start_date);
-  const endTime = formatTime(record.end_date);
-  const time =
-    startTime && endTime
-      ? `${startTime} – ${endTime}`
-      : startTime ?? undefined;
+  // A recurring post's start_date / end_date are only its first occurrence;
+  // the API sends the upcoming ones in next_occurrences (SCRUM-228). Every
+  // date shown, and the 15-day highlight window, use the next one, so a
+  // weekly post always sits on its coming day. Backends without recurrence
+  // send neither field, which leaves everything below as it was.
+  const recurrenceLabel = formatRecurrence(record.recurrence_type, record.recurrence_day);
+  const occurrences = recurrenceLabel ? record.next_occurrences ?? [] : [];
+  const nextOccurrence = occurrences[0];
+  const startDate = nextOccurrence ? nextOccurrence.start_date : record.start_date;
+  const endDate = nextOccurrence ? nextOccurrence.end_date : record.end_date;
+  // Without a start_date the API dates occurrences at midnight; that is a
+  // date, not a time, so no time is shown for them.
+  const hasTime = Boolean(record.start_date);
+
+  const startTime = hasTime ? formatTime(startDate) : null;
+  const time = hasTime ? formatTimeRange(startDate, endDate) : undefined;
   const isEvent = record.type_content === 'event';
+  // Recurring announcements get their next date too; when they happen is
+  // the point of them.
+  const hasSchedule = isEvent || Boolean(recurrenceLabel);
   const tags = getTags(record);
-  const formattedDate = formatDate(record.start_date);
+  const formattedDate = formatDate(startDate);
   const location = record.location?.trim() || undefined;
 
   const raw = record as unknown as Record<string, unknown>;
@@ -146,22 +184,29 @@ export const mapContentFeedRecord = (record: ContentFeedRecord): FeedPostModel =
     title: record.title,
     tags: tags.length > 0 ? tags : [isEvent ? 'Event' : 'Church Update'],
     body: record.description?.trim() || '',
-    details: isEvent
-      ? [location, formattedDate, startTime]
+    details: hasSchedule
+      ? [isEvent ? location : undefined, formattedDate, startTime]
         .filter((value): value is string => Boolean(value))
       : undefined,
     imageUrl: getImageUrl(record) ?? undefined,
     imageAlt: record.title,
-    date: isEvent && record.start_date ? formattedDate : undefined,
-    time: isEvent ? time : undefined,
+    date: hasSchedule && startDate ? formattedDate : undefined,
+    time: hasSchedule ? time : undefined,
     location: isEvent ? location : undefined,
     locationNote: isEvent && location ? 'Event location' : undefined,
     fee: isEvent ? fee : undefined,
     speakers: isEvent ? speakers : undefined,
     participants: isEvent ? participants : undefined,
     dressCode: isEvent ? dressCode : undefined,
-    startDate: record.start_date,
+    startDate,
     createdAt: record.created_at,
+    recurrenceLabel,
+    upcomingDates: occurrences.length > 0
+      ? occurrences.map((occurrence) => ({
+        date: formatDate(occurrence.start_date),
+        time: hasTime ? formatTimeRange(occurrence.start_date, occurrence.end_date) : undefined,
+      }))
+      : undefined,
   };
 };
 
@@ -202,6 +247,7 @@ export const toEventHeroSlide = (post: FeedPostModel): HeroSlide => {
       : 'TBA',
     day: date ? String(date.getDate()) : '—',
     time: formatTime(post.startDate) ?? 'Time TBA',
+    recurrenceLabel: post.recurrenceLabel,
   };
 };
 
