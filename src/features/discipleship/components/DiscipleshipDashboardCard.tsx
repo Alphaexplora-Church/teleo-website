@@ -1,7 +1,6 @@
 import type React from "react";
 import { Badge } from "../../../shared/components/Badge/Badge";
 import type { BadgeVariant } from "../../../shared/components/Badge/badge.style";
-import { Button } from "../../../shared/components/Button/Button";
 import type { ButtonVariant } from "../../../shared/components/Button/button.style";
 
 export interface DiscipleshipDashboardCardProps {
@@ -26,12 +25,13 @@ export interface DiscipleshipDashboardCardProps {
   infoTitle?: string;
   infoSubtitle?: string;
 
-  // Bottom Action Slots (Shared Button Component)
+  // Action Slots & Callbacks (for backwards compatibility)
   actionLabel?: string;
   actionIcon?: React.ReactNode;
   actionButtonVariant?: ButtonVariant;
-  onAction?: () => void;
   action?: React.ReactNode;
+  onAction?: () => void;
+  onClick?: () => void;
 
   className?: string;
 }
@@ -50,26 +50,28 @@ export function DiscipleshipDashboardCard({
   infoIcon,
   infoTitle,
   infoSubtitle,
-  action,
-  actionLabel,
-  actionIcon,
-  actionButtonVariant = "ghost",
   onAction,
+  onClick,
   className = "",
 }: DiscipleshipDashboardCardProps) {
   const hasInfo = Boolean(info || infoTitle || infoSubtitle || infoIcon);
-  const hasAction = Boolean(action || actionLabel);
+  const handleClick = onClick ?? onAction;
 
   return (
-    <div
+    <button
+      type="button"
+      onClick={handleClick}
       className={`
         w-full bg-white rounded-2xl border border-slate-100 shadow-sm p-4 text-left
-        transition-all duration-200 select-none
+        transition-all duration-200 select-none cursor-pointer
+        hover:border-slate-200 hover:shadow-md active:scale-[0.99]
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400
+        flex flex-col
         ${className}
       `.trim()}
     >
       {/* ── Header Row (Image/Avatar + Title/Subtitle + Badge) ─── */}
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex items-start justify-between gap-3 w-full">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {imageUrl ? (
             <div className="w-11 h-11 rounded-xl bg-slate-200 shrink-0 overflow-hidden">
@@ -122,7 +124,7 @@ export function DiscipleshipDashboardCard({
 
       {/* ── Info Section Slot ───────────────────────────── */}
       {hasInfo && (
-        <div className="mt-3.5">
+        <div className="mt-3.5 w-full">
           {info ?? (
             <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
               {infoIcon && (
@@ -146,27 +148,7 @@ export function DiscipleshipDashboardCard({
           )}
         </div>
       )}
-
-      {/* ── Bottom Action Slot (Shared Button Component) ── */}
-      {hasAction && (
-        <div className="mt-3 pt-3 border-t border-slate-100">
-          {action ?? (
-            <Button
-              type="button"
-              variant={actionButtonVariant}
-              onClick={onAction}
-              fullWidth
-              className="w-full !justify-between text-[13px] font-medium text-slate-500 hover:text-slate-900 px-1 py-1 h-auto transition-colors cursor-pointer select-none"
-            >
-              <span>{actionLabel}</span>
-              {actionIcon && (
-                <span className="shrink-0 text-slate-400">{actionIcon}</span>
-              )}
-            </Button>
-          )}
-        </div>
-      )}
-    </div>
+    </button>
   );
 }
 

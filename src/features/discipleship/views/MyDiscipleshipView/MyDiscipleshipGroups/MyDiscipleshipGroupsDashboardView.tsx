@@ -18,7 +18,6 @@ export function MyDiscipleshipGroupsDashboardView({
   className = "",
 }: MyDiscipleshipGroupsDashboardProps) {
   const {
-    actionChevron: ActionChevronIcon,
     activeClock: ActiveClockIcon,
     pendingHourglass: PendingHourglassIcon,
     pausedCircle: PausedCircleIcon,
@@ -94,8 +93,6 @@ export function MyDiscipleshipGroupsDashboardView({
                   infoIcon={<ActiveClockIcon className="w-4 h-4" />}
                   infoTitle={infoTitle}
                   infoSubtitle={infoSubtitle}
-                  actionLabel={config.openGroupRoomActionLabel}
-                  actionIcon={<ActionChevronIcon className="w-4 h-4" />}
                   onAction={() => onOpenGroupRoom?.(group.id)}
                 />
               );
@@ -123,8 +120,6 @@ export function MyDiscipleshipGroupsDashboardView({
                 infoIcon={<PendingHourglassIcon className="w-4 h-4" />}
                 infoTitle={config.pendingStatusTitle}
                 infoSubtitle={`${config.pendingResponseEstimatePrefix}${app.review_timing_days}`}
-                actionLabel={config.trackApplicationActionLabel}
-                actionIcon={<ActionChevronIcon className="w-4 h-4" />}
                 onAction={() => onTrackApplication?.(app.id)}
               />
             ))}
@@ -149,8 +144,6 @@ export function MyDiscipleshipGroupsDashboardView({
                 badgeVariant="outline"
                 infoIcon={<PausedCircleIcon className="w-4 h-4" />}
                 infoTitle={config.pausedMeetingNotice}
-                actionLabel={config.resumeGroupActionLabel}
-                actionIcon={<ActionChevronIcon className="w-4 h-4" />}
                 onAction={() => onResumeGroup?.(group.id)}
               />
             ))}
