@@ -1,5 +1,6 @@
 import React from 'react';
 import type { FeedPostModel, PostCategory } from '../models/homeTypes';
+import RecurrenceBadge from './RecurrenceBadge';
 
 const TAG_STYLES: Record<PostCategory, string> = {
   Announcement: 'bg-[#E8F1FF] text-[#1D4ED8] ring-[#BFDBFE]',
@@ -35,6 +36,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, first, onOpen }) => (
     </div>
     <button type="button" onClick={onOpen} className="block w-full text-left">
       <h2 className="text-[16px] font-bold">{post.title}</h2>
+      {post.recurrenceLabel && <RecurrenceBadge label={post.recurrenceLabel} className="mt-1.5" />}
       {post.details && (
         <p className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-[#666]">
           {post.details.map((detail) => <span key={detail}>{detail}</span>)}
