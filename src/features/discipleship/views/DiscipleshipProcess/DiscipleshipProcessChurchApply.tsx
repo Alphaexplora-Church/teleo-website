@@ -1,12 +1,10 @@
-import { useMemo, useState } from "react";
 import { discipleshipProcessChurchApplyConst } from "../../models/constants/discipleshipProcessChurchApply.constant";
-import { getIntakeQuestionsByChurchId } from "../../models/mocks/discipleshipIntakeQuestion.mocks";
-import { mockDiscipleshipChurches } from "../../models/mocks/discipleshipChurches.mocks";
 import type {
   DiscipleshipProcessChurchApplyConfig,
   DiscipleshipProcessChurchApplyProps,
 } from "../../models/types/discipleshipProcessChurchApply.types";
 import { ChurchQuestionIntake } from "../../components/ChurchQuestionIntake";
+import { useDiscipleshipChurchApply } from "../../viewmodels/useDiscipleshipChurchApply";
 
 export function DiscipleshipProcessChurchApply({
   churchId,
@@ -34,46 +32,19 @@ export function DiscipleshipProcessChurchApply({
     },
   };
 
-  const targetChurchId = churchId ?? church?.church_id ?? 102;
-
-  const resolvedChurch = useMemo(() => {
-    if (church) return church;
-    return (
-      mockDiscipleshipChurches.find((c) => c.church_id === targetChurchId) ??
-      mockDiscipleshipChurches[0]
-    );
-  }, [church, targetChurchId]);
-
-  const questions = useMemo(() => {
-    if (userQuestions && userQuestions.length > 0) return userQuestions;
-    return getIntakeQuestionsByChurchId(targetChurchId).questions;
-  }, [userQuestions, targetChurchId]);
-
-  // Answers state for all questions
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-
-  const handleAnswerChange = (questionId: string, value: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [questionId]: value,
-    }));
-  };
-
-  // Submit button is disabled if required questions are not answered
-  // Basta may laman ang bawat input/textarea (trimmed length > 0), valid na agad!
-  const isFormValid = useMemo(() => {
-    if (questions.length === 0) return false;
-    return questions.every((q) => {
-      if (q.required === false) return true;
-      const answer = (answers[q.id] || "").trim();
-      return answer.length > 0;
-    });
-  }, [questions, answers]);
-
-  const handleSubmit = () => {
-    if (!isFormValid) return;
-    onSubmit?.(answers);
-  };
+  const {
+    resolvedChurch,
+    questions,
+    answers,
+    isFormValid,
+    handleAnswerChange,
+    handleSubmit,
+  } = useDiscipleshipChurchApply({
+    churchId,
+    church,
+    questions: userQuestions,
+    onSubmit,
+  });
 
   // Icons are injected exclusively from Model/Constant layer
   const BackIcon = resolvedConfig.buttonBack.icon;
@@ -84,7 +55,7 @@ export function DiscipleshipProcessChurchApply({
     <div
       className={`w-full max-w-md mx-auto px-4 py-6 space-y-6 select-none ${className}`.trim()}
     >
-      {/* ── Sub-Navigation: Back to Church Button Only (No profile avatar) ── */}
+      {/* ── Sub-Navigation: Back to Church Button Only ───────────── */}
       <div className="flex items-center">
         <button
           type="button"

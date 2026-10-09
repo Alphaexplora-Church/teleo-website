@@ -14,6 +14,7 @@ import {
   Check,
   Trash2,
   Users,
+  type LucideIcon,
 } from "lucide-react";
 import type {
   MyDiscipleshipGroupsLeadCardViewConfig,

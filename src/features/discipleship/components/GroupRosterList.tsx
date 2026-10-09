@@ -1,19 +1,13 @@
 import { useState, useMemo } from "react";
 import { MoreVertical, ChevronDown, ChevronUp, User } from "lucide-react";
 import { Badge } from "../../../shared/components/Badge/Badge";
-import { mockLeadChurchGroups } from "../models/mocks/discipleshipLead.mocks";
+import {
+    mockLeadChurchGroups,
+    type GroupMemberItem,
+    type MemberStatus,
+} from "../models/mocks/discipleshipLead.mocks";
 
-export type MemberStatus = "Active" | "Paused" | string;
-
-export interface GroupMemberItem {
-    id: string;
-    name: string;
-    initials?: string;
-    joined_date?: string;
-    note?: string;
-    status?: MemberStatus;
-    avatar_url?: string;
-}
+export type { GroupMemberItem, MemberStatus };
 
 export interface GroupRosterListProps {
     /** Array of group members */

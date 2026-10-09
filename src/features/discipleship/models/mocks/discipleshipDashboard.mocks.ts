@@ -135,6 +135,27 @@ export const mockPopulatedDiscipleshipDashboard: DiscipleshipDashboardMock = {
       },
     },
     {
+      id: 'grp-lead-002',
+      church_id: 101,
+      church_name: 'Grace Community Church',
+      name: 'Berean Fellowship Cohort',
+      leader_id: 'usr-current-user',
+      leader_name: 'You',
+      members_count: 5,
+      image_url: null,
+      status: 'active',
+      role: 'leader',
+      next_gathering: undefined,
+      this_week_question:
+        '“What does it mean for you to examine the Scriptures daily with fellow believers?”',
+      current_study: {
+        module_badge: 'Module 1',
+        title: 'Foundations of Discipleship',
+        lesson_subtitle:
+          'This Week: Lesson 2 of 5 · Living as Christ’s Disciple',
+      },
+    },
+    {
       id: 'grp-102-002',
       church_id: 102,
       church_name: 'Riverside Fellowship',
@@ -159,6 +180,26 @@ export const mockPopulatedDiscipleshipDashboard: DiscipleshipDashboardMock = {
         title: 'Romans 8: Life in the Spirit',
         lesson_subtitle:
           'This Week: Lesson 3 of 6 · The Flesh vs. The Spirit',
+      },
+    },
+    {
+      id: 'grp-lead-003',
+      church_id: 2,
+      church_name: 'Metro East City Church',
+      name: 'Living Water Fellowship',
+      leader_id: 'usr-current-user',
+      leader_name: 'You',
+      members_count: 6,
+      image_url: null,
+      status: 'paused',
+      role: 'leader',
+      next_gathering: undefined,
+      this_week_question:
+        '“How can we pursue godly wisdom in our daily decisions and relationships?”',
+      current_study: {
+        module_badge: 'Module 3',
+        title: 'Walking in Wisdom',
+        lesson_subtitle: 'Lesson 1 of 4 · Proverbs Introduction',
       },
     },
   ],

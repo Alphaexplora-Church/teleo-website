@@ -122,18 +122,32 @@ export function MyDiscipleshipGroupsActivePauseView({
         </div>
       )}
 
-      {/* ── Card 1: Next Gathering Component ────────────────────────── */}
-      <NextGatheringCard
-        gathering={group?.next_gathering}
-        timing={gatheringTiming}
-        subtitle={gatheringSubtitle}
-        location={gatheringLocation}
-        virtualLink={gatheringLink}
-        gatheringType={gatheringType}
-        headerTitle={config.nextGatheringHeader}
-        copyButtonLabel={config.copyButtonLabel}
-        copiedButtonLabel={config.copiedButtonLabel}
-      />
+      {/* ── Card 1: Next Gathering Component or Empty Notice ────────── */}
+      {gatheringTiming ? (
+        <NextGatheringCard
+          gathering={group?.next_gathering}
+          timing={gatheringTiming}
+          subtitle={gatheringSubtitle}
+          location={gatheringLocation}
+          virtualLink={gatheringLink}
+          gatheringType={gatheringType}
+          headerTitle={config.nextGatheringHeader}
+          copyButtonLabel={config.copyButtonLabel}
+          copiedButtonLabel={config.copiedButtonLabel}
+        />
+      ) : (
+        <div className="w-full bg-white border border-slate-100 rounded-2xl p-5 space-y-2 shadow-xs">
+          <span className="text-[11px] font-bold text-slate-500 tracking-wider uppercase select-none">
+            {config.nextGatheringHeader}
+          </span>
+          <p className="text-[15px] font-semibold text-slate-800">
+            No upcoming gathering set
+          </p>
+          <p className="text-[13px] text-slate-500 leading-relaxed">
+            The next meeting schedule has not been set yet. Check back soon.
+          </p>
+        </div>
+      )}
 
       {/* ── Card 2: This Week's Question Component ──────────────────── */}
       <ThisWeekQuestionCard

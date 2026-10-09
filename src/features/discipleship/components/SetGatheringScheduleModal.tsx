@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "../../../shared/components/Button/Button";
 import { ActionConfirmationModal } from "./ActionConfirmationModal";
@@ -11,6 +11,7 @@ import type {
     SetGatheringScheduleModalConfig,
     SetGatheringScheduleModalProps,
 } from "../models/types/myDiscipleshipGroupsLeadCardView.types";
+import { useGatheringScheduleForm } from "../viewmodels/useGatheringScheduleForm";
 
 export type {
     MeetingFormat,
@@ -20,56 +21,6 @@ export type {
     SetGatheringScheduleModalConfig,
     SetGatheringScheduleModalProps,
 };
-
-/** Computes dynamic default time based on current system time */
-function getDynamicCurrentTime(): {
-    hour: string;
-    minute: string;
-    period: "AM" | "PM";
-    formatted: string;
-} {
-    const now = new Date();
-    let hours = now.getHours();
-    const period: "AM" | "PM" = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12;
-    if (hours === 0) hours = 12;
-
-    const hour = hours.toString().padStart(2, "0");
-    const minute = "00";
-
-    return {
-        hour,
-        minute,
-        period,
-        formatted: `${hour} : ${minute} ${period}`,
-    };
-}
-
-/** Parses string like "07 : 00 PM" or "7:00 PM" into components */
-function parseTimeString(timeStr?: string): {
-    hour: string;
-    minute: string;
-    period: "AM" | "PM";
-} {
-    if (!timeStr) return getDynamicCurrentTime();
-
-    const match = timeStr.trim().match(/^(\d{1,2})\s*[:.]\s*(\d{2})\s*(AM|PM)?$/i);
-    if (match) {
-        const rawH = parseInt(match[1], 10);
-        const h = (rawH > 12 ? rawH % 12 : rawH) || 12;
-        const m = match[2];
-        const p =
-            (match[3]?.toUpperCase() as "AM" | "PM") ||
-            (rawH >= 12 ? "PM" : "AM");
-        return {
-            hour: h.toString().padStart(2, "0"),
-            minute: m,
-            period: p,
-        };
-    }
-
-    return getDynamicCurrentTime();
-}
 
 interface RollerColumnProps {
     items: string[];
@@ -240,153 +191,45 @@ export function SetGatheringScheduleModal({
     const TrashIcon = config.icons.trash;
     const SaveButtonIcon = isEditMode ? CheckIcon : CalendarIcon;
 
-    // Remove schedule confirmation modal state
-    const [isConfirmRemoveOpen, setIsConfirmRemoveOpen] = useState(false);
-
-    const handleRemoveClick = () => {
-        setIsConfirmRemoveOpen(true);
-    };
-
-    const handleConfirmRemove = () => {
-        setIsConfirmRemoveOpen(false);
-        onRemoveSchedule?.();
-        onClose?.();
-    };
-
-    // Form state
-    const [format, setFormat] = useState<MeetingFormat>(
-        initialData?.format ?? "physical"
-    );
-    const [dayOfWeek, setDayOfWeek] = useState<string>(
-        initialData?.dayOfWeek ?? ""
-    );
-    const [recurrence, setRecurrence] = useState<string>(
-        initialData?.recurrence ?? config.recurrenceOptions[0] ?? "Weekly"
-    );
-    const [location, setLocation] = useState<string>(
-        initialData?.location ?? ""
-    );
-    const [virtualLink, setVirtualLink] = useState<string>(
-        initialData?.virtualLink ?? ""
-    );
-
-    // Dynamic time picker states
-    const initialTime = parseTimeString(initialData?.startTime);
-    const [selectedHour, setSelectedHour] = useState<string>(initialTime.hour);
-    const [selectedMinute, setSelectedMinute] = useState<string>(
-        initialTime.minute
-    );
-    const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM">(
-        initialTime.period
-    );
-    const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
-
-    // Current formatted time
-    const currentFormattedTime = `${selectedHour} : ${selectedMinute}  ${selectedPeriod}`;
-
-    // Drag-to-dismiss bottom sheet interaction
-    const [dragOffsetY, setDragOffsetY] = useState(0);
-    const [isDragging, setIsDragging] = useState(false);
-    const touchStartYRef = useRef(0);
-
-    // Lock background scroll while modal is open
-    useEffect(() => {
-        if (!isOpen) return;
-        const originalOverflow = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.body.style.overflow = originalOverflow;
-        };
-    }, [isOpen]);
-
-    // Reset drag and form data on open
-    const prevIsOpenRef = useRef(isOpen);
-    useEffect(() => {
-        if (isOpen && !prevIsOpenRef.current) {
-            setDragOffsetY(0);
-            setIsDragging(false);
-            setFormat(initialData?.format ?? "physical");
-            setDayOfWeek(initialData?.dayOfWeek ?? "");
-            setRecurrence(initialData?.recurrence ?? "Weekly");
-            setLocation(initialData?.location ?? "");
-            setVirtualLink(initialData?.virtualLink ?? "");
-            const parsed = parseTimeString(initialData?.startTime);
-            setSelectedHour(parsed.hour);
-            setSelectedMinute(parsed.minute);
-            setSelectedPeriod(parsed.period);
-            setIsTimePickerOpen(false);
-        }
-        prevIsOpenRef.current = isOpen;
-    }, [isOpen, initialData]);
-
-    // Touch Swipe-Down to Dismiss Handlers
-    const handleTouchStart = useCallback((e: React.TouchEvent) => {
-        touchStartYRef.current = e.touches[0].clientY;
-        setIsDragging(true);
-    }, []);
-
-    const handleTouchMove = useCallback((e: React.TouchEvent) => {
-        const deltaY = e.touches[0].clientY - touchStartYRef.current;
-        if (deltaY > 0) {
-            setDragOffsetY(deltaY);
-        }
-    }, []);
-
-    const handleTouchEnd = useCallback(() => {
-        setIsDragging(false);
-        if (dragOffsetY > 70) {
-            onClose?.();
-        } else {
-            setDragOffsetY(0);
-        }
-    }, [dragOffsetY, onClose]);
-
-    // Close on Escape key
-    useEffect(() => {
-        if (!isOpen) return;
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape") {
-                onClose?.();
-            }
-        };
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isOpen, onClose]);
-
-    // Form validation rules:
-    // 1. Dropdown (dayOfWeek, recurrence) and Gathering Time are universally required.
-    // 2. Physical: location input is required.
-    // 3. Virtual: virtualLink input is required.
-    // 4. Hybrid: inputs are optional (only dropdown and time required).
-    const isBaseValid = Boolean(
-        dayOfWeek?.trim() &&
-        recurrence?.trim() &&
-        selectedHour?.trim() &&
-        selectedMinute?.trim() &&
-        selectedPeriod?.trim()
-    );
-
-    const isFormatInputValid =
-        format === "physical"
-            ? location.trim().length > 0
-            : format === "virtual"
-            ? virtualLink.trim().length > 0
-            : true; // hybrid: inputs are optional
-
-    const isFormValid = isBaseValid && isFormatInputValid;
-
-    const handleSave = () => {
-        if (!isFormValid) return;
-        onSave?.({
-            format,
-            dayOfWeek,
-            recurrence,
-            startTime: currentFormattedTime,
-            location: format === "virtual" ? undefined : (location.trim() || undefined),
-            virtualLink: format === "physical" ? undefined : (virtualLink.trim() || undefined),
-        });
-        onClose?.();
-    };
+    const {
+        format,
+        setFormat,
+        dayOfWeek,
+        setDayOfWeek,
+        recurrence,
+        setRecurrence,
+        location,
+        setLocation,
+        virtualLink,
+        setVirtualLink,
+        selectedHour,
+        setSelectedHour,
+        selectedMinute,
+        setSelectedMinute,
+        selectedPeriod,
+        setSelectedPeriod,
+        isTimePickerOpen,
+        setIsTimePickerOpen,
+        currentFormattedTime,
+        isConfirmRemoveOpen,
+        handleRemoveClick,
+        handleConfirmRemove,
+        handleCancelRemove,
+        dragOffsetY,
+        isDragging,
+        handleTouchStart,
+        handleTouchMove,
+        handleTouchEnd,
+        isFormValid,
+        handleSave,
+    } = useGatheringScheduleForm({
+        isOpen,
+        initialData,
+        defaultRecurrence: config.recurrenceOptions[0] ?? "Weekly",
+        onSave,
+        onClose,
+        onRemoveSchedule,
+    });
 
     if (!isOpen) return null;
 
@@ -768,7 +611,7 @@ export function SetGatheringScheduleModal({
             {/* ── Remove Schedule Confirmation Modal ──────────────── */}
             <ActionConfirmationModal
                 isOpen={isConfirmRemoveOpen}
-                onClose={() => setIsConfirmRemoveOpen(false)}
+                onClose={handleCancelRemove}
                 title={config.removeScheduleConfirmTitle}
                 description={config.removeScheduleConfirmDescription}
                 confirmLabel={config.removeScheduleConfirmLabel}

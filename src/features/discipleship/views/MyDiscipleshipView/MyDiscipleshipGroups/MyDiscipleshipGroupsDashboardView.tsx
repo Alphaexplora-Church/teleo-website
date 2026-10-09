@@ -74,22 +74,32 @@ export function MyDiscipleshipGroupsDashboardView({
             {config.activeGroupsHeader} ({activeGroups.length})
           </h3>
           <div className="space-y-3">
-            {activeGroups.map((group) => (
-               <DiscipleshipDashboardCard
-                key={group.id}
-                imageUrl={group.image_url}
-                title={group.name}
-                subtitle={`${group.church_name} · Led by ${group.leader_name}`}
-                badgeLabel={config.activeBadgeLabel}
-                badgeVariant="success"
-                infoIcon={<ActiveClockIcon className="w-4 h-4" />}
-                infoTitle={config.defaultActiveMeetingTime}
-                infoSubtitle={config.defaultActiveMeetingTopic}
-                actionLabel={config.openGroupRoomActionLabel}
-                actionIcon={<ActionChevronIcon className="w-4 h-4" />}
-                onAction={() => onOpenGroupRoom?.(group.id)}
-              />
-            ))}
+            {activeGroups.map((group) => {
+              const hasMeetingTime = Boolean(group.next_gathering?.timing);
+              const infoTitle = hasMeetingTime
+                ? group.next_gathering!.timing
+                : "No upcoming gathering set";
+              const infoSubtitle =
+                group.current_study?.title ??
+                (hasMeetingTime ? config.defaultActiveMeetingTopic : undefined);
+
+              return (
+                <DiscipleshipDashboardCard
+                  key={group.id}
+                  imageUrl={group.image_url}
+                  title={group.name}
+                  subtitle={`${group.church_name} · Led by ${group.leader_name}`}
+                  badgeLabel={config.activeBadgeLabel}
+                  badgeVariant="success"
+                  infoIcon={<ActiveClockIcon className="w-4 h-4" />}
+                  infoTitle={infoTitle}
+                  infoSubtitle={infoSubtitle}
+                  actionLabel={config.openGroupRoomActionLabel}
+                  actionIcon={<ActionChevronIcon className="w-4 h-4" />}
+                  onAction={() => onOpenGroupRoom?.(group.id)}
+                />
+              );
+            })}
           </div>
         </section>
       )}
