@@ -1,5 +1,5 @@
 import {
-  ChevronLeft,
+  ArrowLeft,
   User,
   UserMinus,
   ChevronRight,
@@ -28,7 +28,7 @@ import type {
 
 /* ── View Icons ──────────────────────────────────────────────────────── */
 export const MY_DISCIPLESHIP_GROUPS_LEAD_CARD_VIEW_ICONS: Record<string, LucideIcon> = {
-  back: ChevronLeft,
+  back: ArrowLeft,
   group: Users,
   chevronDown: ChevronDown,
 };

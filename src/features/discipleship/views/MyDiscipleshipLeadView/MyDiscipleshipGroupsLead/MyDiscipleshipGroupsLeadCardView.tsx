@@ -80,21 +80,20 @@ export function MyDiscipleshipGroupsLeadCardView({
     <div
       className={`w-full max-w-md mx-auto px-4 py-6 space-y-5 select-none ${className}`.trim()}
     >
-      {/* ── Sub-Navigation: Back Button ─────────────────────────────── */}
+      {/* ── Sub-Navigation: Back Button (Icon Only) ─────────────────── */}
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-1 text-[15px] font-semibold text-slate-900 hover:text-navy-hover transition-colors cursor-pointer border-none bg-transparent p-0 select-none"
-          aria-label={config.buttonBackLabel}
+          className="p-1 -ml-1 text-slate-900 hover:text-navy-hover hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent select-none"
+          aria-label={config.buttonBackLabel || "Back"}
         >
-          {BackIcon && <BackIcon className="w-5 h-5 -ml-1 text-slate-900" />}
-          <span>{config.buttonBackLabel}</span>
+          {BackIcon && <BackIcon className="w-6 h-6 text-slate-900" />}
         </button>
       </div>
 
-      {/* ── Group Header Card (Clickable Status Badge on top right) ─── */}
-      <div className="w-full bg-white border border-slate-100 rounded-2xl p-5 space-y-1.5 shadow-xs select-none">
+      {/* ── Group Header (Clickable Status Badge on top right) ──────── */}
+      <div className="w-full space-y-1.5 select-none">
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-xl font-bold text-slate-900 tracking-tight truncate">
             {activeGroup.name}
@@ -114,12 +113,6 @@ export function MyDiscipleshipGroupsLeadCardView({
             `.trim()}
             aria-label={`Change status: currently ${groupStatus}`}
           >
-            <span
-              className={`w-2 h-2 rounded-full shrink-0 ${
-                isActive ? "bg-emerald-500" : "bg-slate-400"
-              }`}
-              aria-hidden="true"
-            />
             <span>
               {isActive ? config.activeBadgeLabel : config.pausedBadgeLabel}
             </span>

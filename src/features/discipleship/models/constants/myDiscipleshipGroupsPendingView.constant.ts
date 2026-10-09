@@ -1,9 +1,9 @@
 import type { LucideIcon } from "lucide-react";
-import { ChevronLeft, Clock } from "lucide-react";
+import { ArrowLeft, Clock } from "lucide-react";
 import type { MyDiscipleshipGroupsPendingViewConfig } from "../types/myDiscipleshipGroupsPendingView.types";
 
 export const MY_DISCIPLESHIP_GROUPS_PENDING_VIEW_ICONS: Record<string, LucideIcon> = {
-  back: ChevronLeft,
+  back: ArrowLeft,
   clock: Clock,
 };
 

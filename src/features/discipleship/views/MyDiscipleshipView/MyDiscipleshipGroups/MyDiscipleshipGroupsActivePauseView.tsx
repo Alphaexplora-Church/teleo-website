@@ -61,21 +61,20 @@ export function MyDiscipleshipGroupsActivePauseView({
     <div
       className={`w-full max-w-md mx-auto px-4 py-6 space-y-4 select-none ${className}`.trim()}
     >
-      {/* ── Sub-Navigation: Back Button Only ─────────────────────────── */}
+      {/* ── Sub-Navigation: Back Button (Icon Only) ─────────────────── */}
       <div className="flex items-center justify-between">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-1 text-[15px] font-semibold text-slate-900 hover:text-navy-hover transition-colors cursor-pointer border-none bg-transparent p-0"
-          aria-label={config.buttonBackLabel}
+          className="p-1 -ml-1 text-slate-900 hover:text-navy-hover hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent"
+          aria-label={config.buttonBackLabel || "Back"}
         >
-          <BackIcon className="w-5 h-5 -ml-1 text-slate-900" />
-          <span>{config.buttonBackLabel}</span>
+          <BackIcon className="w-6 h-6 text-slate-900" />
         </button>
       </div>
 
-      {/* ── Header Card: Group Name, Badge, Subtitle ────────────────── */}
-      <div className="w-full bg-white border border-slate-100 rounded-2xl p-5 space-y-1.5 shadow-xs">
+      {/* ── Group Header: Group Name, Badge, Subtitle ───────────────── */}
+      <div className="w-full space-y-1.5">
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">
             {groupName}

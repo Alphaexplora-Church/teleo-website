@@ -45,46 +45,27 @@ export function DiscipleshipProcessIntro({
   // Icons are injected exclusively from Model/Constant layer
   const BackIcon = resolvedConfig.buttonBack.icon;
   const ApplyIcon = resolvedConfig.buttonApply.icon;
-  const FormatIcon = resolvedConfig.icons.format;
-  const LockIcon = resolvedConfig.icons.lock;
 
   return (
     <div
       className={`w-full max-w-md mx-auto px-4 py-6 space-y-6 select-none ${className}`.trim()}
     >
-      {/* ── Sub-Navigation: Back to Churches Button Only (No profile avatar) ── */}
+      {/* ── Sub-Navigation: Back Button (Icon Only) ────────────────── */}
       <div className="flex items-center">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-1 text-[17px] font-semibold text-[#0E172A] hover:text-[#042C58] transition-colors cursor-pointer border-none bg-transparent p-0"
-          aria-label={resolvedConfig.buttonBack.label}
+          className="p-1 -ml-1 text-[#0E172A] hover:text-[#042C58] hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent"
+          aria-label={resolvedConfig.buttonBack.label || "Back"}
         >
-          {BackIcon && <BackIcon className="w-5 h-5 -ml-1 text-[#0E172A]" />}
-          <span>{resolvedConfig.buttonBack.label}</span>
+          {BackIcon && <BackIcon className="w-6 h-6 text-[#0E172A]" />}
         </button>
       </div>
 
-      {/* ── Church Name & Format Indicator ──────────────────────── */}
-      <div className="space-y-2.5">
-        <h1 className="text-2xl font-bold text-[#0E172A] tracking-tight">
-          {resolvedProgram?.church_name || "Church Discipleship"}
-        </h1>
-
-        {resolvedProgram?.format && (
-          <div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#F1F3F6] rounded-lg text-xs font-medium text-[#475569]">
-              {FormatIcon && (
-                <FormatIcon className="w-3.5 h-3.5 text-[#62718A]" />
-              )}
-              <span>
-                {resolvedConfig.formatPrefix}
-                {resolvedProgram.format}
-              </span>
-            </span>
-          </div>
-        )}
-      </div>
+      {/* ── Church Name ─────────────────────────────────────────── */}
+      <h1 className="text-2xl font-bold text-[#0E172A] tracking-tight">
+        {resolvedProgram?.church_name || "Church Discipleship"}
+      </h1>
 
       {/* ── Description Box ────────────────────────────────────── */}
       {resolvedProgram?.description && (
@@ -100,8 +81,8 @@ export function DiscipleshipProcessIntro({
         reviewTimingDays={resolvedProgram?.review_timing_days}
       />
 
-      {/* ── Bottom Action Button & Security Footnote ───────────── */}
-      <div className="pt-2 space-y-3 pb-6">
+      {/* ── Bottom Action Button ───────────────────────────────── */}
+      <div className="pt-2 pb-6">
         <button
           type="button"
           onClick={onApply}
@@ -110,13 +91,6 @@ export function DiscipleshipProcessIntro({
           <span>{resolvedConfig.buttonApply.label}</span>
           {ApplyIcon && <ApplyIcon className="w-4 h-4 text-white" />}
         </button>
-
-        <div className="flex items-center justify-center gap-1.5 text-xs text-[#62718A]">
-          {LockIcon && (
-            <LockIcon className="w-3.5 h-3.5 text-[#62718A] shrink-0" />
-          )}
-          <span>{resolvedConfig.footnoteText}</span>
-        </div>
       </div>
     </div>
   );

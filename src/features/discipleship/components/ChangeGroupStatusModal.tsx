@@ -40,7 +40,6 @@ const DEFAULT_GROUP_STATUS_OPTIONS: ChangeGroupStatusOption[] = [
   {
     id: "active",
     title: "Active",
-    badge: "Current",
     description:
       "Members receive scheduled scripture reading, reflections, and notifications. Discipleship tracking is fully enabled.",
   },
@@ -184,6 +183,11 @@ export function ChangeGroupStatusModal({
         <div className="space-y-3" role="radiogroup" aria-labelledby="change-group-status-title">
           {options.map((option) => {
             const isSelected = selectedStatusId === option.id;
+            const isCurrent =
+              option.id.toLowerCase() === (currentStatusId || "active").toLowerCase();
+            const badgeLabel = isCurrent
+              ? (option.badge || "CURRENT")
+              : (option.badge && option.badge.toUpperCase() !== "CURRENT" ? option.badge : undefined);
 
             return (
               <button
@@ -208,9 +212,9 @@ export function ChangeGroupStatusModal({
                     <span className="font-bold text-[16px] text-[#0E172A] leading-tight">
                       {option.title}
                     </span>
-                    {option.badge && (
+                    {badgeLabel && (
                       <Badge
-                        label={option.badge}
+                        label={badgeLabel}
                         variant="success"
                         dotVisible={false}
                         size="sm"

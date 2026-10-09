@@ -1,9 +1,10 @@
-import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import type { DiscipleshipTab } from "../components/GroupsTabSwitcher";
 import {
   createPendingApplicationMock,
-  mockDiscipleshipDashboard,
+  mockEmptyDiscipleshipDashboard,
+  mockPopulatedDiscipleshipDashboard,
   type DiscipleshipDashboardMock,
 } from "../models/mocks/discipleshipDashboard.mocks";
 import type { DiscipleshipChurch } from "../models/types/myDiscipleshipEmptyStateView.types";
@@ -17,22 +18,38 @@ export type DiscipleshipViewMode =
   | "group-active"
   | "lead-group-card";
 
+export type DiscipleshipDemoPersona = "empty" | "member" | "lead";
+
 export interface UseDiscipleshipViewOptions {
   initialDashboardData?: DiscipleshipDashboardMock;
   initialTab?: DiscipleshipTab;
+  initialPersona?: DiscipleshipDemoPersona;
 }
 
 export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
   const containerRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
 
+  // Read URL query parameters for fast demo switching (e.g. ?demo=empty or ?persona=lead)
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const paramPersona = (searchParams.get("persona") || searchParams.get("demo")) as DiscipleshipDemoPersona | null;
+
+  const [persona, setPersonaState] = useState<DiscipleshipDemoPersona>(() => {
+    if (paramPersona === "empty" || paramPersona === "member" || paramPersona === "lead") {
+      return paramPersona;
+    }
+    return options?.initialPersona ?? "lead";
+  });
+
   const [activeTab, setActiveTab] = useState<DiscipleshipTab>(
     options?.initialTab ?? "my-discipleship"
   );
 
-  const [dashboardData, setDashboardData] = useState<DiscipleshipDashboardMock>(
-    () => options?.initialDashboardData ?? mockDiscipleshipDashboard
-  );
+  const [dashboardData, setDashboardData] = useState<DiscipleshipDashboardMock>(() => {
+    if (options?.initialDashboardData) return options.initialDashboardData;
+    if (paramPersona === "empty") return mockEmptyDiscipleshipDashboard;
+    return mockPopulatedDiscipleshipDashboard;
+  });
 
   const isInitialChurchList =
     location.pathname.startsWith("/discipleship/church") ||
@@ -116,6 +133,26 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
   useEffect(() => {
     scrollToTop();
   }, [viewMode, selectedChurchId, selectedLeadGroupId, activeTab, location.pathname, scrollToTop]);
+
+  // ── Demo Persona Switcher ────────────────────────────────────
+  const setPersona = useCallback((newPersona: DiscipleshipDemoPersona) => {
+    setPersonaState(newPersona);
+    if (newPersona === "empty") {
+      setDashboardData(mockEmptyDiscipleshipDashboard);
+      setActiveTab("my-discipleship");
+      setViewMode("dashboard");
+    } else if (newPersona === "member") {
+      setDashboardData(mockPopulatedDiscipleshipDashboard);
+      setActiveTab("my-discipleship");
+      setViewMode("dashboard");
+    } else {
+      setDashboardData(mockPopulatedDiscipleshipDashboard);
+      setViewMode("dashboard");
+    }
+    scrollToTop();
+  }, [scrollToTop]);
+
+  const isLeader = persona === "lead";
 
   // ── Navigation & Action Handlers ─────────────────────────────
   const handleSelectChurch = useCallback((church: DiscipleshipChurch) => {
@@ -234,6 +271,9 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
     activeTab,
     setActiveTab: handleTabChange,
     viewMode,
+    persona,
+    setPersona,
+    isLeader,
     selectedChurchId,
     selectedApplicationId,
     selectedGroupId,

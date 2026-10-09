@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  ChevronLeft,
+  ArrowLeft,
   Calendar,
   Clock,
   MapPin,
@@ -18,7 +18,7 @@ import {
 import type { MyDiscipleshipGroupsActivePauseViewConfig } from "../types/myDiscipleshipGroupsActivePauseView.types";
 
 export const MY_DISCIPLESHIP_GROUPS_ACTIVE_PAUSE_VIEW_ICONS: Record<string, LucideIcon> = {
-  back: ChevronLeft,
+  back: ArrowLeft,
   pausedBanner: CirclePause,
   calendar: Calendar,
   clock: Clock,

@@ -62,26 +62,24 @@ export function DiscipleshipProcessChurchList({
 
   return (
     <div className={`w-full max-w-md mx-auto px-4 py-6 space-y-6 select-none ${className}`.trim()}>
-      {/* ── Top Header: Back Button Only ──────────────────────── */}
+      {/* ── Top Header: Back Button (Icon Only) ────────────────── */}
       <div className="flex items-center">
         {onBack ? (
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex items-center gap-1 text-[17px] font-semibold text-[#0E172A] hover:text-[#042C58] transition-colors cursor-pointer border-none bg-transparent p-0"
+            className="p-1 -ml-1 text-[#0E172A] hover:text-[#042C58] hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent"
             aria-label={config.buttonBack.label || "Back"}
           >
-            {BackIcon && <BackIcon className="w-5 h-5 -ml-1 text-[#0E172A]" />}
-            <span>{config.buttonBack.label}</span>
+            {BackIcon && <BackIcon className="w-6 h-6 text-[#0E172A]" />}
           </button>
         ) : (
           <Link
             to={config.buttonBack.to || "/discipleship"}
-            className="inline-flex items-center gap-1 text-[17px] font-semibold text-[#0E172A] hover:text-[#042C58] transition-colors cursor-pointer"
+            className="p-1 -ml-1 text-[#0E172A] hover:text-[#042C58] hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
             aria-label={config.buttonBack.label || "Back"}
           >
-            {BackIcon && <BackIcon className="w-5 h-5 -ml-1 text-[#0E172A]" />}
-            <span>{config.buttonBack.label}</span>
+            {BackIcon && <BackIcon className="w-6 h-6 text-[#0E172A]" />}
           </Link>
         )}
       </div>

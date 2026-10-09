@@ -70,16 +70,15 @@ export function MyDiscipleshipGroupsPendingView({
     <div
       className={`w-full max-w-md mx-auto px-4 py-6 space-y-6 select-none ${className}`.trim()}
     >
-      {/* ── Sub-Navigation: Back Button Only (No profile avatar) ── */}
+      {/* ── Sub-Navigation: Back Button (Icon Only) ──────────────── */}
       <div className="flex items-center">
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-1 text-[17px] font-semibold text-slate-900 hover:text-navy-hover transition-colors cursor-pointer border-none bg-transparent p-0"
-          aria-label={config.buttonBackLabel}
+          className="p-1 -ml-1 text-slate-900 hover:text-navy-hover hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent"
+          aria-label={config.buttonBackLabel || "Back"}
         >
-          <BackIcon className="w-5 h-5 -ml-1 text-slate-900" />
-          <span>{config.buttonBackLabel}</span>
+          <BackIcon className="w-6 h-6 text-slate-900" />
         </button>
       </div>
 

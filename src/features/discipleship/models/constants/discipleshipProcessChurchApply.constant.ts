@@ -1,9 +1,9 @@
 import type { LucideIcon } from "lucide-react";
-import { ChevronLeft, ArrowRight, Clock, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, FileText } from "lucide-react";
 import type { DiscipleshipProcessChurchApplyConfig } from "../types/discipleshipProcessChurchApply.types";
 
 export const DISCIPLESHIP_PROCESS_CHURCH_APPLY_ICONS: Record<string, LucideIcon> = {
-  back: ChevronLeft,
+  back: ArrowLeft,
   submit: ArrowRight,
   clock: Clock,
   footnote: FileText,

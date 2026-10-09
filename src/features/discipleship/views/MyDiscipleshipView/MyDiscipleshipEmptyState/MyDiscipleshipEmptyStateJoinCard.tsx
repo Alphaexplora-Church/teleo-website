@@ -47,7 +47,7 @@ export function MyDiscipleshipEmptyStateJoinCard({
           }
         }}
         fullWidth
-        className="flex items-center justify-center gap-2"
+        className="text-white flex items-center justify-center gap-2"
       >
         <span>{buttonJoin.label}</span>
         {ButtonIcon && <ButtonIcon className="w-4 h-4" />}

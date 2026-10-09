@@ -1,9 +1,9 @@
 import type { LucideIcon } from "lucide-react";
-import { ChevronLeft, SlidersHorizontal, ArrowRight, Lock } from "lucide-react";
+import { ArrowLeft, SlidersHorizontal, ArrowRight, Lock } from "lucide-react";
 import type { DiscipleshipProcessIntroConfig } from "../types/discipleshipProcessIntro.types";
 
 export const DISCIPLESHIP_PROCESS_INTRO_ICONS: Record<string, LucideIcon> = {
-  back: ChevronLeft,
+  back: ArrowLeft,
   format: SlidersHorizontal,
   apply: ArrowRight,
   lock: Lock,
