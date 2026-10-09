@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import type { FeedPostModel } from '../models/homeTypes';
+import RecurrenceBadge, { RepeatIcon } from './RecurrenceBadge';
 
 interface PostDetailViewProps {
   post: FeedPostModel;
@@ -114,6 +115,7 @@ const PostDetailView: React.FC<PostDetailViewProps> = ({ post, onClose }) => {
             </div>
 
             <h2 className="mt-4 text-[19px] font-bold leading-[25px]">{post.title}</h2>
+            {post.recurrenceLabel && <RecurrenceBadge label={post.recurrenceLabel} className="mt-1.5" />}
             <p className="mt-1 text-[12px] leading-[19px] text-[#4F4F4F]">{post.body}</p>
             {post.schedule && <p className="mt-3 whitespace-pre-line text-[11px] leading-[18px] text-[#666]">{post.schedule}</p>}
           </div>
@@ -175,6 +177,25 @@ const PostDetailView: React.FC<PostDetailViewProps> = ({ post, onClose }) => {
                 </div>
               </div>
             )}
+          </section>
+        )}
+
+        {post.recurrenceLabel && post.upcomingDates && post.upcomingDates.length > 0 && (
+          <section className="mt-5" aria-label="Upcoming dates">
+            <h3 className="flex items-center gap-1.5 text-[14px] font-bold">
+              <span className="text-[#3730A3]"><RepeatIcon size={15} /></span>
+              Repeats {post.recurrenceLabel.charAt(0).toLowerCase() + post.recurrenceLabel.slice(1)}
+            </h3>
+            <ul className="mt-3 divide-y divide-[#ECEFF2] rounded-xl border border-[#ECEFF2]">
+              {post.upcomingDates.map((upcoming, index) => (
+                <li key={`${upcoming.date}-${index}`} className="flex items-center justify-between gap-3 px-3.5 py-2.5">
+                  <span className="text-[11px] font-semibold">{upcoming.date}</span>
+                  <span className="text-[10px] text-[#626B73]">
+                    {[index === 0 ? 'Next' : undefined, upcoming.time].filter(Boolean).join(' · ')}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </section>
         )}
 

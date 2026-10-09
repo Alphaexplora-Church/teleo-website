@@ -1,5 +1,9 @@
 export type PostCategory = 'Announcement' | 'Events';
 
+// Recurring schedule (SCRUM-228): weekly on recurrence_day 0 (Sunday) - 6,
+// or monthly on day 1 - 31.
+export type RecurrenceType = 'weekly' | 'monthly';
+
 export interface HeroSlide {
   id: string;
   kind: 'gospel' | 'event';
@@ -9,6 +13,12 @@ export interface HeroSlide {
   location?: string;
   month?: string;
   day?: string;
+  time?: string;
+  recurrenceLabel?: string;
+}
+
+export interface UpcomingDate {
+  date: string;
   time?: string;
 }
 
@@ -32,8 +42,13 @@ export interface FeedPostModel {
   speakers?: string;
   participants?: string;
   dressCode?: string;
+  /** For a recurring post, the start of its next occurrence. */
   startDate?: string | null;
   createdAt?: string;
+  /** "Every Thursday", "Monthly on the 15th"; only on recurring posts. */
+  recurrenceLabel?: string;
+  /** The next occurrences of a recurring post, formatted for display. */
+  upcomingDates?: UpcomingDate[];
 }
 
 export interface ContentFeedMedia {
@@ -62,6 +77,11 @@ export interface ContentFeedRecord {
   author_username: string | null;
   author_profile_picture_url: string | null;
   media: ContentFeedMedia[];
+  // Optional: backends from before SCRUM-228 do not send these.
+  recurrence_type?: RecurrenceType | null;
+  recurrence_day?: number | null;
+  /** Next occurrences computed by the API; start_date is only the first one. */
+  next_occurrences?: { start_date: string; end_date: string | null }[] | null;
 }
 
 export interface ContentFeedResponse {
