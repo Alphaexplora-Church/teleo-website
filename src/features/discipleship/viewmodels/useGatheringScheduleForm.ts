@@ -3,6 +3,7 @@ import type {
   GatheringScheduleFormData,
   MeetingFormat,
 } from "../models/types/myDiscipleshipGroupsLeadCardView.types";
+import { useSwipeDownDismiss } from "./useSwipeDownDismiss";
 
 /** Computes dynamic default time based on current system time */
 export function getDynamicCurrentTime(): {
@@ -105,27 +106,23 @@ export function useGatheringScheduleForm({
   // Current formatted time
   const currentFormattedTime = `${selectedHour} : ${selectedMinute}  ${selectedPeriod}`;
 
-  // Drag-to-dismiss bottom sheet interaction
-  const [dragOffsetY, setDragOffsetY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const touchStartYRef = useRef(0);
+  // Drag-to-dismiss bottom sheet interaction via reusable hook
+  const {
+    dragOffsetY,
+    isDragging,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    sheetStyle,
+  } = useSwipeDownDismiss({
+    isOpen,
+    onClose,
+  });
 
-  // Lock background scroll while modal is open
-  useEffect(() => {
-    if (!isOpen) return;
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isOpen]);
-
-  // Reset drag and form data on open
+  // Reset form data on open
   const prevIsOpenRef = useRef(isOpen);
   useEffect(() => {
     if (isOpen && !prevIsOpenRef.current) {
-      setDragOffsetY(0);
-      setIsDragging(false);
       setFormat(initialData?.format ?? "physical");
       setDayOfWeek(initialData?.dayOfWeek ?? "");
       setRecurrence(initialData?.recurrence ?? defaultRecurrence);
@@ -139,40 +136,6 @@ export function useGatheringScheduleForm({
     }
     prevIsOpenRef.current = isOpen;
   }, [isOpen, initialData, defaultRecurrence]);
-
-  // Touch Swipe-Down to Dismiss Handlers
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartYRef.current = e.touches[0].clientY;
-    setIsDragging(true);
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    const deltaY = e.touches[0].clientY - touchStartYRef.current;
-    if (deltaY > 0) {
-      setDragOffsetY(deltaY);
-    }
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    setIsDragging(false);
-    if (dragOffsetY > 70) {
-      onClose?.();
-    } else {
-      setDragOffsetY(0);
-    }
-  }, [dragOffsetY, onClose]);
-
-  // Close on Escape key
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose?.();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
 
   // Form validation rules:
   // 1. Dropdown (dayOfWeek, recurrence) and Gathering Time are universally required.
@@ -261,6 +224,7 @@ export function useGatheringScheduleForm({
     handleTouchStart,
     handleTouchMove,
     handleTouchEnd,
+    sheetStyle,
     isFormValid,
     handleSave,
   };

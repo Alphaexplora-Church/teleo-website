@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check } from "lucide-react";
 import { Button } from "../../../shared/components/Button/Button";
 import { Badge } from "../../../shared/components/Badge/Badge";
+import { useSwipeDownDismiss } from "../viewmodels/useSwipeDownDismiss";
 
 export interface ChangeGroupStatusOption {
   /** Unique status key, e.g. "active" | "paused" */
@@ -64,66 +65,22 @@ export function ChangeGroupStatusModal({
 }: ChangeGroupStatusModalProps) {
   const [selectedStatusId, setSelectedStatusId] = useState<string>(currentStatusId);
 
-  // Swipe/drag-to-dismiss states
-  const [dragOffsetY, setDragOffsetY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const touchStartYRef = useRef(0);
+  const {
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    sheetStyle,
+  } = useSwipeDownDismiss({
+    isOpen,
+    onClose,
+  });
 
   // Sync selected status with currentStatusId prop on open
   useEffect(() => {
     if (isOpen) {
       setSelectedStatusId(currentStatusId);
-      setDragOffsetY(0);
-      setIsDragging(false);
     }
   }, [isOpen, currentStatusId]);
-
-  // Lock background scrolling while modal is active
-  useEffect(() => {
-    if (!isOpen) return;
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isOpen]);
-
-  // Keyboard accessibility: dismiss on Escape
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    if (isOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  // Touch handlers for drag-to-dismiss
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartYRef.current = e.touches[0].clientY;
-    setIsDragging(true);
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    const deltaY = e.touches[0].clientY - touchStartYRef.current;
-    if (deltaY > 0) {
-      setDragOffsetY(deltaY);
-    }
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    setIsDragging(false);
-    if (dragOffsetY > 70) {
-      onClose();
-    } else {
-      setDragOffsetY(0);
-    }
-  }, [dragOffsetY, onClose]);
 
   const handleUpdate = () => {
     onUpdateStatus?.(selectedStatusId);
@@ -147,13 +104,7 @@ export function ChangeGroupStatusModal({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{
-          transform:
-            dragOffsetY > 0 ? `translateY(${dragOffsetY}px)` : undefined,
-          transition: isDragging
-            ? "none"
-            : "transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
+        style={sheetStyle}
         className={`
           relative z-10 w-full max-w-md mx-auto bg-white rounded-t-[32px] px-6 pt-3 pb-8 shadow-2xl
           flex flex-col space-y-5 select-none animate-in slide-in-from-bottom duration-300 max-h-[92dvh] overflow-y-auto

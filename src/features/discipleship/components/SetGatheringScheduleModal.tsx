@@ -215,11 +215,10 @@ export function SetGatheringScheduleModal({
         handleRemoveClick,
         handleConfirmRemove,
         handleCancelRemove,
-        dragOffsetY,
-        isDragging,
         handleTouchStart,
         handleTouchMove,
         handleTouchEnd,
+        sheetStyle,
         isFormValid,
         handleSave,
     } = useGatheringScheduleForm({
@@ -248,13 +247,7 @@ export function SetGatheringScheduleModal({
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
-                style={{
-                    transform:
-                        dragOffsetY > 0 ? `translateY(${dragOffsetY}px)` : undefined,
-                    transition: isDragging
-                        ? "none"
-                        : "transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
-                }}
+                style={sheetStyle}
                 className={`
           relative z-10 w-full max-w-md mx-auto bg-white rounded-t-[32px] px-6 pt-3 pb-8 shadow-2xl
           flex flex-col space-y-5 select-none animate-in slide-in-from-bottom duration-300 max-h-[92dvh] overflow-y-auto

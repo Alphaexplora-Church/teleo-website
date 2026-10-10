@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { Badge } from "../../../shared/components/Badge/Badge";
 import { Button } from "../../../shared/components/Button/Button";
@@ -10,6 +10,7 @@ import {
   journeyModuleListModalConst,
 } from "../models/constants/myDiscipleshipGroupsLeadCardView.constant";
 import type { JourneyModuleListModalConfig } from "../models/types/myDiscipleshipGroupsLeadCardView.types";
+import { useSwipeDownDismiss } from "../viewmodels/useSwipeDownDismiss";
 
 export type { JourneyStudyModule };
 
@@ -42,7 +43,7 @@ export function JourneyModuleListModal({
   className = "",
 }: JourneyModuleListModalProps) {
   // Find current module ID from ID prop or by matching title
-  const resolvedCurrentModuleId = React.useMemo(() => {
+  const resolvedCurrentModuleId = useMemo(() => {
     if (currentModuleId) return currentModuleId;
     if (currentModuleTitle) {
       const match = modules.find(
@@ -57,66 +58,22 @@ export function JourneyModuleListModal({
     resolvedCurrentModuleId
   );
 
-  // Swipe/drag-to-dismiss states
-  const [dragOffsetY, setDragOffsetY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const touchStartYRef = useRef(0);
+  const {
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    sheetStyle,
+  } = useSwipeDownDismiss({
+    isOpen,
+    onClose,
+  });
 
   // Sync selection with current module when opened
   useEffect(() => {
     if (isOpen) {
       setSelectedModuleId(resolvedCurrentModuleId);
-      setDragOffsetY(0);
-      setIsDragging(false);
     }
   }, [isOpen, resolvedCurrentModuleId]);
-
-  // Lock background scroll while modal is active
-  useEffect(() => {
-    if (!isOpen) return;
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isOpen]);
-
-  // Keyboard accessibility: dismiss on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose();
-      }
-    };
-    if (isOpen) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen, onClose]);
-
-  // Touch swipe-down to dismiss handlers
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartYRef.current = e.touches[0].clientY;
-    setIsDragging(true);
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    const deltaY = e.touches[0].clientY - touchStartYRef.current;
-    if (deltaY > 0) {
-      setDragOffsetY(deltaY);
-    }
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    setIsDragging(false);
-    if (dragOffsetY > 70) {
-      onClose();
-    } else {
-      setDragOffsetY(0);
-    }
-  }, [dragOffsetY, onClose]);
 
   const handleUpdate = () => {
     const chosen = modules.find((m) => m.id === selectedModuleId);
@@ -146,13 +103,7 @@ export function JourneyModuleListModal({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{
-          transform:
-            dragOffsetY > 0 ? `translateY(${dragOffsetY}px)` : undefined,
-          transition: isDragging
-            ? "none"
-            : "transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
+        style={sheetStyle}
         className={`
           relative z-10 w-full max-w-md mx-auto bg-white rounded-t-[32px] px-6 pt-3 pb-8 shadow-2xl
           flex flex-col space-y-5 select-none animate-in slide-in-from-bottom duration-300 max-h-[92dvh] overflow-y-auto

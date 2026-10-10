@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { XCircle } from "lucide-react";
 import { Button } from "../../../shared/components/Button/Button";
+import { useSwipeDownDismiss } from "../viewmodels/useSwipeDownDismiss";
 
 export type ActionConfirmationVariant = "danger" | "primary" | "warning";
 
@@ -13,7 +14,7 @@ export interface ActionConfirmationModalProps {
   confirmLabel?: string;
   cancelLabel?: string;
   confirmVariant?: ActionConfirmationVariant;
-  icon?: React.ReactNode;
+  icon?: ReactNode;
   onConfirm?: () => void;
   className?: string;
 }
@@ -30,49 +31,15 @@ export function ActionConfirmationModal({
   onConfirm,
   className = "",
 }: ActionConfirmationModalProps) {
-  const [dragOffsetY, setDragOffsetY] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const touchStartYRef = useRef(0);
-
-  // Lock body scroll while modal is open
-  useEffect(() => {
-    if (!isOpen) return;
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isOpen]);
-
-  // Reset drag on open
-  useEffect(() => {
-    if (isOpen) {
-      setDragOffsetY(0);
-      setIsDragging(false);
-    }
-  }, [isOpen]);
-
-  // Touch Swipe-Down to Dismiss Handlers
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    touchStartYRef.current = e.touches[0].clientY;
-    setIsDragging(true);
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    const deltaY = e.touches[0].clientY - touchStartYRef.current;
-    if (deltaY > 0) {
-      setDragOffsetY(deltaY);
-    }
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    setIsDragging(false);
-    if (dragOffsetY > 70) {
-      onClose();
-    } else {
-      setDragOffsetY(0);
-    }
-  }, [dragOffsetY, onClose]);
+  const {
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    sheetStyle,
+  } = useSwipeDownDismiss({
+    isOpen,
+    onClose,
+  });
 
   if (!isOpen) return null;
 
@@ -98,13 +65,7 @@ export function ActionConfirmationModal({
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        style={{
-          transform:
-            dragOffsetY > 0 ? `translateY(${dragOffsetY}px)` : undefined,
-          transition: isDragging
-            ? "none"
-            : "transform 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
-        }}
+        style={sheetStyle}
         className={`
           relative z-10 w-full max-w-md mx-auto bg-white rounded-t-3xl px-6 pt-3 pb-8 shadow-2xl
           flex flex-col items-center text-center space-y-4 select-none
