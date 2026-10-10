@@ -5,7 +5,9 @@ import {
   type GroupMemberItem,
   type NextGatheringData,
   type LeadGroupItem,
+  type CurrentStudyData,
 } from "../models/mocks/discipleshipLead.mocks";
+import type { JourneyStudyModule } from "../models/mocks/discipleshipJourneyModules.mocks";
 import type {
   GatheringScheduleFormData,
   MeetingFormat,
@@ -73,6 +75,7 @@ export interface UseLeadGroupCardOptions {
   onScheduleSaved?: (data: GatheringScheduleFormData, newGathering: NextGatheringData) => void;
   onScheduleRemoved?: () => void;
   onMemberAction?: (member: GroupMemberItem) => void;
+  onStudyUpdated?: (module: JourneyStudyModule) => void;
 }
 
 export function useLeadGroupCard({
@@ -86,6 +89,7 @@ export function useLeadGroupCard({
   onScheduleSaved,
   onScheduleRemoved,
   onMemberAction,
+  onStudyUpdated,
 }: UseLeadGroupCardOptions = {}) {
   // Resolve group data: passed prop -> looked up by ID -> fallback
   const lookupResult = useMemo(
@@ -102,6 +106,16 @@ export function useLeadGroupCard({
     lookupResult?.churchName ??
     mockLeadChurchGroups[0]?.church_name ??
     "";
+
+  // Current Study modal state & dynamic study module
+  const [isChangeStudyModalOpen, setIsChangeStudyModalOpen] = useState(false);
+  const [activeStudy, setActiveStudy] = useState<CurrentStudyData | undefined>(
+    activeGroup?.current_study
+  );
+
+  useEffect(() => {
+    setActiveStudy(activeGroup?.current_study);
+  }, [activeGroup?.id, activeGroup?.current_study]);
 
   // Group status state (Active vs Paused) & change status modal
   const [isChangeStatusModalOpen, setIsChangeStatusModalOpen] = useState(false);
@@ -210,6 +224,24 @@ export function useLeadGroupCard({
     setIsChangeStatusModalOpen(false);
   }, []);
 
+  const handleOpenChangeStudyModal = useCallback(() => {
+    setIsChangeStudyModalOpen(true);
+  }, []);
+
+  const handleCloseChangeStudyModal = useCallback(() => {
+    setIsChangeStudyModalOpen(false);
+  }, []);
+
+  const handleUpdateStudy = useCallback((module: JourneyStudyModule) => {
+    const updated: CurrentStudyData = {
+      module_badge: module.module_badge,
+      title: module.title,
+    };
+    setActiveStudy(updated);
+    setIsChangeStudyModalOpen(false);
+    onStudyUpdated?.(module);
+  }, [onStudyUpdated]);
+
   return {
     activeGroup,
     resolvedChurchName,
@@ -218,6 +250,8 @@ export function useLeadGroupCard({
     membersCount,
     activeGathering,
     hasSchedule,
+    activeStudy,
+    isChangeStudyModalOpen,
     isChangeStatusModalOpen,
     isScheduleModalOpen,
     scheduleModalMode,
@@ -234,5 +268,8 @@ export function useLeadGroupCard({
     handleCloseMemberActionSheet,
     handleOpenChangeStatusModal,
     handleCloseChangeStatusModal,
+    handleOpenChangeStudyModal,
+    handleCloseChangeStudyModal,
+    handleUpdateStudy,
   };
 }

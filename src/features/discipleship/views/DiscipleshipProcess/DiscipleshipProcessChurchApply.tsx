@@ -49,7 +49,6 @@ export function DiscipleshipProcessChurchApply({
   // Icons are injected exclusively from Model/Constant layer
   const BackIcon = resolvedConfig.buttonBack.icon;
   const SubmitIcon = resolvedConfig.buttonSubmit.icon;
-  const FootnoteIcon = resolvedConfig.icons.footnote;
 
   return (
     <div
@@ -93,8 +92,8 @@ export function DiscipleshipProcessChurchApply({
         ))}
       </div>
 
-      {/* ── Bottom Action Button & Footnote ─────────────────────── */}
-      <div className="pt-2 space-y-3 pb-6">
+      {/* ── Bottom Action Button ─────────────────────────────────── */}
+      <div className="pt-2 pb-6">
         <button
           type="button"
           onClick={handleSubmit}
@@ -109,13 +108,6 @@ export function DiscipleshipProcessChurchApply({
           <span>{resolvedConfig.buttonSubmit.label}</span>
           {SubmitIcon && <SubmitIcon className="w-4 h-4" />}
         </button>
-
-        <div className="flex items-center justify-center gap-1.5 text-xs text-[#62718A]">
-          {FootnoteIcon && (
-            <FootnoteIcon className="w-3.5 h-3.5 text-[#62718A] shrink-0" />
-          )}
-          <span>{resolvedConfig.footnoteText}</span>
-        </div>
       </div>
     </div>
   );

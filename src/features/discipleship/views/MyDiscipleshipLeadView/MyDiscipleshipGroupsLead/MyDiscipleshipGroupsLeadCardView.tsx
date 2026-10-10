@@ -4,6 +4,7 @@ import { GroupRosterList } from "../../../components/GroupRosterList";
 import { NextGatheringCard } from "../../../components/NextGatheringCard";
 import { SetGatheringScheduleModal } from "../../../components/SetGatheringScheduleModal";
 import { ChangeGroupStatusModal } from "../../../components/ChangeGroupStatusModal";
+import { JourneyModuleListModal } from "../../../components/JourneyModuleListModal";
 import {
   myDiscipleshipGroupsLeadCardViewConst,
   MY_DISCIPLESHIP_GROUPS_LEAD_CARD_VIEW_ICONS,
@@ -46,6 +47,8 @@ export function MyDiscipleshipGroupsLeadCardView({
     isChangeStatusModalOpen,
     isScheduleModalOpen,
     scheduleModalMode,
+    activeStudy,
+    isChangeStudyModalOpen,
     selectedMember,
     isMemberActionSheetOpen,
     initialScheduleFormData,
@@ -59,6 +62,9 @@ export function MyDiscipleshipGroupsLeadCardView({
     handleCloseMemberActionSheet,
     handleOpenChangeStatusModal,
     handleCloseChangeStatusModal,
+    handleOpenChangeStudyModal,
+    handleCloseChangeStudyModal,
+    handleUpdateStudy,
   } = useLeadGroupCard({
     groupId,
     group,
@@ -70,6 +76,7 @@ export function MyDiscipleshipGroupsLeadCardView({
     onScheduleSaved,
     onScheduleRemoved,
     onMemberAction,
+    onStudyUpdated: onOpenJourneyReading ? (mod) => onOpenJourneyReading(mod.title) : undefined,
   });
 
   if (!activeGroup) {
@@ -152,15 +159,14 @@ export function MyDiscipleshipGroupsLeadCardView({
       )}
 
       {/* ── Current Study Section (Current Journey) ──────────────────── */}
-      {activeGroup.current_study && (
+      {activeStudy && (
         <CurrentStudyCard
-          study={activeGroup.current_study}
-          title={activeGroup.current_study.title}
-          subtitle={activeGroup.current_study.lesson_subtitle}
-          moduleBadge={activeGroup.current_study.module_badge}
+          study={activeStudy}
+          title={activeStudy.title}
+          moduleBadge={activeStudy.module_badge}
           headerTitle={config.currentStudyHeaderTitle}
           actionLabel={config.openJourneyButtonLabel}
-          onOpenReading={onOpenJourneyReading}
+          onOpenReading={handleOpenChangeStudyModal}
         />
       )}
 
@@ -169,6 +175,7 @@ export function MyDiscipleshipGroupsLeadCardView({
         members={activeGroup.members}
         headerTitle={config.groupRosterHeaderTitle}
         totalCount={membersCount}
+        isGroupPaused={!isActive}
         onMemberAction={handleMemberAction}
       />
 
@@ -185,7 +192,14 @@ export function MyDiscipleshipGroupsLeadCardView({
       {/* ── Group Member Action Sheet Modal ──────────────────────────── */}
       <GroupMemberActionSheet
         isOpen={isMemberActionSheetOpen}
-        member={selectedMember}
+        member={
+          selectedMember
+            ? {
+                ...selectedMember,
+                status: !isActive ? "Paused" : selectedMember.status,
+              }
+            : null
+        }
         config={config.memberActionSheet}
         onClose={handleCloseMemberActionSheet}
         onViewDetails={onViewMemberDetails}
@@ -198,6 +212,15 @@ export function MyDiscipleshipGroupsLeadCardView({
         currentStatusId={isActive ? "active" : "paused"}
         onClose={handleCloseChangeStatusModal}
         onUpdateStatus={handleUpdateStatus}
+      />
+
+      {/* ── Change Current Study Modal ───────────────────────────────── */}
+      <JourneyModuleListModal
+        isOpen={isChangeStudyModalOpen}
+        currentModuleTitle={activeStudy?.title}
+        config={config.journeyModuleModal}
+        onClose={handleCloseChangeStudyModal}
+        onUpdateModule={handleUpdateStudy}
       />
     </div>
   );

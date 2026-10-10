@@ -13,7 +13,7 @@ export interface CurrentStudyCardProps {
   study?: CurrentStudyData;
   /** Study module title, e.g. "Romans 8: Life in the Spirit" */
   title?: string;
-  /** Lesson details/subtitle, e.g. "This Week: Lesson 3 of 6 · The Flesh vs. The Spirit" */
+  /** @deprecated Lesson details/subtitle - no longer displayed */
   subtitle?: string;
   /** Badge label, e.g. "Module 2" */
   moduleBadge?: string;
@@ -30,7 +30,6 @@ export interface CurrentStudyCardProps {
 export function CurrentStudyCard({
   study,
   title = study?.title ?? "Romans 8: Life in the Spirit",
-  subtitle = study?.lesson_subtitle ?? "This Week: Lesson 3 of 6 · The Flesh vs. The Spirit",
   moduleBadge = study?.module_badge ?? "Module 2",
   headerTitle = "CURRENT STUDY",
   actionLabel = "Open Reading in Journey Tab",
@@ -60,17 +59,10 @@ export function CurrentStudyCard({
         )}
       </div>
 
-      {/* ── Study Title & Subtitle ──────────────────────────────── */}
-      <div className="space-y-0.5">
-        <h3 className="text-[16px] font-bold text-slate-900 leading-tight">
-          {title}
-        </h3>
-        {subtitle && (
-          <p className="text-[12.5px] text-slate-500">
-            {subtitle}
-          </p>
-        )}
-      </div>
+      {/* ── Study Title ─────────────────────────────────────────── */}
+      <h3 className="text-[16px] font-bold text-slate-900 leading-tight">
+        {title}
+      </h3>
 
       {/* ── Action Button ───────────────────────────────────────── */}
       <Button
@@ -80,10 +72,7 @@ export function CurrentStudyCard({
         onClick={() => onOpenReading?.(title)}
         className="w-full bg-slate-50 hover:bg-slate-100 border border-slate-200/80 rounded-xl py-3 px-3.5 !justify-between text-[13px] font-semibold text-slate-900 transition-all shadow-2xs mt-1 cursor-pointer"
       >
-        <div className="flex items-center gap-2">
-          <BookOpen className="w-4 h-4 text-slate-600" />
-          <span>{actionLabel}</span>
-        </div>
+        <span>{actionLabel}</span>
         <ArrowRight className="w-4 h-4 text-slate-600" />
       </Button>
     </div>

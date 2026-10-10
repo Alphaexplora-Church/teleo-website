@@ -16,6 +16,10 @@ export interface GroupRosterListProps {
     headerTitle?: string;
     /** Total count displayed in header, defaults to members count */
     totalCount?: number;
+    /** Whether the group is currently paused. When true, all members display as Paused */
+    isGroupPaused?: boolean;
+    /** Group status ("Active" | "Paused") */
+    groupStatus?: "Active" | "Paused" | string;
     /** Initial number of items visible (default is 3) */
     initialVisibleCount?: number;
     /** Number of items to reveal on each click (default is 3) */
@@ -72,6 +76,8 @@ export function GroupRosterList({
     members = DEFAULT_MEMBERS,
     headerTitle = "GROUP ROSTER",
     totalCount,
+    isGroupPaused = false,
+    groupStatus,
     initialVisibleCount = 3,
     step = 3,
     sortBy = "name",
@@ -80,6 +86,7 @@ export function GroupRosterList({
     onMemberAction,
     className = "",
 }: GroupRosterListProps) {
+    const isPaused = isGroupPaused || groupStatus?.toLowerCase() === "paused";
     const [visibleCount, setVisibleCount] = useState<number>(initialVisibleCount);
 
     // Sort members alphabetically by name if sortBy === "name"
@@ -122,7 +129,10 @@ export function GroupRosterList({
             {/* ── Members Card Container ────────────────────────────────── */}
             <div className="w-full bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden divide-y divide-slate-100">
                 {visibleMembers.map((member) => {
-                    const isActive = member.status === "Active";
+                    const effectiveStatus: MemberStatus = isPaused
+                        ? "Paused"
+                        : (member.status ?? "Active");
+                    const isMemberActive = effectiveStatus === "Active";
 
                     return (
                         <div
@@ -149,20 +159,23 @@ export function GroupRosterList({
 
                             {/* Status Badge & Options Menu */}
                             <div className="flex items-center gap-2 shrink-0">
-                                {member.status && (
+                                {effectiveStatus && (
                                     <Badge
-                                        label={member.status}
-                                        variant={isActive ? "success" : "outline"}
+                                        label={effectiveStatus}
+                                        variant={isMemberActive ? "success" : "outline"}
                                         size="sm"
                                         dotVisible={false}
-                                        className={`font-semibold text-[11px] tracking-wider px-2.5 py-0.5 shrink-0 ${!isActive ? "border-slate-300 text-slate-600" : ""
+                                        className={`font-semibold text-[11px] tracking-wider px-2.5 py-0.5 shrink-0 ${!isMemberActive ? "border-slate-300 text-slate-600" : ""
                                             }`}
                                     />
                                 )}
 
                                 <button
                                     type="button"
-                                    onClick={() => onMemberAction?.(member)}
+                                    onClick={() => onMemberAction?.({
+                                        ...member,
+                                        status: effectiveStatus,
+                                    })}
                                     className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer border-none bg-transparent"
                                     aria-label={`Options for ${member.name}`}
                                 >

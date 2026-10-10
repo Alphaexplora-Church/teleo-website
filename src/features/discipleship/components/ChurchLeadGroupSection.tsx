@@ -1,4 +1,4 @@
-import { Church, Users, Clock, ChevronRight } from "lucide-react";
+import { Church, Users, Clock } from "lucide-react";
 import { Badge } from "../../../shared/components/Badge/Badge";
 
 export type LeadGroupStatus = "Active" | "Paused" | string;
@@ -32,9 +32,9 @@ export interface ChurchLeadGroupSectionProps {
   groupsCount?: number;
   /** List of group items under this church */
   groups?: LeadGroupItem[];
-  /** Callback fired when a group's "Manage group & roster" row is clicked */
+  /** Callback fired when a group's card is clicked */
   onManageGroup?: (groupId: string, group: LeadGroupItem) => void;
-  /** Action label for group management row (defaults to "Manage group & roster") */
+  /** @deprecated Action label for group management row - card is now clickable */
   manageActionLabel?: string;
   /** Suffix for members count (defaults to "Members") */
   membersSuffix?: string;
@@ -56,7 +56,6 @@ export function ChurchLeadGroupSection({
   groupsCount = section?.groups_count ?? section?.groups?.length ?? 0,
   groups = section?.groups ?? [],
   onManageGroup,
-  manageActionLabel = "Manage group & roster",
   membersSuffix = "Members",
   singleGroupSuffix = "Group",
   multipleGroupsSuffix = "Groups",
@@ -86,12 +85,14 @@ export function ChurchLeadGroupSection({
       {/* ── Dynamic Group Cards List ──────────────────────────────── */}
       <div className="space-y-3">
         {groups.map((group) => {
-          const isActive = group.status === "Active";
+          const isActive = group.status === "Active" || group.status?.toLowerCase() === "active";
 
           return (
-            <div
+            <button
               key={group.id}
-              className="w-full bg-white rounded-2xl border border-slate-100 shadow-xs p-5 space-y-3 transition-all hover:border-slate-200 select-none"
+              type="button"
+              onClick={() => onManageGroup?.(group.id, group)}
+              className="w-full bg-white rounded-2xl border border-slate-100 shadow-xs p-5 space-y-3 transition-all duration-200 hover:border-slate-200 hover:shadow-md active:scale-[0.99] select-none text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 block"
             >
               {/* Card Header: Group Name and Status Badge */}
               <div className="flex items-start justify-between gap-3">
@@ -131,22 +132,7 @@ export function ChurchLeadGroupSection({
                   <span className="truncate">{group.next_gathering_preview}</span>
                 </div>
               </div>
-
-              {/* Divider */}
-              <hr className="border-t border-slate-100 -mx-1" />
-
-              {/* Action Button / Row */}
-              <button
-                type="button"
-                onClick={() => onManageGroup?.(group.id, group)}
-                className="w-full flex items-center justify-between pt-0.5 text-left group cursor-pointer border-none bg-transparent p-0"
-              >
-                <span className="text-[13.5px] font-semibold text-slate-900 group-hover:text-navy-hover transition-colors">
-                  {manageActionLabel}
-                </span>
-                <ChevronRight className="w-4 h-4 text-slate-700 group-hover:translate-x-0.5 transition-transform shrink-0" />
-              </button>
-            </div>
+            </button>
           );
         })}
       </div>

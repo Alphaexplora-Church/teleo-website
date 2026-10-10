@@ -136,6 +136,20 @@ export interface GroupMemberActionSheetProps {
   className?: string;
 }
 
+/* ── Journey Module List Modal Types ─────────────────────────────────── */
+export interface JourneyModuleListModalIcons {
+  submitArrow: LucideIcon;
+  check: LucideIcon;
+}
+
+export interface JourneyModuleListModalConfig {
+  title: string;
+  currentBadgeLabel: string;
+  updateButtonLabel: string;
+  cancelButtonLabel: string;
+  icons?: JourneyModuleListModalIcons;
+}
+
 /* ── My Discipleship Groups Lead Card View Types ─────────────────────── */
 export interface MyDiscipleshipGroupsLeadCardViewConfig {
   /** Back button label */
@@ -158,6 +172,8 @@ export interface MyDiscipleshipGroupsLeadCardViewConfig {
   editScheduleButtonLabel: string;
   /** Configuration for member action sheet modal */
   memberActionSheet?: GroupMemberActionSheetConfig;
+  /** Configuration for journey module list modal */
+  journeyModuleModal?: JourneyModuleListModalConfig;
 }
 
 export interface MyDiscipleshipGroupsLeadCardViewProps {

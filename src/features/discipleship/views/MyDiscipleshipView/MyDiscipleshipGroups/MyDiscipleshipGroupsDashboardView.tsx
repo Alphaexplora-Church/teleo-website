@@ -14,7 +14,6 @@ export function MyDiscipleshipGroupsDashboardView({
   onNavigateToChurchList,
   onOpenGroupRoom,
   onTrackApplication,
-  onResumeGroup,
   className = "",
 }: MyDiscipleshipGroupsDashboardProps) {
   const {
@@ -144,7 +143,7 @@ export function MyDiscipleshipGroupsDashboardView({
                 badgeVariant="outline"
                 infoIcon={<PausedCircleIcon className="w-4 h-4" />}
                 infoTitle={config.pausedMeetingNotice}
-                onAction={() => onResumeGroup?.(group.id)}
+                onAction={() => onOpenGroupRoom?.(group.id)}
               />
             ))}
           </div>

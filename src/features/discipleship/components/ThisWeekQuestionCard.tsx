@@ -1,4 +1,4 @@
-import { Quote, Lock } from "lucide-react";
+import { Quote } from "lucide-react";
 
 export interface ThisWeekQuestionCardProps {
   /** The reflection question text */
@@ -14,7 +14,6 @@ export interface ThisWeekQuestionCardProps {
 export function ThisWeekQuestionCard({
   question = "Where have you experienced God’s peace amidst challenges this week?",
   headerTitle = "THIS WEEK'S QUESTION",
-  footnoteText = "Read-only reflection prompt from your church.",
   className = "",
 }: ThisWeekQuestionCardProps) {
   // Format with curly quotes if not already enclosed
@@ -43,13 +42,6 @@ export function ThisWeekQuestionCard({
         </p>
       </div>
 
-      {/* ── Footnote / Notice ───────────────────────────────────── */}
-      {footnoteText && (
-        <div className="flex items-center gap-2 text-[12px] text-slate-500 px-0.5">
-          <Lock className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-          <span>{footnoteText}</span>
-        </div>
-      )}
     </div>
   );
 }

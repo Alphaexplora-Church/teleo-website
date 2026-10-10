@@ -22,7 +22,6 @@ export interface NextGatheringData {
 export interface CurrentStudyData {
   module_badge?: string;
   title?: string;
-  lesson_subtitle?: string;
 }
 
 export interface LeadGroupItem {
@@ -67,8 +66,6 @@ export const mockLeadChurchGroups: ChurchLeadGroupData[] = [
         current_study: {
           module_badge: "Module 2",
           title: "Romans 8: Life in the Spirit",
-          lesson_subtitle:
-            "This Week: Lesson 3 of 6 · The Flesh vs. The Spirit",
         },
         members: [
           {
@@ -131,12 +128,10 @@ export const mockLeadChurchGroups: ChurchLeadGroupData[] = [
         members_count: 5,
         next_gathering_preview: "No upcoming gathering set",
         status: "Active",
-        next_gathering: null, // Active group WITHOUT schedule set (triggers empty state schedule)
+        next_gathering: null,
         current_study: {
           module_badge: "Module 1",
           title: "Foundations of Discipleship",
-          lesson_subtitle:
-            "This Week: Lesson 2 of 5 · Living as Christ's Disciple",
         },
         members: [
           {
@@ -193,7 +188,6 @@ export const mockLeadChurchGroups: ChurchLeadGroupData[] = [
         current_study: {
           module_badge: "Module 3",
           title: "Walking in Wisdom",
-          lesson_subtitle: "Lesson 1 of 4 · Proverbs Introduction",
         },
         members: [
           {
@@ -245,7 +239,7 @@ export const mockLeadChurchGroups: ChurchLeadGroupData[] = [
 ];
 
 export function findLeadGroupById(
-  groupId: string
+  groupId: string,
 ): { group: LeadGroupItem; churchName: string } | null {
   for (const church of mockLeadChurchGroups) {
     const found = church.groups.find((g) => g.id === groupId);

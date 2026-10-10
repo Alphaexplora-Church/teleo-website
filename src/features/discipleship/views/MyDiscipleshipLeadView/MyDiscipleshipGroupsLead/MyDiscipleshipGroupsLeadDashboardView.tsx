@@ -32,7 +32,6 @@ export function MyDiscipleshipGroupsLeadDashboardView({
             key={section.church_id ?? section.church_name}
             section={section}
             onManageGroup={onManageGroup}
-            manageActionLabel={config.manageActionLabel}
             membersSuffix={config.membersSuffix}
             singleGroupSuffix={config.singleGroupSuffix}
             multipleGroupsSuffix={config.multipleGroupsSuffix}

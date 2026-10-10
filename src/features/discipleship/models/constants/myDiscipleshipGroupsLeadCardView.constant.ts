@@ -1,5 +1,6 @@
 import {
   ArrowLeft,
+  ArrowRight,
   User,
   UserMinus,
   ChevronRight,
@@ -20,6 +21,8 @@ import type {
   MyDiscipleshipGroupsLeadCardViewConfig,
   GroupMemberActionSheetIcons,
   GroupMemberActionSheetConfig,
+  JourneyModuleListModalIcons,
+  JourneyModuleListModalConfig,
   SetGatheringScheduleModalConfig,
   SetGatheringScheduleModalIcons,
   DayOfWeek,
@@ -137,6 +140,20 @@ export const groupMemberActionSheetConst: GroupMemberActionSheetConfig = {
   icons: GROUP_MEMBER_ACTION_SHEET_ICONS,
 };
 
+/* ── Journey Module List Modal Constants ─────────────────────────────── */
+export const JOURNEY_MODULE_LIST_MODAL_ICONS: JourneyModuleListModalIcons = {
+  submitArrow: ArrowRight,
+  check: Check,
+};
+
+export const journeyModuleListModalConst: JourneyModuleListModalConfig = {
+  title: "Select Current Study",
+  currentBadgeLabel: "Current",
+  updateButtonLabel: "Update Current Study",
+  cancelButtonLabel: "Cancel",
+  icons: JOURNEY_MODULE_LIST_MODAL_ICONS,
+};
+
 /* ── Lead Card View Main Config ──────────────────────────────────────── */
 export const myDiscipleshipGroupsLeadCardViewConst: MyDiscipleshipGroupsLeadCardViewConfig = {
   buttonBackLabel: "Groups I Lead",
@@ -146,9 +163,10 @@ export const myDiscipleshipGroupsLeadCardViewConst: MyDiscipleshipGroupsLeadCard
   groupRosterHeaderTitle: "GROUP ROSTER",
   scheduleSectionHeaderTitle: "MEETING SCHEDULE",
   currentStudyHeaderTitle: "CURRENT STUDY",
-  openJourneyButtonLabel: "Open Reading in Journey Tab",
+  openJourneyButtonLabel: "Change Journey Material",
   editScheduleButtonLabel: "Edit Schedule & Location",
   memberActionSheet: groupMemberActionSheetConst,
+  journeyModuleModal: journeyModuleListModalConst,
 };
 
 export default myDiscipleshipGroupsLeadCardViewConst;

@@ -379,7 +379,6 @@ export function SetGatheringScheduleModal({
                     <div className="space-y-2">
                         <span className="block text-[11px] font-bold text-[#62718A] tracking-wider uppercase">
                             {config.recurrenceLabel}
-                            <span className="text-red-500 ml-1 select-none" aria-hidden="true">*</span>
                         </span>
                         <div className="relative bg-[#F1F3F6] rounded-2xl px-4 py-3 flex items-center justify-between">
                             <span className="text-[14px] text-[#0E172A] font-medium truncate">
