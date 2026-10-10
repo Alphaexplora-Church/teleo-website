@@ -8,18 +8,21 @@ import prayerIcon from '../../assets/icons/pray.svg';
 import contentIcon from '../../assets/icons/content.svg';
 import givingIcon from '../../assets/icons/giving.svg';
 import chatIcon from '../../assets/icons/Chat Icon.svg';
+import discipleshipIcon from '../../assets/icons/discipleship.svg';
 import homeFilledIcon from '../../assets/icons/home-filled.svg';
 import servicesFilledIcon from '../../assets/icons/service-filled.svg';
 import prayerFilledIcon from '../../assets/icons/pray-filled.svg';
 import contentFilledIcon from '../../assets/icons/content-filled.svg';
 import givingFilledIcon from '../../assets/icons/gift-filled.svg';
 import chatFilledIcon from '../../assets/icons/chat-filled.svg';
+import discipleshipFilledIcon from '../../assets/icons/discipleship-filled.svg';
 
 const ICON_MAP: Record<DashboardTab, string> = {
   home: homeIcon,
   services: servicesIcon,
   'prayer-wall': prayerIcon,
   content: contentIcon,
+  discipleship: discipleshipIcon,
   giving: givingIcon,
   chat: chatIcon,
 };
@@ -29,6 +32,7 @@ const FILLED_ICON_MAP: Record<DashboardTab, string> = {
   services: servicesFilledIcon,
   'prayer-wall': prayerFilledIcon,
   content: contentFilledIcon,
+  discipleship: discipleshipFilledIcon,
   giving: givingFilledIcon,
   chat: chatFilledIcon,
 };
@@ -61,7 +65,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({ activeTab, onTabChange }) =
             <img
               src={isActive ? FILLED_ICON_MAP[id] : ICON_MAP[id]}
               alt=""
-              className={`h-[28px] ${id === 'content' ? 'w-[23px]' : 'w-[30px]'} object-contain transition-all duration-150 ${isActive ? 'scale-105 opacity-100' : 'opacity-55'}`}
+              className={`h-[28px] ${id === 'content' || id === 'discipleship' ? 'w-[24px]' : 'w-[30px]'} object-contain transition-all duration-150 ${isActive ? 'scale-105 opacity-100' : 'opacity-55'}`}
             />
             <span className={`text-[10px] font-medium leading-none ${isActive ? 'text-navy' : 'text-[#757575]'}`}>{label}</span>
           </button>

@@ -1,0 +1,131 @@
+import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { XCircle } from "lucide-react";
+import { Button } from "../../../shared/components/Button/Button";
+import { useSwipeDownDismiss } from "../viewmodels/useSwipeDownDismiss";
+
+export type ActionConfirmationVariant = "danger" | "primary" | "warning";
+
+export interface ActionConfirmationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  description?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  confirmVariant?: ActionConfirmationVariant;
+  icon?: ReactNode;
+  onConfirm?: () => void;
+  className?: string;
+}
+
+export function ActionConfirmationModal({
+  isOpen,
+  onClose,
+  title,
+  description,
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
+  confirmVariant = "danger",
+  icon,
+  onConfirm,
+  className = "",
+}: ActionConfirmationModalProps) {
+  const {
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    sheetStyle,
+  } = useSwipeDownDismiss({
+    isOpen,
+    onClose,
+  });
+
+  if (!isOpen) return null;
+
+  const confirmButtonStyles =
+    confirmVariant === "danger"
+      ? "bg-red-700 hover:bg-red-800 text-white"
+      : confirmVariant === "warning"
+        ? "bg-amber-600 hover:bg-amber-700 text-white"
+        : "bg-slate-900 hover:bg-black text-white";
+
+  return createPortal(
+    <div className="fixed inset-0 z-100 flex flex-col justify-end">
+      {/* ── Background Blur Backdrop (Tap to Close) ──────────── */}
+      <div
+        className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300"
+        onClick={onClose}
+        onTouchMove={(e) => e.preventDefault()}
+        aria-hidden="true"
+      />
+
+      {/* ── Bottom Sheet Container ────────────────────────────── */}
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={sheetStyle}
+        className={`
+          relative z-10 w-full max-w-md mx-auto bg-white rounded-t-3xl px-6 pt-3 pb-8 shadow-2xl
+          flex flex-col items-center text-center space-y-4 select-none
+          animate-in slide-in-from-bottom duration-300
+          ${className}
+        `.trim()}
+        role="dialog"
+        aria-modal="true"
+      >
+        {/* Pull / Drag Handle Bar */}
+        <div className="w-10 h-1 rounded-full bg-slate-300 shrink-0 cursor-grab mb-2" />
+
+        {/* Top Icon Slot */}
+        {icon !== undefined ? (
+          icon
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center shrink-0 text-rose-500">
+            <XCircle className="w-7 h-7" />
+          </div>
+        )}
+
+        {/* Title & Description */}
+        <div className="space-y-1.5 px-2">
+          <h3 className="text-[19px] font-bold text-slate-900 leading-tight">
+            {title}
+          </h3>
+          {description && (
+            <p className="text-[13.5px] text-slate-500 leading-relaxed">
+              {description}
+            </p>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="w-full space-y-2.5 pt-2">
+          <Button
+            type="button"
+            onClick={onConfirm}
+            fullWidth
+            className={`
+              w-full h-12 font-semibold text-[15px] rounded-2xl flex items-center justify-center transition-all cursor-pointer active:scale-[0.99] shadow-sm
+              ${confirmButtonStyles}
+            `.trim()}
+          >
+            {confirmLabel}
+          </Button>
+
+          <Button
+            type="button"
+            onClick={onClose}
+            fullWidth
+            className="text-black w-full h-12 font-semibold text-[15px] rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-900 transition-all cursor-pointer active:scale-[0.99]"
+          >
+            {cancelLabel}
+          </Button>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+export default ActionConfirmationModal;
