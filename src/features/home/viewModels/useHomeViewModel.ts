@@ -4,7 +4,7 @@ import {
   buildHeroSlides,
   ChurchMembershipRequiredError,
   fetchHomeFeed,
-  isEventWithinFifteenDays,
+  isFeaturedEvent,
 } from '../models/homeApi';
 import type { DailyGospel } from '../models/gospelTypes';
 import type { FeedPostModel } from '../models/homeTypes';
@@ -54,7 +54,7 @@ export const useHomeViewModel = () => {
 
   const heroSlides = useMemo(() => buildHeroSlides(feedPosts), [feedPosts]);
   const posts = useMemo(
-    () => feedPosts.filter((post) => !isEventWithinFifteenDays(post)),
+    () => feedPosts.filter((post) => !isFeaturedEvent(post)),
     [feedPosts],
   );
 

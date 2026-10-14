@@ -14,12 +14,6 @@ export interface HeroSlide {
   month?: string;
   day?: string;
   time?: string;
-  recurrenceLabel?: string;
-}
-
-export interface UpcomingDate {
-  date: string;
-  time?: string;
 }
 
 export interface FeedPostModel {
@@ -47,8 +41,6 @@ export interface FeedPostModel {
   createdAt?: string;
   /** "Every Thursday", "Monthly on the 15th"; only on recurring posts. */
   recurrenceLabel?: string;
-  /** The next occurrences of a recurring post, formatted for display. */
-  upcomingDates?: UpcomingDate[];
 }
 
 export interface ContentFeedMedia {

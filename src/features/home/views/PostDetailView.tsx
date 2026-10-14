@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react';
 import type { FeedPostModel } from '../models/homeTypes';
-import RecurrenceBadge, { RepeatIcon } from './RecurrenceBadge';
 
 interface PostDetailViewProps {
   post: FeedPostModel;
@@ -115,7 +114,6 @@ const PostDetailView: React.FC<PostDetailViewProps> = ({ post, onClose }) => {
             </div>
 
             <h2 className="mt-4 text-[19px] font-bold leading-[25px]">{post.title}</h2>
-            {post.recurrenceLabel && <RecurrenceBadge label={post.recurrenceLabel} className="mt-1.5" />}
             <p className="mt-1 text-[12px] leading-[19px] text-[#4F4F4F]">{post.body}</p>
             {post.schedule && <p className="mt-3 whitespace-pre-line text-[11px] leading-[18px] text-[#666]">{post.schedule}</p>}
           </div>
@@ -138,14 +136,38 @@ const PostDetailView: React.FC<PostDetailViewProps> = ({ post, onClose }) => {
             {hasDateTime && (
               <div className="flex min-w-0 items-start gap-1.5">
                 <span className="mt-0.5 shrink-0 text-[#1D4ED8]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="5" width="18" height="16" rx="2" />
-                    <path d="M16 3v4M8 3v4M3 10h18" />
-                  </svg>
+                  {post.recurrenceLabel ? (
+                    // Recurring sign instead of the calendar
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-label="Repeats">
+                      <path d="m17 2 4 4-4 4" />
+                      <path d="M3 11v-1a4 4 0 0 1 4-4h14" />
+                      <path d="m7 22-4-4 4-4" />
+                      <path d="M21 13v1a4 4 0 0 1-4 4H3" />
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="5" width="18" height="16" rx="2" />
+                      <path d="M16 3v4M8 3v4M3 10h18" />
+                    </svg>
+                  )}
                 </span>
+                {/* A recurring post shows its pattern, then when it next happens. */}
                 <div className="min-w-0">
-                  {post.date && <p className="line-clamp-2 text-[11px] font-bold leading-[15px]">{post.date}</p>}
-                  {post.time && <p className="mt-1 text-[9px] leading-[13px] text-[#626B73]">{post.time}</p>}
+                  {post.recurrenceLabel ? (
+                    <>
+                      <p className="line-clamp-2 text-[11px] font-bold leading-[15px]">{post.recurrenceLabel}</p>
+                      {post.date && (
+                        <p className="mt-1 text-[9px] leading-[13px] text-[#626B73]">
+                          Next: {[post.date, post.time].filter(Boolean).join(' · ')}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {post.date && <p className="line-clamp-2 text-[11px] font-bold leading-[15px]">{post.date}</p>}
+                      {post.time && <p className="mt-1 text-[9px] leading-[13px] text-[#626B73]">{post.time}</p>}
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -177,25 +199,6 @@ const PostDetailView: React.FC<PostDetailViewProps> = ({ post, onClose }) => {
                 </div>
               </div>
             )}
-          </section>
-        )}
-
-        {post.recurrenceLabel && post.upcomingDates && post.upcomingDates.length > 0 && (
-          <section className="mt-5" aria-label="Upcoming dates">
-            <h3 className="flex items-center gap-1.5 text-[14px] font-bold">
-              <span className="text-[#3730A3]"><RepeatIcon size={15} /></span>
-              Repeats {post.recurrenceLabel.charAt(0).toLowerCase() + post.recurrenceLabel.slice(1)}
-            </h3>
-            <ul className="mt-3 divide-y divide-[#ECEFF2] rounded-xl border border-[#ECEFF2]">
-              {post.upcomingDates.map((upcoming, index) => (
-                <li key={`${upcoming.date}-${index}`} className="flex items-center justify-between gap-3 px-3.5 py-2.5">
-                  <span className="text-[11px] font-semibold">{upcoming.date}</span>
-                  <span className="text-[10px] text-[#626B73]">
-                    {[index === 0 ? 'Next' : undefined, upcoming.time].filter(Boolean).join(' · ')}
-                  </span>
-                </li>
-              ))}
-            </ul>
           </section>
         )}
 

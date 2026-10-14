@@ -131,9 +131,9 @@ const resolvePostAuthor = (record: ContentFeedRecord): string => {
 export const mapContentFeedRecord = (record: ContentFeedRecord): FeedPostModel => {
   // A recurring post's start_date / end_date are only its first occurrence;
   // the API sends the upcoming ones in next_occurrences (SCRUM-228). Every
-  // date shown, and the 15-day highlight window, use the next one, so a
-  // weekly post always sits on its coming day. Backends without recurrence
-  // send neither field, which leaves everything below as it was.
+  // date shown uses the next one, so a weekly post always sits on its coming
+  // day. Backends without recurrence send neither field, which leaves
+  // everything below as it was.
   const recurrenceLabel = formatRecurrence(record.recurrence_type, record.recurrence_day);
   const occurrences = recurrenceLabel ? record.next_occurrences ?? [] : [];
   const nextOccurrence = occurrences[0];
@@ -184,8 +184,12 @@ export const mapContentFeedRecord = (record: ContentFeedRecord): FeedPostModel =
     title: record.title,
     tags: tags.length > 0 ? tags : [isEvent ? 'Event' : 'Church Update'],
     body: record.description?.trim() || '',
+    // A recurring post shows its pattern instead of one date:
+    // "Main Sanctuary  Every Monday, 7:00 PM".
     details: hasSchedule
-      ? [isEvent ? location : undefined, formattedDate, startTime]
+      ? (recurrenceLabel
+        ? [isEvent ? location : undefined, [recurrenceLabel, startTime].filter(Boolean).join(', ')]
+        : [isEvent ? location : undefined, formattedDate, startTime])
         .filter((value): value is string => Boolean(value))
       : undefined,
     imageUrl: getImageUrl(record) ?? undefined,
@@ -201,12 +205,6 @@ export const mapContentFeedRecord = (record: ContentFeedRecord): FeedPostModel =
     startDate,
     createdAt: record.created_at,
     recurrenceLabel,
-    upcomingDates: occurrences.length > 0
-      ? occurrences.map((occurrence) => ({
-        date: formatDate(occurrence.start_date),
-        time: hasTime ? formatTimeRange(occurrence.start_date, occurrence.end_date) : undefined,
-      }))
-      : undefined,
   };
 };
 
@@ -230,6 +228,12 @@ export const isEventWithinFifteenDays = (
   return startDate >= startOfToday && startDate < endOfWindow;
 };
 
+// One-off events in the next 15 days move from the feed to the hero.
+// Recurring events stay in the feed: a weekly one is always less than 15
+// days away, so it would never get a feed card.
+export const isFeaturedEvent = (post: FeedPostModel, today = new Date()) =>
+  !post.recurrenceLabel && isEventWithinFifteenDays(post, today);
+
 export const toEventHeroSlide = (post: FeedPostModel): HeroSlide => {
   const date = parseDate(post.startDate);
 
@@ -247,7 +251,6 @@ export const toEventHeroSlide = (post: FeedPostModel): HeroSlide => {
       : 'TBA',
     day: date ? String(date.getDate()) : '—',
     time: formatTime(post.startDate) ?? 'Time TBA',
-    recurrenceLabel: post.recurrenceLabel,
   };
 };
 
@@ -280,7 +283,7 @@ export const fetchHomeFeed = async (): Promise<FeedPostModel[]> => {
 export const buildHeroSlides = (posts: FeedPostModel[]): HeroSlide[] => [
   GOSPEL_SLIDE,
   ...posts
-    .filter((post) => isEventWithinFifteenDays(post))
+    .filter((post) => isFeaturedEvent(post))
     .sort(
       (first, second) =>
         new Date(first.startDate!).getTime() - new Date(second.startDate!).getTime(),
