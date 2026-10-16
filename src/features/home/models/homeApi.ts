@@ -89,14 +89,16 @@ export const formatRecurrence = (type?: RecurrenceType | null, day?: number | nu
   return undefined;
 };
 
+// The view orders media by sort_order, so the first image is the cover.
 const getImageUrl = (record: ContentFeedRecord) =>
-  record.media.find((item) => item.media_type === 'image' && item.file_url)?.file_url;
+  record.media.find((item) => item.media_type === 'image' && item.url)?.url;
 
-const getTags = (record: ContentFeedRecord) =>
-  record.category_content
-    ?.split(',')
-    .map((tag) => tag.trim())
-    .filter(Boolean) ?? [];
+// "PHP 1,500" for a paid event; free events have no fee line.
+const formatFee = (record: ContentFeedRecord) => {
+  if (!record.is_paid) return undefined;
+  const amount = Number(record.fee_amount);
+  return `${record.currency || 'PHP'} ${amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+};
 
 // TO DO: Replace static church fallback with live author church relation once backend exposes author home church
 const resolvePostAuthor = (record: ContentFeedRecord): string => {
@@ -145,16 +147,15 @@ export const mapContentFeedRecord = (record: ContentFeedRecord): FeedPostModel =
 
   const startTime = hasTime ? formatTime(startDate) : null;
   const time = hasTime ? formatTimeRange(startDate, endDate) : undefined;
-  const isEvent = record.type_content === 'event';
+  const isEvent = record.post_type === 'event';
   // Recurring announcements get their next date too; when they happen is
   // the point of them.
   const hasSchedule = isEvent || Boolean(recurrenceLabel);
-  const tags = getTags(record);
   const formattedDate = formatDate(startDate);
   const location = record.location?.trim() || undefined;
 
   const raw = record as unknown as Record<string, unknown>;
-  const fee = typeof raw.fee === 'string' && raw.fee.trim() ? raw.fee.trim() : undefined;
+  const fee = formatFee(record);
   const speakers =
     typeof raw.speakers === 'string' && raw.speakers.trim()
       ? raw.speakers.trim()
@@ -177,13 +178,14 @@ export const mapContentFeedRecord = (record: ContentFeedRecord): FeedPostModel =
   const dressCode = isDressCodeSpecified ? rawDressCode : undefined;
 
   return {
-    id: String(record.id),
+    id: String(record.post_id),
     author: resolvePostAuthor(record),
     meta: formatTimeAgo(record.created_at),
     category: isEvent ? 'Events' : 'Announcement',
     title: record.title,
-    tags: tags.length > 0 ? tags : [isEvent ? 'Event' : 'Church Update'],
-    body: record.description?.trim() || '',
+    // The schema has no category column, so posts get a tag from their type.
+    tags: [isEvent ? 'Event' : 'Church Update'],
+    body: record.body?.trim() || '',
     // A recurring post shows its pattern instead of one date:
     // "Main Sanctuary  Every Monday, 7:00 PM".
     details: hasSchedule

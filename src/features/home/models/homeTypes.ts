@@ -44,32 +44,35 @@ export interface FeedPostModel {
 }
 
 export interface ContentFeedMedia {
-  id: number | string;
-  content_id: number | string;
-  media_type: 'image' | 'video' | 'youtube';
-  file_url: string | null;
-  youtube_url: string | null;
-  created_at: string;
+  id: string;
+  url: string;
+  media_type: 'image' | 'video';
+  sort_order: number;
 }
 
+/**
+ * One row of GET /api/contents/feed: the v_church_feed view of the
+ * events_announcements schema. Announcements have no location or dates.
+ */
 export interface ContentFeedRecord {
-  id: number | string;
+  post_id: string;
   church_id: number | string;
-  user_id: string | null;
-  type_content: 'announcement' | 'event';
+  post_type: 'announcement' | 'event';
   title: string;
-  description: string | null;
+  body: string | null;
   location: string | null;
   start_date: string | null;
   end_date: string | null;
-  category_content: string | null;
+  is_paid: boolean;
+  fee_amount: number | string;
+  currency: string;
+  capacity_limit: number | null;
+  is_full: boolean;
   status: 'active';
   created_at: string;
-  updated_at: string;
-  author_username: string | null;
-  author_profile_picture_url: string | null;
   media: ContentFeedMedia[];
-  // Optional: backends from before SCRUM-228 do not send these.
+  // Not in the view yet; read when the schema adds them.
+  author_username?: string | null;
   recurrence_type?: RecurrenceType | null;
   recurrence_day?: number | null;
   /** Next occurrences computed by the API; start_date is only the first one. */
