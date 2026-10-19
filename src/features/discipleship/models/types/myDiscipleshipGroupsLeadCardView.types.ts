@@ -140,6 +140,8 @@ export interface GroupMemberActionSheetProps {
 export interface JourneyModuleListModalIcons {
   submitArrow: LucideIcon;
   check: LucideIcon;
+  search?: LucideIcon;
+  close?: LucideIcon;
 }
 
 export interface JourneyModuleListModalConfig {
@@ -147,6 +149,9 @@ export interface JourneyModuleListModalConfig {
   currentBadgeLabel: string;
   updateButtonLabel: string;
   cancelButtonLabel: string;
+  searchPlaceholder?: string;
+  activeStudyHeader?: string;
+  availableCurriculaHeader?: string;
   icons?: JourneyModuleListModalIcons;
 }
 

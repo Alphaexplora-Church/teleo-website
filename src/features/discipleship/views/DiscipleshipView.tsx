@@ -7,6 +7,7 @@ import MyDiscipleshipGroupsActivePauseView from "./MyDiscipleshipView/MyDisciple
 import DiscipleshipProcessChurchList from "./DiscipleshipProcess/DiscipleshipProcessChurchList";
 import DiscipleshipProcessIntro from "./DiscipleshipProcess/DiscipleshipProcessIntro";
 import DiscipleshipProcessChurchApply from "./DiscipleshipProcess/DiscipleshipProcessChurchApply";
+import { LeadSelectChurchModal } from "../components/LeadSelectChurchModal";
 import {
   useDiscipleshipView,
   type DiscipleshipViewMode,
@@ -29,6 +30,11 @@ export function DiscipleshipView() {
     selectedGroupId,
     selectedLeadGroupId,
     dashboardData,
+    activeChurchIds,
+    isLeadSelectChurchModalOpen,
+    leadSelectChurchData,
+    handleCloseLeadSelectChurchModal,
+    handleSelectLeadChurchGroup,
     handleSelectChurch,
     handleNavigateToChurchList,
     handleBackToDashboard,
@@ -146,6 +152,7 @@ export function DiscipleshipView() {
           pendingChurchIds={dashboardData.applications
             .filter((app) => app.status === "pending")
             .map((app) => app.church_id)}
+          activeChurchIds={activeChurchIds}
           onBack={handleBackToDashboard}
           onSelectChurch={handleSelectChurch}
         />
@@ -179,6 +186,15 @@ export function DiscipleshipView() {
           )}
         </div>
       )}
+
+      {/* ── Lead Select Church Modal ───────────────────────────────── */}
+      <LeadSelectChurchModal
+        isOpen={isLeadSelectChurchModalOpen}
+        churchName={leadSelectChurchData?.churchName}
+        groups={leadSelectChurchData?.groups}
+        onClose={handleCloseLeadSelectChurchModal}
+        onSelectGroup={handleSelectLeadChurchGroup}
+      />
     </div>
   );
 }

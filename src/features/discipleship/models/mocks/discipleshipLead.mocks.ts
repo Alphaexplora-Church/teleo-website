@@ -30,6 +30,8 @@ export interface LeadGroupItem {
   church_name?: string;
   leader_name?: string;
   members_count: number;
+  max_members?: number;
+  role?: string;
   next_gathering_preview: string;
   status: LeadGroupStatus;
   next_gathering?: NextGatheringData | null;
@@ -46,7 +48,7 @@ export interface ChurchLeadGroupData {
 
 export const mockLeadChurchGroups: ChurchLeadGroupData[] = [
   {
-    church_id: 1,
+    church_id: 101,
     church_name: "GRACE COMMUNITY CHURCH",
     groups_count: 2,
     groups: [
@@ -54,6 +56,8 @@ export const mockLeadChurchGroups: ChurchLeadGroupData[] = [
         id: "grp-lead-001",
         name: "The Fig Tree Group",
         members_count: 7,
+        max_members: 10,
+        role: "Discipler (Lead)",
         next_gathering_preview: "Tomorrow at 7:00 PM",
         status: "Active",
         next_gathering: {
@@ -124,8 +128,10 @@ export const mockLeadChurchGroups: ChurchLeadGroupData[] = [
       },
       {
         id: "grp-lead-002",
-        name: "Berean Fellowship Cohort",
-        members_count: 5,
+        name: "Young Professionals Group",
+        members_count: 8,
+        max_members: 10,
+        role: "Discipler (Lead)",
         next_gathering_preview: "No upcoming gathering set",
         status: "Active",
         next_gathering: null,
