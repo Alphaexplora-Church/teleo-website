@@ -17,6 +17,8 @@ import { ModuleListSkeleton } from "../components/skeletons/ModuleListSkeleton";
 import { QuestionSkeleton } from "../components/skeletons/QuestionSkeleton";
 import { ScheduleSkeleton } from "../components/skeletons/ScheduleSkeleton";
 import { TimelineStatusSkeleton } from "../components/skeletons/TimelineStatusSkeleton";
+import { NetworkErrorState } from "../components/network/NetworkErrorState";
+import DiscipleshipUserGuestView from "./DiscipleshipUserGuestView/DiscipleshipUserGuestView";
 import {
   useDiscipleshipView,
   type DiscipleshipViewMode,
@@ -82,6 +84,17 @@ export function DiscipleshipView() {
         <div className="inline-flex rounded-xl bg-slate-100 p-0.5 border border-slate-200/60 shadow-2xs">
           <button
             type="button"
+            onClick={() => setPersona("guest")}
+            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              persona === "guest"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Guest POV
+          </button>
+          <button
+            type="button"
             onClick={() => setPersona("empty")}
             className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
               persona === "empty"
@@ -123,6 +136,17 @@ export function DiscipleshipView() {
             }`}
           >
             Skeleton
+          </button>
+          <button
+            type="button"
+            onClick={() => setPersona("offline")}
+            className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              persona === "offline"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Offline
           </button>
         </div>
       </div>
@@ -192,7 +216,18 @@ export function DiscipleshipView() {
       {/* ── 4. Main Groups Dashboard ───────────────────────────────── */}
       {viewMode === "dashboard" && (
         <div className="w-full max-w-md mx-auto px-4 py-6 space-y-6">
-          {persona === "skeleton" ? (
+          {persona === "guest" ? (
+            <DiscipleshipUserGuestView />
+          ) : persona === "offline" ? (
+            <div className="py-6">
+              <NetworkErrorState
+                onRetry={async () => {
+                  await new Promise((resolve) => setTimeout(resolve, 800));
+                  setPersona("member");
+                }}
+              />
+            </div>
+          ) : persona === "skeleton" ? (
             <div className="space-y-4">
               {/* Skeleton Component Selector */}
               <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none select-none">

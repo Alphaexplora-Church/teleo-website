@@ -20,7 +20,7 @@ export type DiscipleshipViewMode =
   | "group-active"
   | "lead-group-card";
 
-export type DiscipleshipDemoPersona = "empty" | "member" | "lead" | "skeleton";
+export type DiscipleshipDemoPersona = "empty" | "member" | "lead" | "skeleton" | "offline" | "guest";
 
 export interface UseDiscipleshipViewOptions {
   initialDashboardData?: DiscipleshipDashboardMock;
@@ -41,7 +41,9 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
       paramPersona === "empty" ||
       paramPersona === "member" ||
       paramPersona === "lead" ||
-      paramPersona === "skeleton"
+      paramPersona === "skeleton" ||
+      paramPersona === "offline" ||
+      paramPersona === "guest"
     ) {
       return paramPersona;
     }

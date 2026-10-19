@@ -2,6 +2,8 @@ import type React from "react";
 import { Skeleton } from "../../../../shared/components/Skeleton/Skeleton";
 
 export interface ChurchCardSkeletonProps {
+  /** Whether to show the right chevron box placeholder (default: false) */
+  showChevron?: boolean;
   className?: string;
 }
 
@@ -9,7 +11,10 @@ export interface ChurchCardSkeletonProps {
  * Reusable single church card skeleton loader
  * Matches the layout and dimensions of ChurchCardItem.
  */
-export function ChurchCardSkeleton({ className = "" }: ChurchCardSkeletonProps): React.JSX.Element {
+export function ChurchCardSkeleton({
+  showChevron = false,
+  className = "",
+}: ChurchCardSkeletonProps): React.JSX.Element {
   return (
     <div
       className={`
@@ -37,7 +42,7 @@ export function ChurchCardSkeleton({ className = "" }: ChurchCardSkeletonProps):
       </div>
 
       {/* Right Navigation Chevron Placeholder */}
-      <Skeleton className="w-4 h-4 rounded shrink-0" />
+      {showChevron && <Skeleton className="w-4 h-4 rounded shrink-0" />}
     </div>
   );
 }

@@ -11,6 +11,8 @@ export interface ChurchCardItemProps {
   activeGroupsLabel?: string;
   isPending?: boolean;
   pendingBadgeLabel?: string;
+  /** Whether to show the right chevron navigation icon (default: false) */
+  showChevron?: boolean;
   onClick?: (church: DiscipleshipChurch) => void;
   className?: string;
 }
@@ -21,6 +23,7 @@ export function ChurchCardItem({
   activeGroupsLabel = myDiscipleshipEmptyStateListConst.activeGroupsLabel,
   isPending = false,
   pendingBadgeLabel = "Pending Application",
+  showChevron = false,
   onClick,
   className = "",
 }: ChurchCardItemProps) {
@@ -75,7 +78,7 @@ export function ChurchCardItem({
       </div>
 
       {/* Right chevron navigation */}
-      {(() => {
+      {showChevron && (() => {
         const ChevronRightIcon = MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS.moreChevron;
         return (
           <ChevronRightIcon
