@@ -1,4 +1,4 @@
-import { GroupsTabSwitcher } from "../components/GroupsTabSwitcher";
+import { GroupsTabSwitcher } from "../components/groups/GroupsTabSwitcher";
 import MyDiscipleshipView from "./MyDiscipleshipView/MyDiscipleshipView";
 import MyDiscipleshipLeadView from "./MyDiscipleshipLeadView/MyDiscipleshipLeadView";
 import MyDiscipleshipGroupsLeadCardView from "./MyDiscipleshipLeadView/MyDiscipleshipGroupsLead/MyDiscipleshipGroupsLeadCardView";
@@ -7,7 +7,7 @@ import MyDiscipleshipGroupsActivePauseView from "./MyDiscipleshipView/MyDisciple
 import DiscipleshipProcessChurchList from "./DiscipleshipProcess/DiscipleshipProcessChurchList";
 import DiscipleshipProcessIntro from "./DiscipleshipProcess/DiscipleshipProcessIntro";
 import DiscipleshipProcessChurchApply from "./DiscipleshipProcess/DiscipleshipProcessChurchApply";
-import { LeadSelectChurchModal } from "../components/LeadSelectChurchModal";
+import { LeadSelectChurchModal } from "../components/modals/LeadSelectChurchModal";
 import {
   useDiscipleshipView,
   type DiscipleshipViewMode,

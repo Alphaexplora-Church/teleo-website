@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Calendar, Clock, MapPin, Video, Copy, Check } from "lucide-react";
-import { Badge } from "../../../shared/components/Badge/Badge";
-import { Button } from "../../../shared/components/Button/Button";
+import { Badge } from "../../../../shared/components/Badge/Badge";
+import { Button } from "../../../../shared/components/Button/Button";
 
 export interface NextGatheringData {
   timing?: string;

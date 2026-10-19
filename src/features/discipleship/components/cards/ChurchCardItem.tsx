@@ -1,9 +1,9 @@
-import { Badge } from "../../../shared/components/Badge/Badge";
+import { Badge } from "../../../../shared/components/Badge/Badge";
 import {
   myDiscipleshipEmptyStateListConst,
   MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS,
-} from "../models/constants/myDiscipleshipEmptyStateView.constant";
-import type { DiscipleshipChurch } from "../models/types/myDiscipleshipEmptyStateView.types";
+} from "../../models/constants/myDiscipleshipEmptyStateView.constant";
+import type { DiscipleshipChurch } from "../../models/types/myDiscipleshipEmptyStateView.types";
 
 export interface ChurchCardItemProps {
   church: DiscipleshipChurch;

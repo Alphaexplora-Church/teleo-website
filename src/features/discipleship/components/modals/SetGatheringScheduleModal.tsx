@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { Button } from "../../../shared/components/Button/Button";
+import { Button } from "../../../../shared/components/Button/Button";
 import { ActionConfirmationModal } from "./ActionConfirmationModal";
-import { setGatheringScheduleModalConst } from "../models/constants/myDiscipleshipGroupsLeadCardView.constant";
+import { setGatheringScheduleModalConst } from "../../models/constants/myDiscipleshipGroupsLeadCardView.constant";
 import type {
     MeetingFormat,
     DayOfWeek,
@@ -10,8 +10,8 @@ import type {
     GatheringScheduleFormData,
     SetGatheringScheduleModalConfig,
     SetGatheringScheduleModalProps,
-} from "../models/types/myDiscipleshipGroupsLeadCardView.types";
-import { useGatheringScheduleForm } from "../viewmodels/useGatheringScheduleForm";
+} from "../../models/types/myDiscipleshipGroupsLeadCardView.types";
+import { useGatheringScheduleForm } from "../../viewmodels/useGatheringScheduleForm";
 
 export type {
     MeetingFormat,

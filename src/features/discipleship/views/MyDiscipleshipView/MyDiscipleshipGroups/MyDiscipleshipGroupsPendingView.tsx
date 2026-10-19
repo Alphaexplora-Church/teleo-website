@@ -3,8 +3,8 @@ import { Badge } from "../../../../../shared/components/Badge/Badge";
 import {
   StatusReviewTimeLine,
   type ReviewTimelineStep,
-} from "../../../components/StatusReviewTimeLine";
-import { ActionConfirmationModal } from "../../../components/ActionConfirmationModal";
+} from "../../../components/process/StatusReviewTimeLine";
+import { ActionConfirmationModal } from "../../../components/modals/ActionConfirmationModal";
 import {
   myDiscipleshipGroupsPendingViewConst,
   MY_DISCIPLESHIP_GROUPS_PENDING_VIEW_ICONS,

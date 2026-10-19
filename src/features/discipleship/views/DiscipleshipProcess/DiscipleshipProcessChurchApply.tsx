@@ -3,7 +3,7 @@ import type {
   DiscipleshipProcessChurchApplyConfig,
   DiscipleshipProcessChurchApplyProps,
 } from "../../models/types/discipleshipProcessChurchApply.types";
-import { ChurchQuestionIntake } from "../../components/ChurchQuestionIntake";
+import { ChurchQuestionIntake } from "../../components/process/ChurchQuestionIntake";
 import { useDiscipleshipChurchApply } from "../../viewmodels/useDiscipleshipChurchApply";
 
 export function DiscipleshipProcessChurchApply({

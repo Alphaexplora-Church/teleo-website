@@ -1,6 +1,6 @@
 import { createPortal } from "react-dom";
 import { ChevronRight } from "lucide-react";
-import { useSwipeDownDismiss } from "../viewmodels/useSwipeDownDismiss";
+import { useSwipeDownDismiss } from "../../viewmodels/useSwipeDownDismiss";
 
 export interface LeadSelectChurchGroupItem {
   id: string;

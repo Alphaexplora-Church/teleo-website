@@ -1,17 +1,17 @@
 import { useEffect, useState, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { ArrowRight, Search, X } from "lucide-react";
-import { Badge } from "../../../shared/components/Badge/Badge";
-import { Button } from "../../../shared/components/Button/Button";
+import { Badge } from "../../../../shared/components/Badge/Badge";
+import { Button } from "../../../../shared/components/Button/Button";
 import {
   mockDiscipleshipJourneyModules,
   type JourneyStudyModule,
-} from "../models/mocks/discipleshipJourneyModules.mocks";
+} from "../../models/mocks/discipleshipJourneyModules.mocks";
 import {
   journeyModuleListModalConst,
-} from "../models/constants/myDiscipleshipGroupsLeadCardView.constant";
-import type { JourneyModuleListModalConfig } from "../models/types/myDiscipleshipGroupsLeadCardView.types";
-import { useSwipeDownDismiss } from "../viewmodels/useSwipeDownDismiss";
+} from "../../models/constants/myDiscipleshipGroupsLeadCardView.constant";
+import type { JourneyModuleListModalConfig } from "../../models/types/myDiscipleshipGroupsLeadCardView.types";
+import { useSwipeDownDismiss } from "../../viewmodels/useSwipeDownDismiss";
 
 export type { JourneyStudyModule };
 

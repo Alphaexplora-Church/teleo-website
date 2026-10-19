@@ -1,6 +1,6 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import type { DiscipleshipTab } from "../components/GroupsTabSwitcher";
+import type { DiscipleshipTab } from "../components/groups/GroupsTabSwitcher";
 import {
   createPendingApplicationMock,
   mockEmptyDiscipleshipDashboard,
@@ -8,7 +8,7 @@ import {
   type DiscipleshipDashboardMock,
 } from "../models/mocks/discipleshipDashboard.mocks";
 import { mockLeadChurchGroups } from "../models/mocks/discipleshipLead.mocks";
-import type { LeadSelectChurchGroupItem } from "../components/LeadSelectChurchModal";
+import type { LeadSelectChurchGroupItem } from "../components/modals/LeadSelectChurchModal";
 import type { DiscipleshipChurch } from "../models/types/myDiscipleshipEmptyStateView.types";
 
 export type DiscipleshipViewMode =

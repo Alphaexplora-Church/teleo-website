@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { XCircle } from "lucide-react";
-import { Button } from "../../../shared/components/Button/Button";
-import { useSwipeDownDismiss } from "../viewmodels/useSwipeDownDismiss";
+import { Button } from "../../../../shared/components/Button/Button";
+import { useSwipeDownDismiss } from "../../viewmodels/useSwipeDownDismiss";
 
 export type ActionConfirmationVariant = "danger" | "primary" | "warning";
 

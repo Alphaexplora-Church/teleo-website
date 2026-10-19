@@ -1,7 +1,7 @@
 import type React from "react";
 import { Check } from "lucide-react";
-import { Badge } from "../../../shared/components/Badge/Badge";
-import type { BadgeVariant } from "../../../shared/components/Badge/badge.style";
+import { Badge } from "../../../../shared/components/Badge/Badge";
+import type { BadgeVariant } from "../../../../shared/components/Badge/badge.style";
 
 export type ReviewTimelineStepStatus = "completed" | "in_progress" | "upcoming";
 

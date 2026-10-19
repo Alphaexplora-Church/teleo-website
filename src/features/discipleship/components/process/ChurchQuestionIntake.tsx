@@ -2,7 +2,7 @@ import { useState, type ChangeEvent } from "react";
 import {
   mockDiscipleshipIntakeQuestions,
   type DiscipleshipIntakeQuestion,
-} from "../models/mocks/discipleshipIntakeQuestion.mocks";
+} from "../../models/mocks/discipleshipIntakeQuestion.mocks";
 
 export interface ChurchQuestionIntakeProps {
   question?: DiscipleshipIntakeQuestion;
