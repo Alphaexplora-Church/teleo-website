@@ -4,7 +4,7 @@ import type {
   ChurchLeadGroupData,
   LeadGroupItem,
   LeadGroupStatus,
-} from "../../components/ChurchLeadGroupSection";
+} from "../../components/groups/ChurchLeadGroupSection";
 
 export type { ChurchLeadGroupData, LeadGroupItem, LeadGroupStatus };
 

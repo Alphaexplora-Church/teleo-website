@@ -1,6 +1,6 @@
 import { BookOpen, ArrowRight } from "lucide-react";
-import { Badge } from "../../../shared/components/Badge/Badge";
-import { Button } from "../../../shared/components/Button/Button";
+import { Badge } from "../../../../shared/components/Badge/Badge";
+import { Button } from "../../../../shared/components/Button/Button";
 
 export interface CurrentStudyData {
   module_badge?: string;

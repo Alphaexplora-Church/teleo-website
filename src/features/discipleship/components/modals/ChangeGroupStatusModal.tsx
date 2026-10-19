@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check } from "lucide-react";
-import { Button } from "../../../shared/components/Button/Button";
-import { Badge } from "../../../shared/components/Badge/Badge";
-import { useSwipeDownDismiss } from "../viewmodels/useSwipeDownDismiss";
+import { Button } from "../../../../shared/components/Button/Button";
+import { Badge } from "../../../../shared/components/Badge/Badge";
+import { useSwipeDownDismiss } from "../../viewmodels/useSwipeDownDismiss";
 
 export interface ChangeGroupStatusOption {
   /** Unique status key, e.g. "active" | "paused" */

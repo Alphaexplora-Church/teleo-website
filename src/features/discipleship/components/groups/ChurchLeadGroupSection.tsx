@@ -1,5 +1,5 @@
 import { Church, Users, Clock } from "lucide-react";
-import { Badge } from "../../../shared/components/Badge/Badge";
+import { Badge } from "../../../../shared/components/Badge/Badge";
 
 export type LeadGroupStatus = "Active" | "Paused" | string;
 

@@ -8,11 +8,13 @@ import type {
 import { useDiscipleshipProcessChurchList } from "../../viewmodels/useDiscipleshipProcessChurchList";
 
 const EMPTY_PENDING_CHURCH_IDS: number[] = [];
+const EMPTY_ACTIVE_CHURCH_IDS: number[] = [];
 
 export function DiscipleshipProcessChurchList({
   config: userConfig,
   churches,
   pendingChurchIds = EMPTY_PENDING_CHURCH_IDS,
+  activeChurchIds = EMPTY_ACTIVE_CHURCH_IDS,
   onSelectChurch,
   onBack,
   className = "",
@@ -133,18 +135,13 @@ export function DiscipleshipProcessChurchList({
           <div className="space-y-3">
             {homeChurches.map((church) => {
               const isPending = pendingChurchIds.includes(church.church_id);
+              const isActive = activeChurchIds.includes(church.church_id);
               return (
                 <button
                   key={church.church_id}
                   type="button"
-                  disabled={isPending}
-                  aria-disabled={isPending}
-                  onClick={() => !isPending && handleCardClick(church)}
-                  className={`w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 select-none ${
-                    isPending
-                      ? "opacity-60 cursor-not-allowed bg-slate-50/70"
-                      : "hover:border-slate-200 hover:shadow-md cursor-pointer"
-                  }`}
+                  onClick={() => handleCardClick(church)}
+                  className="w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 select-none hover:border-slate-200 hover:shadow-md cursor-pointer"
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     {/* Gray placeholder for future church image */}
@@ -161,7 +158,15 @@ export function DiscipleshipProcessChurchList({
 
                       {/* Badges Container */}
                       <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                        <Badge label={config.homeBadgeLabel} size="sm" />
+                        {church.is_home_church && <Badge label={config.homeBadgeLabel} size="sm" />}
+                        {isActive && (
+                          <Badge
+                            label={config.activeBadgeLabel ?? "Active"}
+                            variant="success"
+                            size="sm"
+                            dotVisible={false}
+                          />
+                        )}
                         {isPending && (
                           <Badge
                             label={config.applicationPendingBadgeLabel}
@@ -181,9 +186,7 @@ export function DiscipleshipProcessChurchList({
 
                   {ChevronIcon && (
                     <ChevronIcon
-                      className={`w-5 h-5 shrink-0 ${
-                        isPending ? "text-slate-300" : "text-[#62718A]"
-                      }`}
+                      className="w-5 h-5 shrink-0 text-[#62718A]"
                       aria-hidden="true"
                     />
                   )}
@@ -212,18 +215,13 @@ export function DiscipleshipProcessChurchList({
           <div className="space-y-3">
             {otherChurches.map((church) => {
               const isPending = pendingChurchIds.includes(church.church_id);
+              const isActive = activeChurchIds.includes(church.church_id);
               return (
                 <button
                   key={church.church_id}
                   type="button"
-                  disabled={isPending}
-                  aria-disabled={isPending}
-                  onClick={() => !isPending && handleCardClick(church)}
-                  className={`w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 select-none ${
-                    isPending
-                      ? "opacity-60 cursor-not-allowed bg-slate-50/70"
-                      : "hover:border-slate-200 hover:shadow-md cursor-pointer"
-                  }`}
+                  onClick={() => handleCardClick(church)}
+                  className="w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 select-none hover:border-slate-200 hover:shadow-md cursor-pointer"
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     {/* Gray placeholder for future church image */}
@@ -238,16 +236,25 @@ export function DiscipleshipProcessChurchList({
                         {church.name}
                       </h3>
 
-                      {isPending && (
-                        <div className="mt-1">
+                      {/* Badges Container */}
+                      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                        {isActive && (
+                          <Badge
+                            label={config.activeBadgeLabel ?? "Active"}
+                            variant="success"
+                            size="sm"
+                            dotVisible={false}
+                          />
+                        )}
+                        {isPending && (
                           <Badge
                             label={config.applicationPendingBadgeLabel}
                             variant="warning"
                             size="sm"
                             dotVisible={false}
                           />
-                        </div>
-                      )}
+                        )}
+                      </div>
 
                       <span className="text-[13px] text-[#62718A] font-normal mt-1 truncate">
                         {church.active_groups_count} {config.activeGroupsSuffix}
@@ -258,9 +265,7 @@ export function DiscipleshipProcessChurchList({
 
                   {ChevronIcon && (
                     <ChevronIcon
-                      className={`w-5 h-5 shrink-0 ${
-                        isPending ? "text-slate-300" : "text-[#62718A]"
-                      }`}
+                      className="w-5 h-5 shrink-0 text-[#62718A]"
                       aria-hidden="true"
                     />
                   )}

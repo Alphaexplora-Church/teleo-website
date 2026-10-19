@@ -15,6 +15,8 @@ import {
   Check,
   Trash2,
   Users,
+  Search,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import type {
@@ -144,13 +146,18 @@ export const groupMemberActionSheetConst: GroupMemberActionSheetConfig = {
 export const JOURNEY_MODULE_LIST_MODAL_ICONS: JourneyModuleListModalIcons = {
   submitArrow: ArrowRight,
   check: Check,
+  search: Search,
+  close: X,
 };
 
 export const journeyModuleListModalConst: JourneyModuleListModalConfig = {
   title: "Select Current Study",
-  currentBadgeLabel: "Current",
+  currentBadgeLabel: "ACTIVE",
   updateButtonLabel: "Update Current Study",
   cancelButtonLabel: "Cancel",
+  searchPlaceholder: "Search study by title or module...",
+  activeStudyHeader: "CURRENT ACTIVE STUDY",
+  availableCurriculaHeader: "AVAILABLE CURRICULA",
   icons: JOURNEY_MODULE_LIST_MODAL_ICONS,
 };
 

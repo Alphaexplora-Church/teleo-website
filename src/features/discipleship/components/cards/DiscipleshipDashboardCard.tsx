@@ -1,7 +1,7 @@
 import type React from "react";
-import { Badge } from "../../../shared/components/Badge/Badge";
-import type { BadgeVariant } from "../../../shared/components/Badge/badge.style";
-import type { ButtonVariant } from "../../../shared/components/Button/button.style";
+import { Badge } from "../../../../shared/components/Badge/Badge";
+import type { BadgeVariant } from "../../../../shared/components/Badge/badge.style";
+import type { ButtonVariant } from "../../../../shared/components/Button/button.style";
 
 export interface DiscipleshipDashboardCardProps {
   // Avatar / Profile / Image Slot

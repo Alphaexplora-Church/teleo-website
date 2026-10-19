@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
 import { MoreVertical, ChevronDown, ChevronUp, User } from "lucide-react";
-import { Badge } from "../../../shared/components/Badge/Badge";
+import { Badge } from "../../../../shared/components/Badge/Badge";
 import {
     mockLeadChurchGroups,
     type GroupMemberItem,
     type MemberStatus,
-} from "../models/mocks/discipleshipLead.mocks";
+} from "../../models/mocks/discipleshipLead.mocks";
 
 export type { GroupMemberItem, MemberStatus };
 

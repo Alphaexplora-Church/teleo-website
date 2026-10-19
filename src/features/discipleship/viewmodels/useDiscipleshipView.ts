@@ -1,12 +1,14 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
-import type { DiscipleshipTab } from "../components/GroupsTabSwitcher";
+import type { DiscipleshipTab } from "../components/groups/GroupsTabSwitcher";
 import {
   createPendingApplicationMock,
   mockEmptyDiscipleshipDashboard,
   mockPopulatedDiscipleshipDashboard,
   type DiscipleshipDashboardMock,
 } from "../models/mocks/discipleshipDashboard.mocks";
+import { mockLeadChurchGroups } from "../models/mocks/discipleshipLead.mocks";
+import type { LeadSelectChurchGroupItem } from "../components/modals/LeadSelectChurchModal";
 import type { DiscipleshipChurch } from "../models/types/myDiscipleshipEmptyStateView.types";
 
 export type DiscipleshipViewMode =
@@ -18,7 +20,7 @@ export type DiscipleshipViewMode =
   | "group-active"
   | "lead-group-card";
 
-export type DiscipleshipDemoPersona = "empty" | "member" | "lead";
+export type DiscipleshipDemoPersona = "empty" | "member" | "lead" | "skeleton" | "offline" | "guest";
 
 export interface UseDiscipleshipViewOptions {
   initialDashboardData?: DiscipleshipDashboardMock;
@@ -35,7 +37,14 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
   const paramPersona = (searchParams.get("persona") || searchParams.get("demo")) as DiscipleshipDemoPersona | null;
 
   const [persona, setPersonaState] = useState<DiscipleshipDemoPersona>(() => {
-    if (paramPersona === "empty" || paramPersona === "member" || paramPersona === "lead") {
+    if (
+      paramPersona === "empty" ||
+      paramPersona === "member" ||
+      paramPersona === "lead" ||
+      paramPersona === "skeleton" ||
+      paramPersona === "offline" ||
+      paramPersona === "guest"
+    ) {
       return paramPersona;
     }
     return options?.initialPersona ?? "lead";
@@ -145,6 +154,8 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
       setDashboardData(mockPopulatedDiscipleshipDashboard);
       setActiveTab("my-discipleship");
       setViewMode("dashboard");
+    } else if (newPersona === "skeleton") {
+      setViewMode("dashboard");
     } else {
       setDashboardData(mockPopulatedDiscipleshipDashboard);
       setViewMode("dashboard");
@@ -154,12 +165,90 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
 
   const isLeader = persona === "lead";
 
+  // Lead Select Church modal state
+  const [isLeadSelectChurchModalOpen, setIsLeadSelectChurchModalOpen] = useState(false);
+  const [leadSelectChurchData, setLeadSelectChurchData] = useState<{
+    churchName: string;
+    groups: LeadSelectChurchGroupItem[];
+  } | null>(null);
+
+  // Active church IDs where user already has a group
+  const activeChurchIds = useMemo(() => {
+    if (isLeader) {
+      return mockLeadChurchGroups.map((cl) => (cl.church_id === 1 ? 101 : cl.church_id));
+    }
+    return dashboardData.groups
+      .filter((g) => g.status === "active")
+      .map((g) => g.church_id);
+  }, [isLeader, dashboardData.groups]);
+
   // ── Navigation & Action Handlers ─────────────────────────────
-  const handleSelectChurch = useCallback((church: DiscipleshipChurch) => {
-    setSelectedChurchId(church.church_id);
-    setViewMode("church-intro");
-    scrollToTop();
-  }, [scrollToTop]);
+  const handleSelectChurch = useCallback(
+    (church: DiscipleshipChurch) => {
+      // 1. If this church has a pending application, navigate directly to application status
+      const pendingApp = dashboardData.applications.find(
+        (app) => app.church_id === church.church_id && app.status === "pending"
+      );
+      if (pendingApp) {
+        setSelectedApplicationId(pendingApp.id);
+        setViewMode("application-status");
+        scrollToTop();
+        return;
+      }
+
+      // 2. If user is in lead persona and has lead groups in this church, open LeadSelectChurchModal
+      if (isLeader) {
+        const leadChurch = mockLeadChurchGroups.find(
+          (cl) =>
+            cl.church_id === church.church_id ||
+            (church.church_id === 101 && (cl.church_id === 1 || cl.church_id === 101)) ||
+            cl.church_name.toLowerCase() === church.name.toLowerCase()
+        );
+        if (leadChurch && leadChurch.groups.length > 0) {
+          // If lead has only 1 group in this church, rekta pasok agad (no modal needed)
+          if (leadChurch.groups.length === 1) {
+            setSelectedLeadGroupId(leadChurch.groups[0].id);
+            setViewMode("lead-group-card");
+            scrollToTop();
+            return;
+          }
+
+          // If lead has multiple groups in this church, open modal to let them choose
+          setLeadSelectChurchData({
+            churchName: church.name,
+            groups: leadChurch.groups.map((g) => ({
+              id: g.id,
+              name: g.name,
+              role: g.role ?? "Discipler (Lead)",
+              members_count: g.members_count,
+              max_members: g.max_members ?? 10,
+            })),
+          });
+          setIsLeadSelectChurchModalOpen(true);
+          return;
+        }
+      }
+
+      // 3. If regular disciple/member and has active group in this church, navigate directly to group
+      if (!isLeader) {
+        const memberGroup = dashboardData.groups.find(
+          (g) => g.church_id === church.church_id
+        );
+        if (memberGroup) {
+          setSelectedGroupId(memberGroup.id);
+          setViewMode("group-active");
+          scrollToTop();
+          return;
+        }
+      }
+
+      // 4. Default: New church exploration / onboarding
+      setSelectedChurchId(church.church_id);
+      setViewMode("church-intro");
+      scrollToTop();
+    },
+    [dashboardData.applications, dashboardData.groups, isLeader, scrollToTop]
+  );
 
   const handleNavigateToChurchList = useCallback(() => {
     setViewMode("church-list");
@@ -255,6 +344,18 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
     scrollToTop();
   }, [scrollToTop]);
 
+  const handleCloseLeadSelectChurchModal = useCallback(() => {
+    setIsLeadSelectChurchModalOpen(false);
+  }, []);
+
+  const handleSelectLeadChurchGroup = useCallback(
+    (groupId: string) => {
+      setIsLeadSelectChurchModalOpen(false);
+      handleManageLeadGroup(groupId);
+    },
+    [handleManageLeadGroup]
+  );
+
   const handleBackFromLeadGroup = useCallback(() => {
     setViewMode("dashboard");
     setSelectedLeadGroupId(undefined);
@@ -279,6 +380,11 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
     selectedGroupId,
     selectedLeadGroupId,
     dashboardData,
+    activeChurchIds,
+    isLeadSelectChurchModalOpen,
+    leadSelectChurchData,
+    handleCloseLeadSelectChurchModal,
+    handleSelectLeadChurchGroup,
     handleSelectChurch,
     handleNavigateToChurchList,
     handleBackToDashboard,

@@ -1,5 +1,5 @@
 import { LinkButton } from "../../../../../shared/components/Button/LinkButton";
-import { ChurchCardItem } from "../../../components/ChurchCardItem";
+import { ChurchCardItem } from "../../../components/cards/ChurchCardItem";
 import { myDiscipleshipEmptyStateListConst } from "../../../models/constants/myDiscipleshipEmptyStateView.constant";
 import type {
   DiscipleshipChurch,

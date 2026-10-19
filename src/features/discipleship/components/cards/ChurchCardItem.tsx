@@ -1,9 +1,9 @@
-import { Badge } from "../../../shared/components/Badge/Badge";
+import { Badge } from "../../../../shared/components/Badge/Badge";
 import {
   myDiscipleshipEmptyStateListConst,
   MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS,
-} from "../models/constants/myDiscipleshipEmptyStateView.constant";
-import type { DiscipleshipChurch } from "../models/types/myDiscipleshipEmptyStateView.types";
+} from "../../models/constants/myDiscipleshipEmptyStateView.constant";
+import type { DiscipleshipChurch } from "../../models/types/myDiscipleshipEmptyStateView.types";
 
 export interface ChurchCardItemProps {
   church: DiscipleshipChurch;
@@ -11,6 +11,8 @@ export interface ChurchCardItemProps {
   activeGroupsLabel?: string;
   isPending?: boolean;
   pendingBadgeLabel?: string;
+  /** Whether to show the right chevron navigation icon (default: false) */
+  showChevron?: boolean;
   onClick?: (church: DiscipleshipChurch) => void;
   className?: string;
 }
@@ -21,6 +23,7 @@ export function ChurchCardItem({
   activeGroupsLabel = myDiscipleshipEmptyStateListConst.activeGroupsLabel,
   isPending = false,
   pendingBadgeLabel = "Pending Application",
+  showChevron = false,
   onClick,
   className = "",
 }: ChurchCardItemProps) {
@@ -75,7 +78,7 @@ export function ChurchCardItem({
       </div>
 
       {/* Right chevron navigation */}
-      {(() => {
+      {showChevron && (() => {
         const ChevronRightIcon = MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS.moreChevron;
         return (
           <ChevronRightIcon

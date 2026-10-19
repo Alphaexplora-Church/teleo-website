@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { Button } from "../../../shared/components/Button/Button";
+import { Button } from "../../../../shared/components/Button/Button";
 import { ActionConfirmationModal } from "./ActionConfirmationModal";
-import { setGatheringScheduleModalConst } from "../models/constants/myDiscipleshipGroupsLeadCardView.constant";
+import { setGatheringScheduleModalConst } from "../../models/constants/myDiscipleshipGroupsLeadCardView.constant";
 import type {
     MeetingFormat,
     DayOfWeek,
@@ -10,8 +10,8 @@ import type {
     GatheringScheduleFormData,
     SetGatheringScheduleModalConfig,
     SetGatheringScheduleModalProps,
-} from "../models/types/myDiscipleshipGroupsLeadCardView.types";
-import { useGatheringScheduleForm } from "../viewmodels/useGatheringScheduleForm";
+} from "../../models/types/myDiscipleshipGroupsLeadCardView.types";
+import { useGatheringScheduleForm } from "../../viewmodels/useGatheringScheduleForm";
 
 export type {
     MeetingFormat,
@@ -242,39 +242,43 @@ export function SetGatheringScheduleModal({
                 aria-hidden="true"
             />
 
-            {/* ── Bottom Sheet Modal Container (Slide-down dismissable) ─ */}
+            {/* ── Bottom Sheet Modal Container (Fixed footer layout) ── */}
             <div
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
                 style={sheetStyle}
                 className={`
-          relative z-10 w-full max-w-md mx-auto bg-white rounded-t-[32px] px-6 pt-3 pb-8 shadow-2xl
-          flex flex-col space-y-5 select-none animate-in slide-in-from-bottom duration-300 max-h-[92dvh] overflow-y-auto
+          relative z-10 w-full max-w-md mx-auto bg-white rounded-t-[32px] shadow-2xl
+          flex flex-col max-h-[90dvh] overflow-hidden select-none animate-in slide-in-from-bottom duration-300
           ${className}
         `.trim()}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="gathering-schedule-title"
             >
-                {/* Pull / Drag Handle Bar */}
+                {/* Pull / Drag Handle Bar Area (Touch swipe down to dismiss ONLY from here) */}
                 <div
-                    className="w-10 h-1 rounded-full bg-slate-300 shrink-0 cursor-grab mx-auto hover:bg-slate-400 transition-colors"
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    className="pt-3.5 pb-2 shrink-0 bg-white cursor-grab active:cursor-grabbing touch-none select-none"
                     aria-hidden="true"
-                />
-
-                {/* ── Title & Subtitle ─────────────────────────────────── */}
-                <div className="space-y-1 pt-1">
-                    <h2
-                        id="gathering-schedule-title"
-                        className="text-[22px] font-bold text-[#0E172A] tracking-tight leading-tight"
-                    >
-                        {modalTitle}
-                    </h2>
-                    <p className="text-[13.5px] text-[#62718A] leading-normal">
-                        {modalSubtitle}
-                    </p>
+                >
+                    <div className="w-10 h-1 rounded-full bg-slate-300 shrink-0 mx-auto hover:bg-slate-400 transition-colors" />
                 </div>
+
+                {/* ── Scrollable Body Area (Form inputs scroll, footer buttons stay fixed) ── */}
+                <div className="flex-1 overflow-y-auto px-6 pt-1 pb-5 space-y-5 min-h-0 overscroll-contain">
+                    {/* ── Title & Subtitle ─────────────────────────────────── */}
+                    <div className="space-y-1 pt-1">
+                        <h2
+                            id="gathering-schedule-title"
+                            className="text-[22px] font-bold text-[#0E172A] tracking-tight leading-tight"
+                        >
+                            {modalTitle}
+                        </h2>
+                        <p className="text-[13.5px] text-[#62718A] leading-normal">
+                            {modalSubtitle}
+                        </p>
+                    </div>
 
                 {/* ── Meeting Format Segmented Tabs ────────────────────── */}
                 <div className="space-y-2">
@@ -553,8 +557,10 @@ export function SetGatheringScheduleModal({
                     </div>
                 )}
 
-                {/* ── Action Buttons (Using shared Button component) ────── */}
-                <div className="space-y-2 pt-2">
+                </div>
+
+                {/* ── Fixed Footer Action Buttons (Save/Update, Remove, and Cancel) ── */}
+                <div className="shrink-0 border-t border-slate-100 bg-white px-6 pt-3.5 pb-6 space-y-2 shadow-xs">
                     <Button
                         type="button"
                         variant="primary"
@@ -562,7 +568,7 @@ export function SetGatheringScheduleModal({
                         fullWidth
                         disabled={!isFormValid}
                         onClick={handleSave}
-                        className="text-white rounded-2xl gap-2 font-semibold text-[15px] shadow-sm active:scale-[0.99]"
+                        className="text-white rounded-2xl gap-2 font-semibold text-[15px] shadow-sm active:scale-[0.99] cursor-pointer"
                     >
                         {SaveButtonIcon && (
                             <SaveButtonIcon className="w-4 h-4 shrink-0 text-white" />
@@ -575,7 +581,7 @@ export function SetGatheringScheduleModal({
                         <button
                             type="button"
                             onClick={handleRemoveClick}
-                            className="w-full flex items-center justify-center gap-1.5 py-2 text-red-600 hover:text-red-700 font-semibold text-[14px] transition-colors cursor-pointer border-none bg-transparent select-none active:scale-[0.99]"
+                            className="w-full flex items-center justify-center gap-1.5 py-1.5 text-red-600 hover:text-red-700 font-semibold text-[14px] transition-colors cursor-pointer border-none bg-transparent select-none active:scale-[0.99]"
                         >
                             {TrashIcon && (
                                 <TrashIcon className="w-4 h-4 text-red-600 shrink-0" />
@@ -590,14 +596,11 @@ export function SetGatheringScheduleModal({
                         size="md"
                         fullWidth
                         onClick={onClose}
-                        className="text-[#62718A] hover:text-[#0E172A] font-medium text-[14px]"
+                        className="text-[#62718A] hover:text-[#0E172A] font-medium text-[14px] cursor-pointer py-1.5"
                     >
                         {config.cancelButtonLabel}
                     </Button>
                 </div>
-
-                {/* Mobile bottom indicator pill */}
-                <div className="w-28 h-1 bg-slate-300/60 rounded-full mx-auto select-none mt-1" />
             </div>
 
             {/* ── Remove Schedule Confirmation Modal ──────────────── */}
