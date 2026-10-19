@@ -20,7 +20,7 @@ export type DiscipleshipViewMode =
   | "group-active"
   | "lead-group-card";
 
-export type DiscipleshipDemoPersona = "empty" | "member" | "lead";
+export type DiscipleshipDemoPersona = "empty" | "member" | "lead" | "skeleton";
 
 export interface UseDiscipleshipViewOptions {
   initialDashboardData?: DiscipleshipDashboardMock;
@@ -37,7 +37,12 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
   const paramPersona = (searchParams.get("persona") || searchParams.get("demo")) as DiscipleshipDemoPersona | null;
 
   const [persona, setPersonaState] = useState<DiscipleshipDemoPersona>(() => {
-    if (paramPersona === "empty" || paramPersona === "member" || paramPersona === "lead") {
+    if (
+      paramPersona === "empty" ||
+      paramPersona === "member" ||
+      paramPersona === "lead" ||
+      paramPersona === "skeleton"
+    ) {
       return paramPersona;
     }
     return options?.initialPersona ?? "lead";
@@ -146,6 +151,8 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
     } else if (newPersona === "member") {
       setDashboardData(mockPopulatedDiscipleshipDashboard);
       setActiveTab("my-discipleship");
+      setViewMode("dashboard");
+    } else if (newPersona === "skeleton") {
       setViewMode("dashboard");
     } else {
       setDashboardData(mockPopulatedDiscipleshipDashboard);

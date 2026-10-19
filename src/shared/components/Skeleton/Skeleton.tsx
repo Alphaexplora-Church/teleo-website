@@ -1,6 +1,6 @@
 import React from "react";
 
-interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
@@ -13,3 +13,6 @@ export function Skeleton({ className = "", ...props }: SkeletonProps) {
     />
   );
 }
+
+export default Skeleton;
+
