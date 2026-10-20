@@ -1,6 +1,7 @@
 import {
   EVENT_IMAGE,
   GOSPEL_SLIDE,
+  STATIC_SAMPLE_EVENT_POSTS,
   type ContentFeedRecord,
   type ContentFeedResponse,
   type FeedPostModel,
@@ -98,6 +99,36 @@ const formatFee = (record: ContentFeedRecord) => {
   if (!record.is_paid) return undefined;
   const amount = Number(record.fee_amount);
   return `${record.currency || 'PHP'} ${amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+};
+
+// TO DO: Replace static church fallback with live author church relation once backend exposes author home church
+const resolvePostAuthor = (record: ContentFeedRecord): string => {
+  const raw = record as unknown as Record<string, unknown>;
+  const username = record.author_username?.trim();
+  const rawChurchName =
+    (typeof raw.church_name === 'string' && raw.church_name.trim()) ||
+    (typeof raw.author_church_name === 'string' && raw.author_church_name.trim()) ||
+    (typeof raw.home_church_name === 'string' && raw.home_church_name.trim());
+
+  const isAdmin =
+    raw.is_admin === true ||
+    raw.role === 'admin' ||
+    raw.role === 'system_admin' ||
+    !username ||
+    username.toLowerCase() === 'admin' ||
+    username.toLowerCase() === 'church admin' ||
+    username.toLowerCase() === 'system admin';
+
+  if (isAdmin) {
+    return 'System Admin';
+  }
+
+  if (rawChurchName) {
+    return rawChurchName;
+  }
+
+  // Static fallback data for church name if post is authored by a user
+  return 'Grace Community Church';
 };
 
 // TO DO: Replace static church fallback with live author church relation once backend exposes author home church
@@ -279,7 +310,11 @@ export const fetchHomeFeed = async (): Promise<FeedPostModel[]> => {
     throw new Error('The home feed returned an invalid response.');
   }
 
-  return json.data.map(mapContentFeedRecord);
+  // TO DO: DELETE STATIC DATA - Prepending static sample event posts for testing UI designs
+  return [
+    ...STATIC_SAMPLE_EVENT_POSTS,
+    ...json.data.map(mapContentFeedRecord),
+  ];
 };
 
 export const buildHeroSlides = (posts: FeedPostModel[]): HeroSlide[] => [
