@@ -18,10 +18,7 @@ export interface HeroSlide {
 
 export interface FeedPostModel {
   id: string;
-  /** The church that posted it. */
   author: string;
-  /** The church's logo, shown as the post's avatar. */
-  authorAvatarUrl?: string;
   meta: string;
   category: PostCategory;
   title: string;
@@ -74,9 +71,6 @@ export interface ContentFeedRecord {
   status: 'active';
   created_at: string;
   media: ContentFeedMedia[];
-  /** The posting church, added by the API from church_profile. */
-  church_name?: string | null;
-  church_logo_url?: string | null;
   // Not in the view yet; read when the schema adds them.
   author_username?: string | null;
   recurrence_type?: RecurrenceType | null;
