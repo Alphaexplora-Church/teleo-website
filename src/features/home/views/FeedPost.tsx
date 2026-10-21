@@ -1,17 +1,15 @@
 import React from 'react';
-import type { FeedPostModel, PostCategory } from '../models/homeTypes';
-
-const TAG_STYLES: Record<PostCategory, string> = {
-  Announcement: 'bg-[#E8F1FF] text-[#1D4ED8] ring-[#BFDBFE]',
-  Events: 'bg-[#E6F7F5] text-[#0F766E] ring-[#A7E3DC]',
-};
+import type { FeedPostModel } from '../models/homeTypes';
+import PostTypeLabel from './PostTypeLabel';
 
 interface FeedPostProps { post: FeedPostModel; first?: boolean; onOpen: () => void; }
 
 const FeedPost: React.FC<FeedPostProps> = ({ post, first, onOpen }) => (
   <article className={`border-b border-[#ececec] px-5 pb-6 ${first ? 'pt-1' : 'pt-6'}`}>
     <div className="mb-4 flex items-center gap-3">
-      <div className="h-8 w-8 shrink-0 rounded-full bg-[#DBE0E4]" aria-hidden="true" />
+      {post.authorAvatarUrl
+        ? <img src={post.authorAvatarUrl} alt="" className="h-8 w-8 shrink-0 rounded-full bg-[#DBE0E4] object-cover" />
+        : <div className="h-8 w-8 shrink-0 rounded-full bg-[#DBE0E4]" aria-hidden="true" />}
       <div className="min-w-0 flex-1 leading-tight">
         <p className="text-[12px] font-medium text-black">{post.author}</p>
         <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] text-gray-placeholder">
@@ -29,9 +27,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, first, onOpen }) => (
           )}
         </div>
       </div>
-      <span className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ring-1 ring-inset ${TAG_STYLES[post.category]}`}>
-        {post.category}
-      </span>
+      <PostTypeLabel category={post.category} />
     </div>
     <button type="button" onClick={onOpen} className="block w-full text-left">
       <h2 className="text-[16px] font-bold">{post.title}</h2>

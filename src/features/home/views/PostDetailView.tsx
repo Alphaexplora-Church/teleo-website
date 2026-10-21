@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import type { FeedPostModel } from '../models/homeTypes';
+import PostTypeLabel from './PostTypeLabel';
 
 interface PostDetailViewProps {
   post: FeedPostModel;
@@ -86,7 +87,9 @@ const PostDetailView: React.FC<PostDetailViewProps> = ({ post, onClose }) => {
       <article className="px-5 pb-8 pt-2">
         <div className="flex items-start gap-3">
           <div className="relative shrink-0">
-            <div className="h-10 w-10 rounded-full bg-[#DBE0E4]" />
+            {post.authorAvatarUrl
+              ? <img src={post.authorAvatarUrl} alt="" className="h-10 w-10 rounded-full bg-[#DBE0E4] object-cover" />
+              : <div className="h-10 w-10 rounded-full bg-[#DBE0E4]" />}
             <span className="absolute -bottom-1 -right-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#3399FF]" />
           </div>
           <div className="min-w-0 flex-1">
@@ -108,9 +111,7 @@ const PostDetailView: React.FC<PostDetailViewProps> = ({ post, onClose }) => {
                   )}
                 </div>
               </div>
-              <span className="rounded-full bg-[#E6F7F5] px-2.5 py-1 text-[9px] font-semibold text-[#0F766E]">
-                {post.category}
-              </span>
+              <PostTypeLabel category={post.category} />
             </div>
 
             <h2 className="mt-4 text-[19px] font-bold leading-[25px]">{post.title}</h2>
