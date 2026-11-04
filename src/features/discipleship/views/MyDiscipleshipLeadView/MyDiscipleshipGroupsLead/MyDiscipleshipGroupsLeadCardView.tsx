@@ -1,10 +1,10 @@
-import { CurrentStudyCard } from "../../../components/CurrentStudyCard";
-import { GroupMemberActionSheet } from "../../../components/GroupMemberActionSheet";
-import { GroupRosterList } from "../../../components/GroupRosterList";
-import { NextGatheringCard } from "../../../components/NextGatheringCard";
-import { SetGatheringScheduleModal } from "../../../components/SetGatheringScheduleModal";
-import { ChangeGroupStatusModal } from "../../../components/ChangeGroupStatusModal";
-import { JourneyModuleListModal } from "../../../components/JourneyModuleListModal";
+import { CurrentStudyCard } from "../../../components/cards/CurrentStudyCard";
+import { GroupMemberActionSheet } from "../../../components/groups/GroupMemberActionSheet";
+import { GroupRosterList } from "../../../components/groups/GroupRosterList";
+import { NextGatheringCard } from "../../../components/cards/NextGatheringCard";
+import { SetGatheringScheduleModal } from "../../../components/modals/SetGatheringScheduleModal";
+import { ChangeGroupStatusModal } from "../../../components/modals/ChangeGroupStatusModal";
+import { JourneyModuleListModal } from "../../../components/modals/JourneyModuleListModal";
 import {
   myDiscipleshipGroupsLeadCardViewConst,
   MY_DISCIPLESHIP_GROUPS_LEAD_CARD_VIEW_ICONS,

@@ -27,6 +27,7 @@ export const discipleshipProcessChurchListConst: DiscipleshipProcessChurchListCo
   allChurchesHeader: "EXPLORE OTHER CHURCHES",
   homeBadgeLabel: "Home Church",
   applicationPendingBadgeLabel: "Pending Application",
+  activeBadgeLabel: "Active",
   activeGroupsSuffix: "active groups",
   availableSuffix: "Available",
   noResultsMessage: "No churches found matching your search.",

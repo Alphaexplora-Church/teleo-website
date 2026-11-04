@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Badge } from "../../../../../shared/components/Badge/Badge";
-import { ActionConfirmationModal } from "../../../components/ActionConfirmationModal";
-import { CurrentStudyCard } from "../../../components/CurrentStudyCard";
-import { NextGatheringCard } from "../../../components/NextGatheringCard";
-import { ThisWeekQuestionCard } from "../../../components/ThisWeekQuestionCard";
-import { GroupAction } from "../../../components/GroupAction";
+import { ActionConfirmationModal } from "../../../components/modals/ActionConfirmationModal";
+import { CurrentStudyCard } from "../../../components/cards/CurrentStudyCard";
+import { NextGatheringCard } from "../../../components/cards/NextGatheringCard";
+import { ThisWeekQuestionCard } from "../../../components/cards/ThisWeekQuestionCard";
+import { GroupAction } from "../../../components/groups/GroupAction";
 import {
   myDiscipleshipGroupsActivePauseViewConst,
   MY_DISCIPLESHIP_GROUPS_ACTIVE_PAUSE_VIEW_ICONS,
