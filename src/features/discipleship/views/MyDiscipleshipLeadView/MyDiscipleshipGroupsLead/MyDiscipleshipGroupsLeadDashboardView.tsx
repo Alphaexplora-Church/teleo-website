@@ -1,4 +1,4 @@
-import { ChurchLeadGroupSection } from "../../../components/ChurchLeadGroupSection";
+import { ChurchLeadGroupSection } from "../../../components/groups/ChurchLeadGroupSection";
 import {
   myDiscipleshipGroupsLeadDashboardViewConst,
 } from "../../../models/constants/myDiscipleshipGroupsLeadDashboardView.constant";

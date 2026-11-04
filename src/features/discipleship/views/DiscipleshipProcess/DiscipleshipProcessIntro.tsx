@@ -5,7 +5,7 @@ import type {
   DiscipleshipProcessIntroConfig,
   DiscipleshipProcessIntroProps,
 } from "../../models/types/discipleshipProcessIntro.types";
-import { IntroWhatToExpect } from "../../components/IntroWhatToExpect";
+import { IntroWhatToExpect } from "../../components/process/IntroWhatToExpect";
 
 export function DiscipleshipProcessIntro({
   churchId,

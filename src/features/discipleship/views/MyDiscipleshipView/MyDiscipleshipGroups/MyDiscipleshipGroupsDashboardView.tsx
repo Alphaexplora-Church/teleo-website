@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Button } from "../../../../../shared/components/Button/Button";
-import { DiscipleshipDashboardCard } from "../../../components/DiscipleshipDashboardCard";
+import { DiscipleshipDashboardCard } from "../../../components/cards/DiscipleshipDashboardCard";
 import {
   myDiscipleshipGroupsDashboardConst,
   MY_DISCIPLESHIP_GROUPS_DASHBOARD_VIEW_ICONS,

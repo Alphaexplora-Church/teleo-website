@@ -100,35 +100,10 @@ const formatFee = (record: ContentFeedRecord) => {
   return `${record.currency || 'PHP'} ${amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 };
 
-// TO DO: Replace static church fallback with live author church relation once backend exposes author home church
-const resolvePostAuthor = (record: ContentFeedRecord): string => {
-  const raw = record as unknown as Record<string, unknown>;
-  const username = record.author_username?.trim();
-  const rawChurchName =
-    (typeof raw.church_name === 'string' && raw.church_name.trim()) ||
-    (typeof raw.author_church_name === 'string' && raw.author_church_name.trim()) ||
-    (typeof raw.home_church_name === 'string' && raw.home_church_name.trim());
-
-  const isAdmin =
-    raw.is_admin === true ||
-    raw.role === 'admin' ||
-    raw.role === 'system_admin' ||
-    !username ||
-    username.toLowerCase() === 'admin' ||
-    username.toLowerCase() === 'church admin' ||
-    username.toLowerCase() === 'system admin';
-
-  if (isAdmin) {
-    return 'System Admin';
-  }
-
-  if (rawChurchName) {
-    return rawChurchName;
-  }
-
-  // Static fallback data for church name if post is authored by a user
-  return 'Grace Community Church';
-};
+// Events and announcements are posted by the church, so the post shows the
+// church's name (the API adds church_name to each feed row).
+const resolvePostAuthor = (record: ContentFeedRecord): string =>
+  record.church_name?.trim() || 'Your Church';
 
 export const mapContentFeedRecord = (record: ContentFeedRecord): FeedPostModel => {
   // A recurring post's start_date / end_date are only its first occurrence;
@@ -180,6 +155,7 @@ export const mapContentFeedRecord = (record: ContentFeedRecord): FeedPostModel =
   return {
     id: String(record.post_id),
     author: resolvePostAuthor(record),
+    authorAvatarUrl: record.church_logo_url?.trim() || undefined,
     meta: formatTimeAgo(record.created_at),
     category: isEvent ? 'Events' : 'Announcement',
     title: record.title,

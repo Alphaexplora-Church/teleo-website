@@ -5,7 +5,7 @@ import { mockLeadChurchGroups } from "../../models/mocks/discipleshipLead.mocks"
 import type {
   ChurchLeadGroupData,
   LeadGroupItem,
-} from "../../components/ChurchLeadGroupSection";
+} from "../../components/groups/ChurchLeadGroupSection";
 
 export interface MyDiscipleshipLeadViewProps {
   churchSections?: ChurchLeadGroupData[];
