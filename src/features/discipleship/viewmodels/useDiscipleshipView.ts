@@ -2,7 +2,7 @@
 // Primary ViewModel for Discipleship dashboard, routing, member actions, and auth handling.
 // Pure live API integration: No mock personas or switcher logic.
 
-import { useState, useEffect, useLayoutEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import type { DiscipleshipTab } from "../components/groups/GroupsTabSwitcher";
 import type {
@@ -128,52 +128,11 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
 
   // ── Scroll to Top Handler ────────────────────────────────────
   const scrollToTop = useCallback(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTo?.({ top: 0, left: 0, behavior: "instant" });
-      containerRef.current.scrollTop = 0;
-      containerRef.current.scrollIntoView?.({ behavior: "instant", block: "start" });
-    }
-
-    let parent = containerRef.current?.parentElement;
-    while (parent) {
-      const style = window.getComputedStyle(parent);
-      if (
-        style.overflowY === "auto" ||
-        style.overflowY === "scroll" ||
-        parent.id === "dashboard-content-area"
-      ) {
-        parent.scrollTo?.({ top: 0, left: 0, behavior: "instant" });
-        parent.scrollTop = 0;
-      }
-      parent = parent.parentElement;
-    }
-
-    const dashboardArea = document.getElementById("dashboard-content-area");
-    if (dashboardArea) {
-      dashboardArea.scrollTo?.({ top: 0, left: 0, behavior: "instant" });
-      dashboardArea.scrollTop = 0;
-    }
-
     window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-    if (document.documentElement) {
-      document.documentElement.scrollTop = 0;
-    }
-    if (document.body) {
-      document.body.scrollTop = 0;
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
     }
   }, []);
-
-  // ── Scroll to Top on View Switch ─────────────────────────────
-  useLayoutEffect(() => {
-    scrollToTop();
-    const rafId = requestAnimationFrame(scrollToTop);
-    const timeoutId = setTimeout(scrollToTop, 0);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      clearTimeout(timeoutId);
-    };
-  }, [viewMode, selectedChurchId, selectedLeadGroupId, activeTab, location.pathname, scrollToTop]);
 
   useEffect(() => {
     scrollToTop();
