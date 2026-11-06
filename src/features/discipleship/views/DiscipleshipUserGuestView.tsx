@@ -1,9 +1,9 @@
 import type React from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../../../shared/components/Button/Button";
-import { ChurchCardSkeleton } from "../../components/skeletons/ChurchListSkeleton";
-import { discipleshipUserGuestViewConst } from "../../models/constants/discipleshipUserGuestView.constant";
-import type { DiscipleshipUserGuestViewProps } from "../../models/types/discipleshipUserGuestView.types";
+import { Church, ArrowRight } from "lucide-react";
+import { Button } from "../../../shared/components/Button/Button";
+import { ChurchCardSkeleton } from "../components/skeletons/ChurchListSkeleton";
+import type { DiscipleshipUserGuestViewProps } from "../models/types/discipleshipUserGuestView.types";
 
 export type { DiscipleshipUserGuestViewProps };
 
@@ -15,36 +15,15 @@ export type { DiscipleshipUserGuestViewProps };
  */
 export function DiscipleshipUserGuestView({
   onJoin,
-  config: userConfig,
   className = "",
 }: DiscipleshipUserGuestViewProps = {}): React.JSX.Element {
   const navigate = useNavigate();
-
-  const config = {
-    ...discipleshipUserGuestViewConst,
-    ...userConfig,
-    joinCard: {
-      ...discipleshipUserGuestViewConst.joinCard,
-      ...userConfig?.joinCard,
-      buttonJoin: {
-        ...discipleshipUserGuestViewConst.joinCard.buttonJoin,
-        ...userConfig?.joinCard?.buttonJoin,
-      },
-    },
-    churchList: {
-      ...discipleshipUserGuestViewConst.churchList,
-      ...userConfig?.churchList,
-    },
-  };
-
-  const { icon: ChurchIcon, title, description, buttonJoin } = config.joinCard;
-  const ArrowIcon = buttonJoin.icon;
 
   const handleJoin = () => {
     if (onJoin) {
       onJoin();
     } else {
-      navigate(buttonJoin.to ?? "/welcome");
+      navigate("/welcome");
     }
   };
 
@@ -55,33 +34,31 @@ export function DiscipleshipUserGuestView({
       {/* ── Guest Welcome / Join Discipleship Card ──────────────── */}
       <div className="w-full bg-[#F1F5F9] border border-slate-100 rounded-3xl p-6 text-center flex flex-col items-center shadow-xs">
         {/* Church Icon Circle Badge */}
-        {ChurchIcon && (
-          <div className="w-14 h-14 rounded-full bg-slate-200/80 flex items-center justify-center mb-4 shrink-0">
-            <ChurchIcon className="w-6 h-6 text-slate-800" />
-          </div>
-        )}
+        <div className="w-14 h-14 rounded-full bg-slate-200/80 flex items-center justify-center mb-4 shrink-0">
+          <Church className="w-6 h-6 text-slate-800" />
+        </div>
 
         {/* Heading & Subtitle */}
         <div className="mb-6 space-y-2">
           <h2 className="text-[17px] font-bold text-slate-900 leading-snug">
-            {title}
+            Join a Discipleship Group
           </h2>
           <p className="text-[13px] text-slate-500 leading-relaxed max-w-[280px] mx-auto">
-            {description}
+            Sign in to connect with a discipleship community, join groups, and grow in your faith journey.
           </p>
         </div>
 
         {/* Join Button -> Navigates to Teleo Welcome Screen */}
         <Button
           type="button"
-          variant={buttonJoin.variant ?? "primary"}
-          size={buttonJoin.size ?? "md"}
+          variant="primary"
+          size="md"
           fullWidth
           onClick={handleJoin}
           className="text-white flex items-center justify-center gap-2 cursor-pointer shadow-btn"
         >
-          <span>{buttonJoin.label}</span>
-          {ArrowIcon && <ArrowIcon className="w-4 h-4 shrink-0" />}
+          <span>Sign In to Join</span>
+          <ArrowRight className="w-4 h-4 shrink-0" />
         </Button>
       </div>
 
@@ -93,7 +70,7 @@ export function DiscipleshipUserGuestView({
         {/* ── Your Home Church Section ───────────────────────────── */}
         <section className="space-y-2">
           <h3 className="text-[11px] font-bold tracking-wider text-slate-500 uppercase px-0.5">
-            {config.churchList.homeChurchHeader}
+            Home Church
           </h3>
           <ChurchCardSkeleton />
         </section>
@@ -101,7 +78,7 @@ export function DiscipleshipUserGuestView({
         {/* ── Explore Other Churches Section ─────────────────────── */}
         <section className="space-y-2">
           <h3 className="text-[11px] font-bold tracking-wider text-slate-500 uppercase px-0.5">
-            {config.churchList.exploreOtherHeader}
+            Explore Other Churches
           </h3>
           <div className="space-y-2.5">
             <ChurchCardSkeleton />
@@ -114,3 +91,4 @@ export function DiscipleshipUserGuestView({
 }
 
 export default DiscipleshipUserGuestView;
+

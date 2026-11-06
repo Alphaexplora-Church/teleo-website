@@ -3,22 +3,9 @@ import { Badge } from "../../../../shared/components/Badge/Badge";
 
 export type LeadGroupStatus = "Active" | "Paused" | string;
 
-export interface LeadGroupItem {
-  id: string;
-  name: string;
-  members_count: number;
-  next_gathering_preview: string;
-  status: "Active" | "Paused" | string;
-  members?: any[];
-}
+import type { LeadGroupItem, ChurchLeadGroupData } from "../../models/types/discipleship.types";
 
-export interface ChurchLeadGroupData {
-  church_id?: number | string;
-  church_name: string;
-  groups_count?: number;
-  groups: LeadGroupItem[];
-}
-
+export type { LeadGroupItem, ChurchLeadGroupData };
 export type ChurchLeadGroupSectionData = ChurchLeadGroupData;
 
 export interface ChurchLeadGroupSectionProps {

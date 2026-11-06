@@ -1,16 +1,12 @@
 import { useState } from "react";
-import { Badge } from "../../../../../shared/components/Badge/Badge";
-import { ActionConfirmationModal } from "../../../components/modals/ActionConfirmationModal";
-import { CurrentStudyCard } from "../../../components/cards/CurrentStudyCard";
-import { NextGatheringCard } from "../../../components/cards/NextGatheringCard";
-import { ThisWeekQuestionCard } from "../../../components/cards/ThisWeekQuestionCard";
-import { GroupAction } from "../../../components/groups/GroupAction";
-import {
-  myDiscipleshipGroupsActivePauseViewConst,
-  MY_DISCIPLESHIP_GROUPS_ACTIVE_PAUSE_VIEW_ICONS,
-} from "../../../models/constants/myDiscipleshipGroupsActivePauseView.constant";
-import type { DiscipleshipGroup } from "../../../models/types/discipleshipDashboard.types";
-import type { MyDiscipleshipGroupsActivePauseViewProps } from "../../../models/types/myDiscipleshipGroupsActivePauseView.types";
+import { ArrowLeft } from "lucide-react";
+import { Badge } from "../../../shared/components/Badge/Badge";
+import { ActionConfirmationModal } from "../components/modals/ActionConfirmationModal";
+import { CurrentStudyCard } from "../components/cards/CurrentStudyCard";
+import { NextGatheringCard } from "../components/cards/NextGatheringCard";
+import { ThisWeekQuestionCard } from "../components/cards/ThisWeekQuestionCard";
+import { GroupAction } from "../components/groups/GroupAction";
+import type { DiscipleshipGroup } from "../models/types/discipleship.types";
 
 const FALLBACK_EMPTY_GROUP: DiscipleshipGroup = {
   id: "",
@@ -23,10 +19,20 @@ const FALLBACK_EMPTY_GROUP: DiscipleshipGroup = {
   role: "member",
 };
 
+export interface MyDiscipleshipGroupsActivePauseViewProps {
+  groupId?: string;
+  group?: DiscipleshipGroup;
+  onBack?: () => void;
+  onOpenJourneyReading?: () => void;
+  onPauseMembership?: (groupId: string) => void;
+  onResumeGroup?: (groupId: string) => void;
+  onLeaveGroup?: (groupId: string) => void;
+  className?: string;
+}
+
 export function MyDiscipleshipGroupsActivePauseView({
   groupId,
   group = FALLBACK_EMPTY_GROUP,
-  config = myDiscipleshipGroupsActivePauseViewConst,
   onBack,
   onOpenJourneyReading,
   onPauseMembership,
@@ -36,11 +42,6 @@ export function MyDiscipleshipGroupsActivePauseView({
 }: MyDiscipleshipGroupsActivePauseViewProps) {
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
   const [isPauseModalOpen, setIsPauseModalOpen] = useState(false);
-
-  // Icons from constant
-  const {
-    back: BackIcon,
-  } = MY_DISCIPLESHIP_GROUPS_ACTIVE_PAUSE_VIEW_ICONS;
 
   // Group Details (Dynamic Data)
   const activeGroupId = group?.id ?? groupId ?? "";
@@ -55,7 +56,7 @@ export function MyDiscipleshipGroupsActivePauseView({
   const gatheringSubtitle = group?.next_gathering?.subtitle ?? "";
   const gatheringLocation = group?.next_gathering?.location ?? "";
   const gatheringLink = group?.next_gathering?.virtual_link ?? "";
-  const gatheringType = group?.next_gathering?.gathering_type ?? config.hybridBadgeLabel;
+  const gatheringType = group?.next_gathering?.gathering_type ?? "Hybrid";
 
   // Reflection Question (Dynamic Data)
   const reflectionQuestion = group?.this_week_question ?? "";
@@ -74,9 +75,9 @@ export function MyDiscipleshipGroupsActivePauseView({
           type="button"
           onClick={onBack}
           className="p-1 -ml-1 text-slate-900 hover:text-navy-hover hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent"
-          aria-label={config.buttonBackLabel || "Back"}
+          aria-label="Back"
         >
-          <BackIcon className="w-6 h-6 text-slate-900" />
+          <ArrowLeft className="w-6 h-6 text-slate-900" />
         </button>
 
         <GroupAction
@@ -95,7 +96,7 @@ export function MyDiscipleshipGroupsActivePauseView({
           </h1>
           {isPaused ? (
             <Badge
-              label={config.pausedBadgeLabel}
+              label="Paused"
               variant="outline"
               dotVisible={false}
               size="sm"
@@ -103,7 +104,7 @@ export function MyDiscipleshipGroupsActivePauseView({
             />
           ) : (
             <Badge
-              label={config.activeBadgeLabel}
+              label="Active"
               variant="success"
               dotVisible={false}
               size="sm"
@@ -112,7 +113,7 @@ export function MyDiscipleshipGroupsActivePauseView({
           )}
         </div>
         <p className="text-[13px] text-slate-500 leading-relaxed">
-          {churchName} · Led by {leaderName} · {membersCount} {config.membersSuffix}
+          {churchName} · Led by {leaderName} · {membersCount} members
         </p>
       </div>
 
@@ -125,14 +126,14 @@ export function MyDiscipleshipGroupsActivePauseView({
           location={gatheringLocation}
           virtualLink={gatheringLink}
           gatheringType={gatheringType}
-          headerTitle={config.nextGatheringHeader}
-          copyButtonLabel={config.copyButtonLabel}
-          copiedButtonLabel={config.copiedButtonLabel}
+          headerTitle="NEXT GATHERING"
+          copyButtonLabel="Copy Link"
+          copiedButtonLabel="Copied"
         />
       ) : (
         <div className="w-full bg-white border border-slate-100 rounded-2xl p-5 space-y-2 shadow-xs">
           <span className="text-[11px] font-bold text-slate-500 tracking-wider uppercase select-none">
-            {config.nextGatheringHeader}
+            NEXT GATHERING
           </span>
           <p className="text-[15px] font-semibold text-slate-800">
             No upcoming gathering set
@@ -146,7 +147,7 @@ export function MyDiscipleshipGroupsActivePauseView({
       {/* ── Card 2: This Week's Question Component ──────────────────── */}
       <ThisWeekQuestionCard
         question={reflectionQuestion}
-        headerTitle={config.thisWeekQuestionHeader}
+        headerTitle="THIS WEEK'S QUESTION"
       />
 
       {/* ── Card 3: Current Study Component ─────────────────────────── */}
@@ -154,21 +155,19 @@ export function MyDiscipleshipGroupsActivePauseView({
         study={group?.current_study}
         title={studyTitle}
         moduleBadge={studyModuleBadge}
-        headerTitle={config.currentStudyHeader}
-        actionLabel={config.openJourneyButtonLabel}
+        headerTitle="CURRENT STUDY"
+        actionLabel="Open Journey Reading"
         onOpenReading={onOpenJourneyReading}
       />
-
-
 
       {/* ── Leave Group Confirmation Modal ──────────────────────────── */}
       <ActionConfirmationModal
         isOpen={isLeaveModalOpen}
         onClose={() => setIsLeaveModalOpen(false)}
-        title={config.leaveGroupModalTitle}
-        description={`${config.leaveGroupModalDescriptionPrefix}${groupName}${config.leaveGroupModalDescriptionSuffix}`}
-        confirmLabel={config.leaveGroupModalConfirmLabel}
-        cancelLabel={config.leaveGroupModalCancelLabel}
+        title="Leave Discipleship Group"
+        description={`Are you sure you want to leave ${groupName}? You will lose access to group meetings, reminders, and materials.`}
+        confirmLabel="Leave Group"
+        cancelLabel="Cancel"
         confirmVariant="danger"
         onConfirm={() => {
           setIsLeaveModalOpen(false);
@@ -180,10 +179,10 @@ export function MyDiscipleshipGroupsActivePauseView({
       <ActionConfirmationModal
         isOpen={isPauseModalOpen}
         onClose={() => setIsPauseModalOpen(false)}
-        title={config.pauseMembershipModalTitle}
-        description={config.pauseMembershipModalDescription}
-        confirmLabel={config.pauseMembershipModalConfirmLabel}
-        cancelLabel={config.pauseMembershipModalCancelLabel}
+        title="Pause Discipleship Membership"
+        description="Pausing your membership stops meeting notifications and reminders. You can resume anytime."
+        confirmLabel="Pause Membership"
+        cancelLabel="Cancel"
         confirmVariant="warning"
         onConfirm={() => {
           setIsPauseModalOpen(false);
@@ -195,3 +194,4 @@ export function MyDiscipleshipGroupsActivePauseView({
 }
 
 export default MyDiscipleshipGroupsActivePauseView;
+

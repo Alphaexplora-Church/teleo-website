@@ -1,39 +1,18 @@
-// src/features/discipleship/views/DiscipleshipProcess/DiscipleshipProcessIntro.tsx
+// src/features/discipleship/views/DiscipleshipProcessIntro.tsx
 import { useState, useEffect, useMemo } from "react";
-import { discipleshipProcessIntroConst } from "../../models/constants/discipleshipProcessIntro.constant";
-import type {
-  DiscipleshipProcessIntroConfig,
-  DiscipleshipProcessIntroProps,
-} from "../../models/types/discipleshipProcessIntro.types";
-import type { DiscipleshipProgramDetail } from "../../models/types/discipleshipProgramIntro.types";
-import { IntroWhatToExpect } from "../../components/process/IntroWhatToExpect";
-import { fetchChurchDiscipleshipProgram } from "../../models/api/discipleship.api";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import type { DiscipleshipProcessIntroProps } from "../models/types/discipleshipProcessIntro.types";
+import type { DiscipleshipProgramDetail } from "../models/types/discipleship.types";
+import { IntroWhatToExpect } from "../components/process/IntroWhatToExpect";
+import { fetchChurchDiscipleshipProgram } from "../models/api/discipleship.api";
 
 export function DiscipleshipProcessIntro({
   churchId,
   programDetail,
-  config: userConfig,
   onBack,
   onApply,
   className = "",
 }: DiscipleshipProcessIntroProps = {}) {
-  const resolvedConfig: DiscipleshipProcessIntroConfig = {
-    ...discipleshipProcessIntroConst,
-    ...userConfig,
-    buttonBack: {
-      ...discipleshipProcessIntroConst.buttonBack,
-      ...userConfig?.buttonBack,
-    },
-    buttonApply: {
-      ...discipleshipProcessIntroConst.buttonApply,
-      ...userConfig?.buttonApply,
-    },
-    icons: {
-      ...discipleshipProcessIntroConst.icons,
-      ...userConfig?.icons,
-    },
-  };
-
   const targetChurchId = churchId ?? 101;
   const [liveProgram, setLiveProgram] = useState<DiscipleshipProgramDetail | null>(null);
 
@@ -58,7 +37,7 @@ export function DiscipleshipProcessIntro({
           }
         })
         .catch(() => {
-          // Graceful catch
+          // Graceful catch handled by safe fallback
         });
     }
   }, [churchId, programDetail]);
@@ -80,10 +59,6 @@ export function DiscipleshipProcessIntro({
     };
   }, [programDetail, liveProgram, targetChurchId]);
 
-  // Icons are injected exclusively from Model/Constant layer
-  const BackIcon = resolvedConfig.buttonBack.icon;
-  const ApplyIcon = resolvedConfig.buttonApply.icon;
-
   return (
     <div
       className={`w-full max-w-md mx-auto px-4 py-6 space-y-6 select-none ${className}`.trim()}
@@ -94,9 +69,9 @@ export function DiscipleshipProcessIntro({
           type="button"
           onClick={onBack}
           className="p-1 -ml-1 text-[#0E172A] hover:text-[#042C58] hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent"
-          aria-label={resolvedConfig.buttonBack.label || "Back"}
+          aria-label="Back"
         >
-          {BackIcon && <BackIcon className="w-6 h-6 text-[#0E172A]" />}
+          <ArrowLeft className="w-6 h-6 text-[#0E172A]" />
         </button>
       </div>
 
@@ -126,8 +101,8 @@ export function DiscipleshipProcessIntro({
           onClick={onApply}
           className="w-full h-12 bg-[#0E172A] hover:bg-black active:scale-[0.99] text-white font-semibold text-[15px] rounded-2xl flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-sm"
         >
-          <span>{resolvedConfig.buttonApply.label}</span>
-          {ApplyIcon && <ApplyIcon className="w-4 h-4 text-white" />}
+          <span>Apply for Discipleship</span>
+          <ArrowRight className="w-4 h-4 text-white" />
         </button>
       </div>
     </div>
@@ -135,3 +110,4 @@ export function DiscipleshipProcessIntro({
 }
 
 export default DiscipleshipProcessIntro;
+

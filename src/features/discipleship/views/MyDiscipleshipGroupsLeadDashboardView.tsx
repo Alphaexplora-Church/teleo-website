@@ -1,15 +1,17 @@
-// src/features/discipleship/views/MyDiscipleshipLeadView/MyDiscipleshipGroupsLead/MyDiscipleshipGroupsLeadDashboardView.tsx
-import { ChurchLeadGroupSection } from "../../../components/groups/ChurchLeadGroupSection";
-import {
-  myDiscipleshipGroupsLeadDashboardViewConst,
-} from "../../../models/constants/myDiscipleshipGroupsLeadDashboardView.constant";
-import type { ChurchLeadGroupData } from "../../../models/types/discipleshipLead.types";
-import type { MyDiscipleshipGroupsLeadDashboardViewProps } from "../../../models/types/myDiscipleshipGroupsLeadDashboardView.types";
+// src/features/discipleship/views/MyDiscipleshipGroupsLeadDashboardView.tsx
+import { ChurchLeadGroupSection } from "../components/groups/ChurchLeadGroupSection";
+import type { ChurchLeadGroupData } from "../models/types/discipleship.types";
+import type { LeadGroupItem } from "../components/groups/ChurchLeadGroupSection";
 
 const EMPTY_SECTIONS: ChurchLeadGroupData[] = [];
 
+export interface MyDiscipleshipGroupsLeadDashboardViewProps {
+  churchSections?: ChurchLeadGroupData[];
+  onManageGroup?: (groupId: string, group: LeadGroupItem) => void;
+  className?: string;
+}
+
 export function MyDiscipleshipGroupsLeadDashboardView({
-  config = myDiscipleshipGroupsLeadDashboardViewConst,
   churchSections = EMPTY_SECTIONS,
   onManageGroup,
   className = "",
@@ -20,10 +22,10 @@ export function MyDiscipleshipGroupsLeadDashboardView({
       <div className="flex items-center justify-between gap-4 select-none">
         <div>
           <h1 className="text-[22px] font-bold text-slate-900 tracking-tight leading-tight">
-            {config.headerTitle}
+            Lead Groups
           </h1>
           <p className="text-[13px] text-slate-500 mt-0.5">
-            {config.headerSubtitle}
+            Discipleship groups you facilitate and lead
           </p>
         </div>
       </div>
@@ -43,11 +45,6 @@ export function MyDiscipleshipGroupsLeadDashboardView({
               key={section.church_id ?? section.church_name}
               section={section}
               onManageGroup={onManageGroup}
-              membersSuffix={config.membersSuffix}
-              singleGroupSuffix={config.singleGroupSuffix}
-              multipleGroupsSuffix={config.multipleGroupsSuffix}
-              activeBadgeLabel={config.activeBadgeLabel}
-              pausedBadgeLabel={config.pausedBadgeLabel}
             />
           ))}
         </div>
@@ -57,3 +54,4 @@ export function MyDiscipleshipGroupsLeadDashboardView({
 }
 
 export default MyDiscipleshipGroupsLeadDashboardView;
+

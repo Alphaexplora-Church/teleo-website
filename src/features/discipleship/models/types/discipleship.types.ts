@@ -172,9 +172,9 @@ export interface LeadGroupItem {
 }
 
 export interface ChurchLeadGroupData {
-  church_id: number;
+  church_id?: number | string;
   church_name: string;
-  groups_count: number;
+  groups_count?: number;
   groups: LeadGroupItem[];
 }
 

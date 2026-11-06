@@ -254,7 +254,9 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
   // Active church IDs where user already has a group
   const activeChurchIds = useMemo(() => {
     if (isLeader) {
-      return ledChurchGroups.map((cl) => cl.church_id);
+      return ledChurchGroups
+        .map((cl) => (typeof cl.church_id === "number" ? cl.church_id : Number(cl.church_id)))
+        .filter((id): id is number => !Number.isNaN(id));
     }
     return dashboardData.groups
       .filter((g) => g.status === "active")

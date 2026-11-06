@@ -1,13 +1,8 @@
-// src/features/discipleship/views/MyDiscipleshipView/MyDiscipleshipView.tsx
-import type { DiscipleshipChurch } from "../../models/types/myDiscipleshipEmptyStateView.types";
-import { MyDiscipleshipEmptyStateView } from "./MyDiscipleshipEmptyState/MyDiscipleshipEmptyStateView";
-import { MyDiscipleshipGroupsDashboardView } from "./MyDiscipleshipGroups/MyDiscipleshipGroupsDashboardView";
-import type { DiscipleshipDashboardData } from "../../models/types/discipleshipDashboard.types";
-
-const EMPTY_DASHBOARD: DiscipleshipDashboardData = {
-  applications: [],
-  groups: [],
-};
+// src/features/discipleship/views/MyDiscipleshipView.tsx
+import type { DiscipleshipChurch, DiscipleshipDashboardData } from "../models/types/discipleship.types";
+import { EMPTY_DASHBOARD_DATA } from "../models/constants/discipleship.constants";
+import { MyDiscipleshipEmptyStateView } from "./MyDiscipleshipEmptyStateView";
+import { MyDiscipleshipGroupsDashboardView } from "./MyDiscipleshipGroupsDashboardView";
 
 export interface MyDiscipleshipViewProps {
   dashboardData?: DiscipleshipDashboardData;
@@ -20,7 +15,7 @@ export interface MyDiscipleshipViewProps {
 }
 
 export function MyDiscipleshipView({
-  dashboardData = EMPTY_DASHBOARD,
+  dashboardData = EMPTY_DASHBOARD_DATA,
   onSelectChurch,
   onNavigateToChurchList,
   onOpenGroupRoom,
@@ -28,7 +23,6 @@ export function MyDiscipleshipView({
   onResumeGroup,
   className = "",
 }: MyDiscipleshipViewProps = {}) {
-  // Check if user has active/paused groups or pending applications
   const hasGroupsOrApplications =
     (dashboardData.groups?.length ?? 0) > 0 ||
     (dashboardData.applications?.length ?? 0) > 0;
@@ -54,3 +48,4 @@ export function MyDiscipleshipView({
 }
 
 export default MyDiscipleshipView;
+

@@ -1,17 +1,15 @@
-import { Link } from "react-router-dom";
-import { Badge } from "../../../../shared/components/Badge/Badge";
-import { discipleshipProcessChurchListConst } from "../../models/constants/discipleshipProcessChurchList.constant";
+import { ArrowLeft, Search, X, ChevronRight } from "lucide-react";
+import { Badge } from "../../../shared/components/Badge/Badge";
 import type {
   DiscipleshipChurchItem,
   DiscipleshipProcessChurchListViewProps,
-} from "../../models/types/discipleshipProcessChurchList.types";
-import { useDiscipleshipProcessChurchList } from "../../viewmodels/useDiscipleshipProcessChurchList";
+} from "../models/types/discipleshipProcessChurchList.types";
+import { useDiscipleshipProcessChurchList } from "../viewmodels/useDiscipleshipProcessChurchList";
 
 const EMPTY_PENDING_CHURCH_IDS: number[] = [];
 const EMPTY_ACTIVE_CHURCH_IDS: number[] = [];
 
 export function DiscipleshipProcessChurchList({
-  config: userConfig,
   churches,
   pendingChurchIds = EMPTY_PENDING_CHURCH_IDS,
   activeChurchIds = EMPTY_ACTIVE_CHURCH_IDS,
@@ -19,23 +17,6 @@ export function DiscipleshipProcessChurchList({
   onBack,
   className = "",
 }: DiscipleshipProcessChurchListViewProps = {}) {
-  const config = {
-    ...discipleshipProcessChurchListConst,
-    ...userConfig,
-    buttonBack: {
-      ...discipleshipProcessChurchListConst.buttonBack,
-      ...userConfig?.buttonBack,
-    },
-    searchBar: {
-      ...discipleshipProcessChurchListConst.searchBar,
-      ...userConfig?.searchBar,
-    },
-    icons: {
-      ...discipleshipProcessChurchListConst.icons,
-      ...userConfig?.icons,
-    },
-  };
-
   const {
     searchQuery,
     setSearchQuery,
@@ -47,17 +28,6 @@ export function DiscipleshipProcessChurchList({
     hasQuery,
   } = useDiscipleshipProcessChurchList({ churches, pendingChurchIds });
 
-  // Icons are injected exclusively from Model/Constant layer
-  const BackIcon = config.buttonBack.icon;
-  const SearchIcon = config.searchBar.icon;
-  const ClearIcon = config.searchBar.clearIcon;
-  const ChevronIcon = config.icons.chevronRight;
-
-  const searchPlaceholder =
-    config.searchBar.placeHolder ??
-    config.searchBar.placeholder ??
-    "Search church name or city...";
-
   const handleCardClick = (church: DiscipleshipChurchItem) => {
     onSelectChurch?.(church);
   };
@@ -66,49 +36,39 @@ export function DiscipleshipProcessChurchList({
     <div className={`w-full max-w-md mx-auto px-4 py-6 space-y-6 select-none ${className}`.trim()}>
       {/* ── Top Header: Back Button (Icon Only) ────────────────── */}
       <div className="flex items-center">
-        {onBack ? (
-          <button
-            type="button"
-            onClick={onBack}
-            className="p-1 -ml-1 text-[#0E172A] hover:text-[#042C58] hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent"
-            aria-label={config.buttonBack.label || "Back"}
-          >
-            {BackIcon && <BackIcon className="w-6 h-6 text-[#0E172A]" />}
-          </button>
-        ) : (
-          <Link
-            to={config.buttonBack.to || "/discipleship"}
-            className="p-1 -ml-1 text-[#0E172A] hover:text-[#042C58] hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
-            aria-label={config.buttonBack.label || "Back"}
-          >
-            {BackIcon && <BackIcon className="w-6 h-6 text-[#0E172A]" />}
-          </Link>
-        )}
+        <button
+          type="button"
+          onClick={onBack}
+          className="p-1 -ml-1 text-[#0E172A] hover:text-[#042C58] hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent"
+          aria-label="Back"
+        >
+          <ArrowLeft className="w-6 h-6 text-[#0E172A]" />
+        </button>
       </div>
 
       {/* ── Search Bar Input ───────────────────────────────────── */}
       <div className="relative flex items-center">
         <div className="absolute left-4 pointer-events-none flex items-center justify-center text-[#62718A]">
-          {SearchIcon && <SearchIcon className="w-5 h-5" aria-hidden="true" />}
+          <Search className="w-5 h-5" aria-hidden="true" />
         </div>
 
         <input
           type="search"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={searchPlaceholder}
-          aria-label={searchPlaceholder}
+          placeholder="Search church name or city..."
+          aria-label="Search church name or city..."
           className="w-full h-12 pl-12 pr-10 bg-[#F1F3F6] rounded-2xl text-[15px] text-[#0E172A] placeholder-[#62718A] border border-transparent focus:border-slate-300 focus:bg-white focus:outline-none transition-all duration-200"
         />
 
-        {hasQuery && ClearIcon && (
+        {hasQuery && (
           <button
             type="button"
             onClick={clearSearch}
             aria-label="Clear search query"
             className="absolute right-3.5 p-1 rounded-full text-[#62718A] hover:text-[#0E172A] hover:bg-slate-200 transition-colors cursor-pointer"
           >
-            <ClearIcon className="w-4 h-4" />
+            <X className="w-4 h-4" />
           </button>
         )}
       </div>
@@ -116,7 +76,7 @@ export function DiscipleshipProcessChurchList({
       {/* ── Empty Search Results ───────────────────────────────── */}
       {!hasResults && (
         <div className="py-12 text-center">
-          <p className="text-[14px] text-[#62718A]">{config.noResultsMessage}</p>
+          <p className="text-[14px] text-[#62718A]">No churches found matching your search.</p>
         </div>
       )}
 
@@ -128,7 +88,7 @@ export function DiscipleshipProcessChurchList({
               id="home-church-heading"
               className="text-xs font-bold text-[#62718A] tracking-wider uppercase"
             >
-              {config.homeChurchHeader}
+              Your Home Church
             </h2>
           </div>
 
@@ -144,24 +104,21 @@ export function DiscipleshipProcessChurchList({
                   className="w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 select-none hover:border-slate-200 hover:shadow-md cursor-pointer"
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
-                    {/* Gray placeholder for future church image */}
                     <div
                       className="w-14 h-14 rounded-2xl bg-[#E2E8F0] shrink-0"
                       aria-hidden="true"
                     />
 
-                    {/* Church Details */}
                     <div className="flex flex-col items-start min-w-0">
                       <h3 className="text-[15px] font-semibold text-[#0E172A] truncate">
                         {church.name}
                       </h3>
 
-                      {/* Badges Container */}
                       <div className="flex items-center gap-1.5 mt-1 flex-wrap">
-                        {church.is_home_church && <Badge label={config.homeBadgeLabel} size="sm" />}
+                        {church.is_home_church && <Badge label="Home Church" size="sm" />}
                         {isActive && (
                           <Badge
-                            label={config.activeBadgeLabel ?? "Active"}
+                            label="Active"
                             variant="success"
                             size="sm"
                             dotVisible={false}
@@ -169,7 +126,7 @@ export function DiscipleshipProcessChurchList({
                         )}
                         {isPending && (
                           <Badge
-                            label={config.applicationPendingBadgeLabel}
+                            label="Pending Application"
                             variant="warning"
                             size="sm"
                             dotVisible={false}
@@ -178,18 +135,16 @@ export function DiscipleshipProcessChurchList({
                       </div>
 
                       <span className="text-[13px] text-[#62718A] font-normal mt-1 truncate">
-                        {church.active_groups_count} {config.activeGroupsSuffix}
+                        {church.active_groups_count} Active Groups
                         {church.city ? ` · ${church.city}` : ""}
                       </span>
                     </div>
                   </div>
 
-                  {ChevronIcon && (
-                    <ChevronIcon
-                      className="w-5 h-5 shrink-0 text-[#62718A]"
-                      aria-hidden="true"
-                    />
-                  )}
+                  <ChevronRight
+                    className="w-5 h-5 shrink-0 text-[#62718A]"
+                    aria-hidden="true"
+                  />
                 </button>
               );
             })}
@@ -205,10 +160,10 @@ export function DiscipleshipProcessChurchList({
               id="all-churches-heading"
               className="text-xs font-bold text-[#62718A] tracking-wider uppercase"
             >
-              {config.allChurchesHeader}
+              All Churches
             </h2>
             <span className="text-xs font-medium text-[#62718A]">
-              {availableCount} {config.availableSuffix}
+              {availableCount} available
             </span>
           </div>
 
@@ -224,23 +179,20 @@ export function DiscipleshipProcessChurchList({
                   className="w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 select-none hover:border-slate-200 hover:shadow-md cursor-pointer"
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
-                    {/* Gray placeholder for future church image */}
                     <div
                       className="w-14 h-14 rounded-2xl bg-[#E2E8F0] shrink-0"
                       aria-hidden="true"
                     />
 
-                    {/* Church Details */}
                     <div className="flex flex-col items-start min-w-0">
                       <h3 className="text-[15px] font-semibold text-[#0E172A] truncate">
                         {church.name}
                       </h3>
 
-                      {/* Badges Container */}
                       <div className="flex items-center gap-1.5 mt-1 flex-wrap">
                         {isActive && (
                           <Badge
-                            label={config.activeBadgeLabel ?? "Active"}
+                            label="Active"
                             variant="success"
                             size="sm"
                             dotVisible={false}
@@ -248,7 +200,7 @@ export function DiscipleshipProcessChurchList({
                         )}
                         {isPending && (
                           <Badge
-                            label={config.applicationPendingBadgeLabel}
+                            label="Pending Application"
                             variant="warning"
                             size="sm"
                             dotVisible={false}
@@ -257,18 +209,16 @@ export function DiscipleshipProcessChurchList({
                       </div>
 
                       <span className="text-[13px] text-[#62718A] font-normal mt-1 truncate">
-                        {church.active_groups_count} {config.activeGroupsSuffix}
+                        {church.active_groups_count} Active Groups
                         {church.city ? ` · ${church.city}` : ""}
                       </span>
                     </div>
                   </div>
 
-                  {ChevronIcon && (
-                    <ChevronIcon
-                      className="w-5 h-5 shrink-0 text-[#62718A]"
-                      aria-hidden="true"
-                    />
-                  )}
+                  <ChevronRight
+                    className="w-5 h-5 shrink-0 text-[#62718A]"
+                    aria-hidden="true"
+                  />
                 </button>
               );
             })}
@@ -280,3 +230,4 @@ export function DiscipleshipProcessChurchList({
 }
 
 export default DiscipleshipProcessChurchList;
+

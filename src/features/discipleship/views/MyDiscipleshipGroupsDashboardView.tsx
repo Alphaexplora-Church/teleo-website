@@ -1,42 +1,37 @@
 import { useMemo } from "react";
-import { Button } from "../../../../../shared/components/Button/Button";
-import { DiscipleshipDashboardCard } from "../../../components/cards/DiscipleshipDashboardCard";
-import {
-  myDiscipleshipGroupsDashboardConst,
-  MY_DISCIPLESHIP_GROUPS_DASHBOARD_VIEW_ICONS,
-} from "../../../models/constants/myDiscipleshipGroupsDashboardView.constant";
-import type { DiscipleshipDashboardData } from "../../../models/types/discipleshipDashboard.types";
-import type { MyDiscipleshipGroupsDashboardProps } from "../../../models/types/myDiscipleshipGroupsDashboardView.types";
+import { Clock, Hourglass, PauseCircle } from "lucide-react";
+import { Button } from "../../../shared/components/Button/Button";
+import { DiscipleshipDashboardCard } from "../components/cards/DiscipleshipDashboardCard";
+import type { DiscipleshipDashboardData } from "../models/types/discipleship.types";
 
 const EMPTY_DASHBOARD: DiscipleshipDashboardData = {
   groups: [],
   applications: [],
 };
 
+export interface MyDiscipleshipGroupsDashboardViewProps {
+  dashboardData?: DiscipleshipDashboardData;
+  onNavigateToChurchList?: () => void;
+  onOpenGroupRoom?: (groupId: string) => void;
+  onTrackApplication?: (applicationId: string) => void;
+  onResumeGroup?: (groupId: string) => void;
+  className?: string;
+}
+
 export function MyDiscipleshipGroupsDashboardView({
-  config = myDiscipleshipGroupsDashboardConst,
   dashboardData = EMPTY_DASHBOARD,
   onNavigateToChurchList,
   onOpenGroupRoom,
   onTrackApplication,
   className = "",
-}: MyDiscipleshipGroupsDashboardProps) {
-  const {
-    activeClock: ActiveClockIcon,
-    pendingHourglass: PendingHourglassIcon,
-    pausedCircle: PausedCircleIcon,
-  } = MY_DISCIPLESHIP_GROUPS_DASHBOARD_VIEW_ICONS;
-  // ── Filter Groups and Applications from Mock / API ───────────
+}: MyDiscipleshipGroupsDashboardViewProps) {
   const activeGroups = useMemo(
     () => dashboardData.groups.filter((group) => group.status === "active"),
     [dashboardData.groups]
   );
 
   const pendingApplications = useMemo(
-    () =>
-      dashboardData.applications.filter(
-        (app) => app.status === "pending"
-      ),
+    () => dashboardData.applications.filter((app) => app.status === "pending"),
     [dashboardData.applications]
   );
 
@@ -51,14 +46,13 @@ export function MyDiscipleshipGroupsDashboardView({
       <div className="flex items-center justify-between gap-4">
         <div>
           <h2 className="text-[18px] font-bold text-slate-900 leading-tight">
-            {config.headerTitle}
+            My Discipleships
           </h2>
           <p className="text-[12px] text-slate-500 mt-0.5">
-            {config.headerSubtitle}
+            Groups you are part of
           </p>
         </div>
 
-        {/* Explore Button (Reusable Global Button) */}
         <Button
           type="button"
           variant="outline"
@@ -66,7 +60,7 @@ export function MyDiscipleshipGroupsDashboardView({
           onClick={onNavigateToChurchList}
           className="rounded-full px-3.5 py-1 text-xs font-semibold border-slate-300 text-slate-900 hover:bg-slate-50 transition-colors"
         >
-          {config.exploreButtonLabel}
+          + Explore
         </Button>
       </div>
 
@@ -74,7 +68,7 @@ export function MyDiscipleshipGroupsDashboardView({
       {activeGroups.length > 0 && (
         <section className="space-y-3">
           <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase select-none">
-            {config.activeGroupsHeader} ({activeGroups.length})
+            ACTIVE GROUPS ({activeGroups.length})
           </h3>
           <div className="space-y-3">
             {activeGroups.map((group) => {
@@ -84,7 +78,7 @@ export function MyDiscipleshipGroupsDashboardView({
                 : "No upcoming gathering set";
               const infoSubtitle =
                 group.current_study?.title ??
-                (hasMeetingTime ? config.defaultActiveMeetingTopic : undefined);
+                (hasMeetingTime ? "Romans 8: Life in the Spirit" : undefined);
 
               return (
                 <DiscipleshipDashboardCard
@@ -92,9 +86,9 @@ export function MyDiscipleshipGroupsDashboardView({
                   imageUrl={group.image_url}
                   title={group.name}
                   subtitle={`${group.church_name} · Led by ${group.leader_name}`}
-                  badgeLabel={config.activeBadgeLabel}
+                  badgeLabel="Active"
                   badgeVariant="success"
-                  infoIcon={<ActiveClockIcon className="w-4 h-4" />}
+                  infoIcon={<Clock className="w-4 h-4" />}
                   infoTitle={infoTitle}
                   infoSubtitle={infoSubtitle}
                   onAction={() => onOpenGroupRoom?.(group.id)}
@@ -109,7 +103,7 @@ export function MyDiscipleshipGroupsDashboardView({
       {pendingApplications.length > 0 && (
         <section className="space-y-3">
           <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase select-none">
-            {config.pendingApplicationsHeader} ({pendingApplications.length})
+            PENDING APPLICATIONS ({pendingApplications.length})
           </h3>
           <div className="space-y-3">
             {pendingApplications.map((app) => (
@@ -117,13 +111,13 @@ export function MyDiscipleshipGroupsDashboardView({
                 key={app.id}
                 imageUrl={app.image_url}
                 title={app.church_name}
-                subtitle={config.pendingApplicationSubtitle}
-                badgeLabel={config.pendingBadgeLabel}
+                subtitle="Discipleship Application · Submitted today"
+                badgeLabel="Pending"
                 badgeVariant="warning"
                 badgeDotVisible={false}
-                infoIcon={<PendingHourglassIcon className="w-4 h-4" />}
-                infoTitle={config.pendingStatusTitle}
-                infoSubtitle={`${config.pendingResponseEstimatePrefix}${app.review_timing_days}`}
+                infoIcon={<Hourglass className="w-4 h-4" />}
+                infoTitle="Church leadership is reviewing your answers"
+                infoSubtitle={`Estimated response in ${app.review_timing_days}`}
                 onAction={() => onTrackApplication?.(app.id)}
               />
             ))}
@@ -135,7 +129,7 @@ export function MyDiscipleshipGroupsDashboardView({
       {pausedGroups.length > 0 && (
         <section className="space-y-3">
           <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase select-none">
-            {config.pausedGroupsHeader} ({pausedGroups.length})
+            PAUSED GROUPS ({pausedGroups.length})
           </h3>
           <div className="space-y-3">
             {pausedGroups.map((group) => (
@@ -144,10 +138,10 @@ export function MyDiscipleshipGroupsDashboardView({
                 imageUrl={group.image_url}
                 title={group.name}
                 subtitle={`${group.church_name} · Led by ${group.leader_name}`}
-                badgeLabel={config.pausedBadgeLabel}
+                badgeLabel="Paused"
                 badgeVariant="outline"
-                infoIcon={<PausedCircleIcon className="w-4 h-4" />}
-                infoTitle={config.pausedMeetingNotice}
+                infoIcon={<PauseCircle className="w-4 h-4" />}
+                infoTitle="Meeting reminders and notifications paused"
                 onAction={() => onOpenGroupRoom?.(group.id)}
               />
             ))}
@@ -159,3 +153,4 @@ export function MyDiscipleshipGroupsDashboardView({
 }
 
 export default MyDiscipleshipGroupsDashboardView;
+

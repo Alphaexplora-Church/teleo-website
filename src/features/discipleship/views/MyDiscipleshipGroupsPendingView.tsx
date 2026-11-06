@@ -1,70 +1,59 @@
 import { useMemo, useState } from "react";
-import { Badge } from "../../../../../shared/components/Badge/Badge";
+import { ArrowLeft, Clock } from "lucide-react";
+import { Badge } from "../../../shared/components/Badge/Badge";
 import {
   StatusReviewTimeLine,
   type ReviewTimelineStep,
-} from "../../../components/process/StatusReviewTimeLine";
-import { ActionConfirmationModal } from "../../../components/modals/ActionConfirmationModal";
-import {
-  myDiscipleshipGroupsPendingViewConst,
-  MY_DISCIPLESHIP_GROUPS_PENDING_VIEW_ICONS,
-} from "../../../models/constants/myDiscipleshipGroupsPendingView.constant";
-import type { MyDiscipleshipGroupsPendingViewProps } from "../../../models/types/myDiscipleshipGroupsPendingView.types";
+} from "../components/process/StatusReviewTimeLine";
+import { ActionConfirmationModal } from "../components/modals/ActionConfirmationModal";
+import type { DiscipleshipApplication } from "../models/types/discipleship.types";
+
+export interface MyDiscipleshipGroupsPendingViewProps {
+  applicationId?: string;
+  application?: DiscipleshipApplication;
+  onBack?: () => void;
+  onWithdrawApplication?: (applicationId: string) => void;
+  className?: string;
+}
+
+const DEFAULT_TIMELINE_STEPS: ReviewTimelineStep[] = [
+  {
+    id: "step-1",
+    title: "Application Submitted",
+    description: "Your responses have been received",
+    status: "completed",
+  },
+  {
+    id: "step-2",
+    title: "Under Review",
+    description: "Leadership is reviewing your answers",
+    status: "in_progress",
+    badgeLabel: "In Review",
+    badgeVariant: "success",
+  },
+  {
+    id: "step-3",
+    title: "Group Placement",
+    description: "You will be assigned to a discipleship group",
+    status: "upcoming",
+  },
+];
 
 export function MyDiscipleshipGroupsPendingView({
   applicationId,
   application,
-  config = myDiscipleshipGroupsPendingViewConst,
   onBack,
   onWithdrawApplication,
   className = "",
 }: MyDiscipleshipGroupsPendingViewProps) {
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
-  const { back: BackIcon, clock: ClockIcon } = MY_DISCIPLESHIP_GROUPS_PENDING_VIEW_ICONS;
-  const displayAppId =
-    application?.id ?? applicationId ?? "APP-84920";
-
-  const churchName =
-    application?.church_name ?? "Grace Community Church";
+  const displayAppId = application?.id ?? applicationId ?? "";
+  const churchName = application?.church_name ?? "Church";
 
   const submittedTimeText = useMemo(() => {
-    if (!application?.created_at) return config.defaultSubmittedTime;
-    return `${config.submittedPrefix} today`;
-  }, [application?.created_at, config.defaultSubmittedTime, config.submittedPrefix]);
-
-  const timelineSteps: ReviewTimelineStep[] = useMemo(
-    () => [
-      {
-        id: "step-1",
-        title: config.timelineStep1Title,
-        description: config.timelineStep1Desc,
-        status: "completed",
-      },
-      {
-        id: "step-2",
-        title: config.timelineStep2Title,
-        description: config.timelineStep2Desc,
-        status: "in_progress",
-        badgeLabel: config.timelineStep2BadgeLabel,
-        badgeVariant: "success",
-      },
-      {
-        id: "step-3",
-        title: config.timelineStep3Title,
-        description: config.timelineStep3Desc,
-        status: "upcoming",
-      },
-    ],
-    [
-      config.timelineStep1Desc,
-      config.timelineStep1Title,
-      config.timelineStep2BadgeLabel,
-      config.timelineStep2Desc,
-      config.timelineStep2Title,
-      config.timelineStep3Desc,
-      config.timelineStep3Title,
-    ]
-  );
+    if (!application?.created_at) return "Submitted today";
+    return "Submitted today";
+  }, [application?.created_at]);
 
   return (
     <div
@@ -76,16 +65,16 @@ export function MyDiscipleshipGroupsPendingView({
           type="button"
           onClick={onBack}
           className="p-1 -ml-1 text-slate-900 hover:text-navy-hover hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent"
-          aria-label={config.buttonBackLabel || "Back"}
+          aria-label="Back"
         >
-          <BackIcon className="w-6 h-6 text-slate-900" />
+          <ArrowLeft className="w-6 h-6 text-slate-900" />
         </button>
       </div>
 
-      {/* ── Header: Application Status (No church subtitle below) ─ */}
+      {/* ── Header: Application Status ───────────────────────────── */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-          {config.titleHeader}
+          Application Status
         </h1>
       </div>
 
@@ -98,15 +87,14 @@ export function MyDiscipleshipGroupsPendingView({
               {churchName}
             </h2>
             <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
-              <ClockIcon className="w-3.5 h-3.5 shrink-0" />
+              <Clock className="w-3.5 h-3.5 shrink-0" />
               <span>{submittedTimeText}</span>
             </div>
           </div>
 
-          {/* Orange Pending Review Badge (no dot) */}
           <div className="shrink-0">
             <Badge
-              label={config.pendingBadgeLabel}
+              label="Pending"
               variant="warning"
               size="sm"
               dotVisible={false}
@@ -116,31 +104,32 @@ export function MyDiscipleshipGroupsPendingView({
 
         {/* Notice Box (Pastoral Review Notice) */}
         <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-100 text-[13px] text-slate-600 leading-relaxed">
-          {config.pastoralReviewNotice}
+          Your application has been received and is currently being reviewed by church leadership. You will be notified once placed into a discipleship group.
         </div>
 
         {/* Review Timeline */}
         <div className="pt-2">
           <StatusReviewTimeLine
-            title={config.reviewTimelineTitle}
-            steps={timelineSteps}
+            title="Application Progress"
+            steps={DEFAULT_TIMELINE_STEPS}
           />
         </div>
       </div>
 
       {/* ── Footer Section: Application ID & Withdraw Button ───── */}
       <div className="flex flex-col items-center justify-center pt-2 space-y-2 text-center">
-        <span className="text-xs font-medium text-slate-500">
-          {config.applicationIdPrefix}
-          {displayAppId}
-        </span>
+        {displayAppId && (
+          <span className="text-xs font-medium text-slate-500">
+            Application ID: {displayAppId}
+          </span>
+        )}
 
         <button
           type="button"
           onClick={() => setIsWithdrawModalOpen(true)}
           className="text-[13.5px] font-semibold text-rose-600 hover:text-rose-700 underline underline-offset-4 cursor-pointer transition-colors"
         >
-          {config.withdrawButtonLabel}
+          Withdraw Application
         </button>
       </div>
 
@@ -148,10 +137,10 @@ export function MyDiscipleshipGroupsPendingView({
       <ActionConfirmationModal
         isOpen={isWithdrawModalOpen}
         onClose={() => setIsWithdrawModalOpen(false)}
-        title={config.withdrawModalTitle}
-        description={`${config.withdrawModalDescriptionPrefix}${churchName}${config.withdrawModalDescriptionSuffix}`}
-        confirmLabel={config.withdrawModalConfirmLabel}
-        cancelLabel={config.withdrawModalCancelLabel}
+        title="Withdraw Application"
+        description={`Are you sure you want to withdraw your discipleship application to ${churchName}? This action cannot be undone.`}
+        confirmLabel="Withdraw"
+        cancelLabel="Keep Application"
         confirmVariant="danger"
         onConfirm={() => {
           setIsWithdrawModalOpen(false);
@@ -163,3 +152,4 @@ export function MyDiscipleshipGroupsPendingView({
 }
 
 export default MyDiscipleshipGroupsPendingView;
+

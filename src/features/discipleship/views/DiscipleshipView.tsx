@@ -2,17 +2,17 @@
 // Main coordinator view for Discipleship feature with production Auth & Guest handling.
 
 import { GroupsTabSwitcher } from "../components/groups/GroupsTabSwitcher";
-import MyDiscipleshipView from "./MyDiscipleshipView/MyDiscipleshipView";
-import MyDiscipleshipLeadView from "./MyDiscipleshipLeadView/MyDiscipleshipLeadView";
-import MyDiscipleshipGroupsLeadCardView from "./MyDiscipleshipLeadView/MyDiscipleshipGroupsLead/MyDiscipleshipGroupsLeadCardView";
-import MyDiscipleshipGroupsPendingView from "./MyDiscipleshipView/MyDiscipleshipGroups/MyDiscipleshipGroupsPendingView";
-import MyDiscipleshipGroupsActivePauseView from "./MyDiscipleshipView/MyDiscipleshipGroups/MyDiscipleshipGroupsActivePauseView";
-import DiscipleshipProcessChurchList from "./DiscipleshipProcess/DiscipleshipProcessChurchList";
-import DiscipleshipProcessIntro from "./DiscipleshipProcess/DiscipleshipProcessIntro";
-import DiscipleshipProcessChurchApply from "./DiscipleshipProcess/DiscipleshipProcessChurchApply";
+import MyDiscipleshipView from "./MyDiscipleshipView";
+import MyDiscipleshipLeadView from "./MyDiscipleshipLeadView";
+import MyDiscipleshipGroupsLeadCardView from "./MyDiscipleshipGroupsLeadCardView";
+import MyDiscipleshipGroupsPendingView from "./MyDiscipleshipGroupsPendingView";
+import MyDiscipleshipGroupsActivePauseView from "./MyDiscipleshipGroupsActivePauseView";
+import DiscipleshipProcessChurchList from "./DiscipleshipProcessChurchList";
+import DiscipleshipProcessIntro from "./DiscipleshipProcessIntro";
+import DiscipleshipProcessChurchApply from "./DiscipleshipProcessChurchApply";
 import { LeadSelectChurchModal } from "../components/modals/LeadSelectChurchModal";
 import { GroupsDashboardSkeleton } from "../components/skeletons/GroupsDashboardSkeleton";
-import DiscipleshipUserGuestView from "./DiscipleshipUserGuestView/DiscipleshipUserGuestView";
+import DiscipleshipUserGuestView from "./DiscipleshipUserGuestView";
 import {
   useDiscipleshipView,
   type DiscipleshipViewMode,

@@ -1,11 +1,11 @@
-// src/features/discipleship/views/MyDiscipleshipLeadView/MyDiscipleshipLeadView.tsx
+// src/features/discipleship/views/MyDiscipleshipLeadView.tsx
 import { useState } from "react";
-import { MyDiscipleshipGroupsLeadDashboardView } from "./MyDiscipleshipGroupsLead/MyDiscipleshipGroupsLeadDashboardView";
-import { MyDiscipleshipGroupsLeadCardView } from "./MyDiscipleshipGroupsLead/MyDiscipleshipGroupsLeadCardView";
+import { MyDiscipleshipGroupsLeadDashboardView } from "./MyDiscipleshipGroupsLeadDashboardView";
+import { MyDiscipleshipGroupsLeadCardView } from "./MyDiscipleshipGroupsLeadCardView";
 import type {
   ChurchLeadGroupData,
   LeadGroupItem,
-} from "../../components/groups/ChurchLeadGroupSection";
+} from "../components/groups/ChurchLeadGroupSection";
 
 const EMPTY_SECTIONS: ChurchLeadGroupData[] = [];
 
@@ -48,3 +48,4 @@ export function MyDiscipleshipLeadView({
 }
 
 export default MyDiscipleshipLeadView;
+

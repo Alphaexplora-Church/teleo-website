@@ -1,23 +1,19 @@
-import { CurrentStudyCard } from "../../../components/cards/CurrentStudyCard";
-import { GroupMemberActionSheet } from "../../../components/groups/GroupMemberActionSheet";
-import { GroupRosterList } from "../../../components/groups/GroupRosterList";
-import { NextGatheringCard } from "../../../components/cards/NextGatheringCard";
-import { SetGatheringScheduleModal } from "../../../components/modals/SetGatheringScheduleModal";
-import { ChangeGroupStatusModal } from "../../../components/modals/ChangeGroupStatusModal";
-import { JourneyModuleListModal } from "../../../components/modals/JourneyModuleListModal";
-import {
-  myDiscipleshipGroupsLeadCardViewConst,
-  MY_DISCIPLESHIP_GROUPS_LEAD_CARD_VIEW_ICONS,
-} from "../../../models/constants/myDiscipleshipGroupsLeadCardView.constant";
-import type { MyDiscipleshipGroupsLeadCardViewProps } from "../../../models/types/myDiscipleshipGroupsLeadCardView.types";
+import { ArrowLeft, ChevronDown } from "lucide-react";
+import { CurrentStudyCard } from "../components/cards/CurrentStudyCard";
+import { GroupMemberActionSheet } from "../components/groups/GroupMemberActionSheet";
+import { GroupRosterList } from "../components/groups/GroupRosterList";
+import { NextGatheringCard } from "../components/cards/NextGatheringCard";
+import { SetGatheringScheduleModal } from "../components/modals/SetGatheringScheduleModal";
+import { ChangeGroupStatusModal } from "../components/modals/ChangeGroupStatusModal";
+import { JourneyModuleListModal } from "../components/modals/JourneyModuleListModal";
+import type { MyDiscipleshipGroupsLeadCardViewProps } from "../models/types/myDiscipleshipGroupsLeadCardView.types";
 import { MyDiscipleshipGroupsLeadScheduleEmptyState } from "./MyDiscipleshipGroupsLeadScheduleEmptyState";
-import { useLeadGroupCard } from "../../../viewmodels/useLeadGroupCard";
+import { useLeadGroupCard } from "../viewmodels/useLeadGroupCard";
 
 export function MyDiscipleshipGroupsLeadCardView({
   groupId,
   group,
   churchName,
-  config = myDiscipleshipGroupsLeadCardViewConst,
   onBack,
   onSetSchedule,
   onEditSchedule,
@@ -31,11 +27,6 @@ export function MyDiscipleshipGroupsLeadCardView({
   onRemoveMember,
   className = "",
 }: MyDiscipleshipGroupsLeadCardViewProps) {
-  const {
-    back: BackIcon,
-    chevronDown: ChevronDownIcon,
-  } = MY_DISCIPLESHIP_GROUPS_LEAD_CARD_VIEW_ICONS;
-
   const {
     activeGroup,
     resolvedChurchName,
@@ -93,9 +84,9 @@ export function MyDiscipleshipGroupsLeadCardView({
           type="button"
           onClick={onBack}
           className="p-1 -ml-1 text-slate-900 hover:text-navy-hover hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent select-none"
-          aria-label={config.buttonBackLabel || "Back"}
+          aria-label="Back"
         >
-          {BackIcon && <BackIcon className="w-6 h-6 text-slate-900" />}
+          <ArrowLeft className="w-6 h-6 text-slate-900" />
         </button>
       </div>
 
@@ -120,21 +111,17 @@ export function MyDiscipleshipGroupsLeadCardView({
             `.trim()}
             aria-label={`Change status: currently ${groupStatus}`}
           >
-            <span>
-              {isActive ? config.activeBadgeLabel : config.pausedBadgeLabel}
-            </span>
-            {ChevronDownIcon && (
-              <ChevronDownIcon
-                className={`w-3.5 h-3.5 shrink-0 ${
-                  isActive ? "text-emerald-700" : "text-slate-500"
-                }`}
-              />
-            )}
+            <span>{isActive ? "Active" : "Paused"}</span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 shrink-0 ${
+                isActive ? "text-emerald-700" : "text-slate-500"
+              }`}
+            />
           </button>
         </div>
 
         <p className="text-[13px] text-slate-500 leading-relaxed truncate">
-          {resolvedChurchName} · {membersCount} {config.membersSuffix}
+          {resolvedChurchName} · {membersCount} members
         </p>
       </div>
 
@@ -147,8 +134,8 @@ export function MyDiscipleshipGroupsLeadCardView({
           location={activeGathering.location}
           virtualLink={activeGathering.virtual_link}
           gatheringType={activeGathering.gathering_type}
-          headerTitle={config.scheduleSectionHeaderTitle}
-          editButtonLabel={config.editScheduleButtonLabel}
+          headerTitle="SCHEDULE"
+          editButtonLabel="Edit Schedule"
           isLead
           onEditSchedule={handleOpenEditSchedule}
         />
@@ -164,8 +151,8 @@ export function MyDiscipleshipGroupsLeadCardView({
           study={activeStudy}
           title={activeStudy.title}
           moduleBadge={activeStudy.module_badge}
-          headerTitle={config.currentStudyHeaderTitle}
-          actionLabel={config.openJourneyButtonLabel}
+          headerTitle="CURRENT STUDY"
+          actionLabel="Change Study"
           onOpenReading={handleOpenChangeStudyModal}
         />
       )}
@@ -173,7 +160,7 @@ export function MyDiscipleshipGroupsLeadCardView({
       {/* ── Group Roster Section ────────────────────────────────────── */}
       <GroupRosterList
         members={activeGroup.members}
-        headerTitle={config.groupRosterHeaderTitle}
+        headerTitle="GROUP ROSTER"
         totalCount={membersCount}
         isGroupPaused={!isActive}
         onMemberAction={handleMemberAction}
@@ -200,7 +187,6 @@ export function MyDiscipleshipGroupsLeadCardView({
               }
             : null
         }
-        config={config.memberActionSheet}
         onClose={handleCloseMemberActionSheet}
         onViewDetails={onViewMemberDetails}
         onRemoveMember={onRemoveMember}
@@ -218,7 +204,6 @@ export function MyDiscipleshipGroupsLeadCardView({
       <JourneyModuleListModal
         isOpen={isChangeStudyModalOpen}
         currentModuleTitle={activeStudy?.title}
-        config={config.journeyModuleModal}
         onClose={handleCloseChangeStudyModal}
         onUpdateModule={handleUpdateStudy}
       />
@@ -227,3 +212,4 @@ export function MyDiscipleshipGroupsLeadCardView({
 }
 
 export default MyDiscipleshipGroupsLeadCardView;
+
