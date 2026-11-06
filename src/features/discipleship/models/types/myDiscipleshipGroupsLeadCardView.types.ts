@@ -4,7 +4,7 @@ import type {
   LeadGroupItem,
   GroupMemberItem,
   NextGatheringData,
-} from "../mocks/discipleshipLead.mocks";
+} from "./discipleshipLead.types";
 
 /* ── Common & View Icons ─────────────────────────────────────────────── */
 export type MyDiscipleshipGroupsLeadCardViewIcons = Record<string, LucideIcon>;

@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import type { DiscipleshipApplicationMock } from "../mocks/discipleshipDashboard.mocks";
+import type { DiscipleshipApplication } from "./discipleshipDashboard.types";
 
 export type MyDiscipleshipGroupsPendingViewIcons = Record<string, LucideIcon>;
 
@@ -29,7 +29,7 @@ export interface MyDiscipleshipGroupsPendingViewConfig {
 
 export interface MyDiscipleshipGroupsPendingViewProps {
   applicationId?: string;
-  application?: DiscipleshipApplicationMock;
+  application?: DiscipleshipApplication;
   config?: MyDiscipleshipGroupsPendingViewConfig;
   onBack?: () => void;
   onWithdrawApplication?: (applicationId: string) => void;

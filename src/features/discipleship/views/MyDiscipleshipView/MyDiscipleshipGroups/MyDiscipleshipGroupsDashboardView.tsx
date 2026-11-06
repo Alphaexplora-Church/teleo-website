@@ -5,12 +5,17 @@ import {
   myDiscipleshipGroupsDashboardConst,
   MY_DISCIPLESHIP_GROUPS_DASHBOARD_VIEW_ICONS,
 } from "../../../models/constants/myDiscipleshipGroupsDashboardView.constant";
-import { mockDiscipleshipDashboard } from "../../../models/mocks/discipleshipDashboard.mocks";
+import type { DiscipleshipDashboardData } from "../../../models/types/discipleshipDashboard.types";
 import type { MyDiscipleshipGroupsDashboardProps } from "../../../models/types/myDiscipleshipGroupsDashboardView.types";
+
+const EMPTY_DASHBOARD: DiscipleshipDashboardData = {
+  groups: [],
+  applications: [],
+};
 
 export function MyDiscipleshipGroupsDashboardView({
   config = myDiscipleshipGroupsDashboardConst,
-  dashboardData = mockDiscipleshipDashboard,
+  dashboardData = EMPTY_DASHBOARD,
   onNavigateToChurchList,
   onOpenGroupRoom,
   onTrackApplication,

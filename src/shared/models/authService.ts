@@ -3,7 +3,7 @@
 
 import type { LoginCredentials, AuthResult } from './types';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 // The access/refresh tokens live in httpOnly cookies now (JS can't read them),
 // so we keep the signed-in user's id in memory for sync consumers like
@@ -16,8 +16,11 @@ export const getCachedUserId = (): string | null => cachedUserId;
 
 export const refreshCurrentUser = async (): Promise<string | null> => {
   try {
+    const token = localStorage.getItem('access_token');
+    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
     const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
       credentials: 'include',
+      headers,
     });
 
     if (!response.ok) {
@@ -78,7 +81,10 @@ export const loginWithEmail = async (
     }
 
     if (data?.data?.user) {
-      // Tokens are set as httpOnly cookies by the server — nothing to store here.
+      const token = data?.data?.session?.access_token || data?.data?.token || data?.session?.access_token;
+      if (token) {
+        localStorage.setItem('access_token', token);
+      }
       cachedUserId = data.data.user.id;
       return {
         success: true,
@@ -144,17 +150,20 @@ export const continueAsGuest = async (): Promise<AuthResult> => {
  */
 export const logout = async (): Promise<void> => {
   try {
+    const token = localStorage.getItem('access_token');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
     await fetch(`${API_BASE_URL}/api/auth/logout`, {
       method: 'POST',
       credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
     });
   } catch (error) {
     console.error('Logout API failed:', error);
-    // Cookies are httpOnly — the server clears them; nothing local to clean up.
   } finally {
     cachedUserId = null;
+    localStorage.removeItem('access_token');
   }
 };

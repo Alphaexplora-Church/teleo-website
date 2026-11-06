@@ -1,11 +1,13 @@
+// src/features/discipleship/views/MyDiscipleshipLeadView/MyDiscipleshipLeadView.tsx
 import { useState } from "react";
 import { MyDiscipleshipGroupsLeadDashboardView } from "./MyDiscipleshipGroupsLead/MyDiscipleshipGroupsLeadDashboardView";
 import { MyDiscipleshipGroupsLeadCardView } from "./MyDiscipleshipGroupsLead/MyDiscipleshipGroupsLeadCardView";
-import { mockLeadChurchGroups } from "../../models/mocks/discipleshipLead.mocks";
 import type {
   ChurchLeadGroupData,
   LeadGroupItem,
 } from "../../components/groups/ChurchLeadGroupSection";
+
+const EMPTY_SECTIONS: ChurchLeadGroupData[] = [];
 
 export interface MyDiscipleshipLeadViewProps {
   churchSections?: ChurchLeadGroupData[];
@@ -14,7 +16,7 @@ export interface MyDiscipleshipLeadViewProps {
 }
 
 export function MyDiscipleshipLeadView({
-  churchSections = mockLeadChurchGroups,
+  churchSections = EMPTY_SECTIONS,
   onManageGroup,
   className = "",
 }: MyDiscipleshipLeadViewProps = {}) {

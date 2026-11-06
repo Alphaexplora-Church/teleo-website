@@ -1,11 +1,13 @@
-import { useMemo } from "react";
+// src/features/discipleship/views/DiscipleshipProcess/DiscipleshipProcessIntro.tsx
+import { useState, useEffect, useMemo } from "react";
 import { discipleshipProcessIntroConst } from "../../models/constants/discipleshipProcessIntro.constant";
-import { getDiscipleshipProgramByChurchId } from "../../models/mocks/discipleshipProgramIntro.mocks";
 import type {
   DiscipleshipProcessIntroConfig,
   DiscipleshipProcessIntroProps,
 } from "../../models/types/discipleshipProcessIntro.types";
+import type { DiscipleshipProgramDetail } from "../../models/types/discipleshipProgramIntro.types";
 import { IntroWhatToExpect } from "../../components/process/IntroWhatToExpect";
+import { fetchChurchDiscipleshipProgram } from "../../models/api/discipleship.api";
 
 export function DiscipleshipProcessIntro({
   churchId,
@@ -32,15 +34,51 @@ export function DiscipleshipProcessIntro({
     },
   };
 
-  const targetChurchId = churchId ?? 102;
+  const targetChurchId = churchId ?? 101;
+  const [liveProgram, setLiveProgram] = useState<DiscipleshipProgramDetail | null>(null);
+
+  useEffect(() => {
+    if (programDetail) return;
+    if (churchId) {
+      fetchChurchDiscipleshipProgram(churchId)
+        .then((res) => {
+          if (res?.program) {
+            setLiveProgram({
+              church_id: res.program.church_id,
+              church_name: res.program.church_name,
+              city: "",
+              is_home_church: false,
+              active_groups_count: res.program.active_groups_count ?? 0,
+              format: "Hybrid (In-Person & Online)",
+              description:
+                res.program.description ||
+                "Our discipleship groups meet weekly to study scripture, pray together, and spur one another on toward Christlikeness.",
+              review_timing_days: "2-3 days",
+            });
+          }
+        })
+        .catch(() => {
+          // Graceful catch
+        });
+    }
+  }, [churchId, programDetail]);
 
   const resolvedProgram = useMemo(() => {
     if (programDetail) return programDetail;
-    return (
-      getDiscipleshipProgramByChurchId(targetChurchId) ??
-      getDiscipleshipProgramByChurchId(102)
-    );
-  }, [programDetail, targetChurchId]);
+    if (liveProgram) return liveProgram;
+
+    return {
+      church_id: targetChurchId,
+      church_name: "Church Discipleship",
+      city: "",
+      is_home_church: false,
+      active_groups_count: 0,
+      format: "Hybrid (In-Person & Online)" as const,
+      description:
+        "Our discipleship groups meet weekly to study scripture, pray together, and spur one another on toward Christlikeness.",
+      review_timing_days: "2-3 days",
+    };
+  }, [programDetail, liveProgram, targetChurchId]);
 
   // Icons are injected exclusively from Model/Constant layer
   const BackIcon = resolvedConfig.buttonBack.icon;

@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import {
-  findLeadGroupById,
-  mockLeadChurchGroups,
-  type GroupMemberItem,
-  type NextGatheringData,
-  type LeadGroupItem,
-  type CurrentStudyData,
-} from "../models/mocks/discipleshipLead.mocks";
-import type { JourneyStudyModule } from "../models/mocks/discipleshipJourneyModules.mocks";
+import type {
+  GroupMemberItem,
+  NextGatheringData,
+  LeadGroupItem,
+  CurrentStudyData,
+  JourneyStudyModule,
+} from "../models/types/discipleshipLead.types";
+import { fetchDiscipleshipMembers } from "../models/api/discipleship.api";
+import { mapMemberDTOToGroupMemberItem } from "../models/utils/discipleship.mappers";
 import type {
   GatheringScheduleFormData,
   MeetingFormat,
@@ -91,20 +91,47 @@ export function useLeadGroupCard({
   onMemberAction,
   onStudyUpdated,
 }: UseLeadGroupCardOptions = {}) {
-  // Resolve group data: passed prop -> looked up by ID -> fallback
-  const lookupResult = useMemo(
-    () => (groupId ? findLeadGroupById(groupId) : null),
-    [groupId]
-  );
+  const fallbackEmptyGroup: LeadGroupItem = useMemo(() => ({
+    id: groupId || "",
+    name: "Discipleship Group",
+    members_count: 0,
+    next_gathering_preview: "No upcoming gathering scheduled",
+    status: "Active" as const,
+    members: [],
+  }), [groupId]);
 
-  const activeGroup =
-    group ?? lookupResult?.group ?? mockLeadChurchGroups[0]?.groups[1];
+  const [liveMembers, setLiveMembers] = useState<GroupMemberItem[] | null>(null);
+
+  useEffect(() => {
+    if (groupId) {
+      fetchDiscipleshipMembers(groupId)
+        .then((res) => {
+          if (res && Array.isArray(res.members)) {
+            setLiveMembers(res.members.map(mapMemberDTOToGroupMemberItem));
+          }
+        })
+        .catch(() => {
+          // Graceful fallback
+        });
+    }
+  }, [groupId]);
+
+  const rawActiveGroup = group ?? fallbackEmptyGroup;
+
+  const activeGroup: LeadGroupItem = useMemo(() => {
+    if (liveMembers) {
+      return {
+        ...rawActiveGroup,
+        members: liveMembers,
+        members_count: liveMembers.length,
+      };
+    }
+    return rawActiveGroup;
+  }, [rawActiveGroup, liveMembers]);
 
   const resolvedChurchName =
     churchName ??
     activeGroup?.church_name ??
-    lookupResult?.churchName ??
-    mockLeadChurchGroups[0]?.church_name ??
     "";
 
   // Current Study modal state & dynamic study module

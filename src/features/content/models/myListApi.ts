@@ -6,7 +6,12 @@ import type { BookmarkedSeriesApiRecord, MyListPaginationMeta } from './myListTy
 import { getCachedUserId, refreshCurrentUser } from '../../../shared/models/authService';
 import { toBookmarkedRecord, type ApiJourney } from './journeyMapper';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+const getAuthHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 export interface FetchMyListResponse {
   data: BookmarkedSeriesApiRecord[];
@@ -38,7 +43,10 @@ export async function fetchMyListSeries(
 
   const response = await fetch(
     `${API_BASE_URL}/api/members/${userId}/bookmarks`,
-    { credentials: 'include' }
+    {
+      credentials: 'include',
+      headers: getAuthHeaders(),
+    }
   );
 
   if (!response.ok) {
@@ -66,6 +74,7 @@ export async function removeBookmarkApi(seriesId: string): Promise<RemoveBookmar
   const response = await fetch(`${API_BASE_URL}/api/journeys/${seriesId}/bookmark`, {
     method: 'DELETE',
     credentials: 'include',
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -79,6 +88,7 @@ export async function addBookmarkApi(seriesId: string): Promise<RemoveBookmarkRe
   const response = await fetch(`${API_BASE_URL}/api/journeys/${seriesId}/bookmark`, {
     method: 'POST',
     credentials: 'include',
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {

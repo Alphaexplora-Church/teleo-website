@@ -9,12 +9,23 @@ import {
   myDiscipleshipGroupsActivePauseViewConst,
   MY_DISCIPLESHIP_GROUPS_ACTIVE_PAUSE_VIEW_ICONS,
 } from "../../../models/constants/myDiscipleshipGroupsActivePauseView.constant";
-import { mockDefaultActiveGroup } from "../../../models/mocks/discipleshipDashboard.mocks";
+import type { DiscipleshipGroup } from "../../../models/types/discipleshipDashboard.types";
 import type { MyDiscipleshipGroupsActivePauseViewProps } from "../../../models/types/myDiscipleshipGroupsActivePauseView.types";
+
+const FALLBACK_EMPTY_GROUP: DiscipleshipGroup = {
+  id: "",
+  church_id: 0,
+  church_name: "",
+  name: "Discipleship Group",
+  leader_id: "",
+  leader_name: "Discipler",
+  status: "active",
+  role: "member",
+};
 
 export function MyDiscipleshipGroupsActivePauseView({
   groupId,
-  group = mockDefaultActiveGroup,
+  group = FALLBACK_EMPTY_GROUP,
   config = myDiscipleshipGroupsActivePauseViewConst,
   onBack,
   onOpenJourneyReading,

@@ -1,7 +1,7 @@
 import { createPortal } from "react-dom";
 import { User } from "lucide-react";
 import { Badge } from "../../../../shared/components/Badge/Badge";
-import type { GroupMemberItem } from "../../models/mocks/discipleshipLead.mocks";
+import type { GroupMemberItem } from "../../models/types/discipleshipLead.types";
 import { groupMemberActionSheetConst } from "../../models/constants/myDiscipleshipGroupsLeadCardView.constant";
 import type {
   GroupMemberActionSheetConfig,

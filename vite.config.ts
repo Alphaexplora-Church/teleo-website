@@ -8,4 +8,13 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://teleo-backend.onrender.com',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
 })

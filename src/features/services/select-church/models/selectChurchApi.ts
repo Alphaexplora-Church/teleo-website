@@ -3,7 +3,7 @@
 
 import type { ChurchApiRecord, ChurchListMeta } from './selectChurchTypes';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 /** Response shape from GET /api/churches/ */
 export interface FetchChurchesResponse {
