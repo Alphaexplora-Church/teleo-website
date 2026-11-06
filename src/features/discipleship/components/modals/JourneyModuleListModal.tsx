@@ -3,10 +3,7 @@ import { createPortal } from "react-dom";
 import { ArrowRight, Search, X } from "lucide-react";
 import { Badge } from "../../../../shared/components/Badge/Badge";
 import { Button } from "../../../../shared/components/Button/Button";
-import {
-  mockDiscipleshipJourneyModules,
-  type JourneyStudyModule,
-} from "../../models/mocks/discipleshipJourneyModules.mocks";
+import type { JourneyStudyModule } from "../../models/types/discipleshipLead.types";
 import {
   journeyModuleListModalConst,
 } from "../../models/constants/myDiscipleshipGroupsLeadCardView.constant";
@@ -33,13 +30,15 @@ export interface JourneyModuleListModalProps {
   className?: string;
 }
 
+const EMPTY_MODULES: JourneyStudyModule[] = [];
+
 export function JourneyModuleListModal({
   isOpen,
   onClose,
   onUpdateModule,
   currentModuleId,
   currentModuleTitle,
-  modules = mockDiscipleshipJourneyModules,
+  modules = EMPTY_MODULES,
   config = journeyModuleListModalConst,
   className = "",
 }: JourneyModuleListModalProps) {

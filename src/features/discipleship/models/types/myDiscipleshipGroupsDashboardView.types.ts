@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import type { DiscipleshipDashboardMock } from "../mocks/discipleshipDashboard.mocks";
+import type { DiscipleshipDashboardData } from "./discipleshipDashboard.types";
 
 export type MyDiscipleshipGroupsDashboardViewIcons = Record<string, LucideIcon>;
 
@@ -37,7 +37,7 @@ export interface MyDiscipleshipGroupsDashboardConfig {
 
 export interface MyDiscipleshipGroupsDashboardProps {
   config?: MyDiscipleshipGroupsDashboardConfig;
-  dashboardData?: DiscipleshipDashboardMock;
+  dashboardData?: DiscipleshipDashboardData;
   onNavigateToChurchList?: () => void;
   onOpenGroupRoom?: (groupId: string) => void;
   onTrackApplication?: (applicationId: string) => void;

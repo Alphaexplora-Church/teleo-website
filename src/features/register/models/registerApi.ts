@@ -3,7 +3,7 @@
 
 import type { RegistrationFormData, RegisterApiResult, ProfileApiResult } from './registerTypes';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 /**
  * POST /api/auth/register

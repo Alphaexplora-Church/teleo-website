@@ -1,0 +1,233 @@
+import { ArrowLeft, Search, X, ChevronRight } from "lucide-react";
+import { Badge } from "../../../shared/components/Badge/Badge";
+import type {
+  DiscipleshipChurchItem,
+  DiscipleshipProcessChurchListViewProps,
+} from "../models/types/discipleshipProcessChurchList.types";
+import { useDiscipleshipProcessChurchList } from "../viewmodels/useDiscipleshipProcessChurchList";
+
+const EMPTY_PENDING_CHURCH_IDS: number[] = [];
+const EMPTY_ACTIVE_CHURCH_IDS: number[] = [];
+
+export function DiscipleshipProcessChurchList({
+  churches,
+  pendingChurchIds = EMPTY_PENDING_CHURCH_IDS,
+  activeChurchIds = EMPTY_ACTIVE_CHURCH_IDS,
+  onSelectChurch,
+  onBack,
+  className = "",
+}: DiscipleshipProcessChurchListViewProps = {}) {
+  const {
+    searchQuery,
+    setSearchQuery,
+    clearSearch,
+    homeChurches,
+    otherChurches,
+    availableCount,
+    hasResults,
+    hasQuery,
+  } = useDiscipleshipProcessChurchList({ churches, pendingChurchIds });
+
+  const handleCardClick = (church: DiscipleshipChurchItem) => {
+    onSelectChurch?.(church);
+  };
+
+  return (
+    <div className={`w-full max-w-md mx-auto px-4 py-6 space-y-6 select-none ${className}`.trim()}>
+      {/* ── Top Header: Back Button (Icon Only) ────────────────── */}
+      <div className="flex items-center">
+        <button
+          type="button"
+          onClick={onBack}
+          className="p-1 -ml-1 text-[#0E172A] hover:text-[#042C58] hover:bg-slate-100 rounded-full transition-colors cursor-pointer border-none bg-transparent"
+          aria-label="Back"
+        >
+          <ArrowLeft className="w-6 h-6 text-[#0E172A]" />
+        </button>
+      </div>
+
+      {/* ── Search Bar Input ───────────────────────────────────── */}
+      <div className="relative flex items-center">
+        <div className="absolute left-4 pointer-events-none flex items-center justify-center text-[#62718A]">
+          <Search className="w-5 h-5" aria-hidden="true" />
+        </div>
+
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search church name or city..."
+          aria-label="Search church name or city..."
+          className="w-full h-12 pl-12 pr-10 bg-[#F1F3F6] rounded-2xl text-[15px] text-[#0E172A] placeholder-[#62718A] border border-transparent focus:border-slate-300 focus:bg-white focus:outline-none transition-all duration-200"
+        />
+
+        {hasQuery && (
+          <button
+            type="button"
+            onClick={clearSearch}
+            aria-label="Clear search query"
+            className="absolute right-3.5 p-1 rounded-full text-[#62718A] hover:text-[#0E172A] hover:bg-slate-200 transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      {/* ── Empty Search Results ───────────────────────────────── */}
+      {!hasResults && (
+        <div className="py-12 text-center">
+          <p className="text-[14px] text-[#62718A]">No churches found matching your search.</p>
+        </div>
+      )}
+
+      {/* ── 1. Home Church Section ─────────────────────────────── */}
+      {homeChurches.length > 0 && (
+        <section aria-labelledby="home-church-heading" className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <h2
+              id="home-church-heading"
+              className="text-xs font-bold text-[#62718A] tracking-wider uppercase"
+            >
+              Your Home Church
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            {homeChurches.map((church) => {
+              const isPending = pendingChurchIds.includes(church.church_id);
+              const isActive = activeChurchIds.includes(church.church_id);
+              return (
+                <button
+                  key={church.church_id}
+                  type="button"
+                  onClick={() => handleCardClick(church)}
+                  className="w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 select-none hover:border-slate-200 hover:shadow-md cursor-pointer"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div
+                      className="w-14 h-14 rounded-2xl bg-[#E2E8F0] shrink-0"
+                      aria-hidden="true"
+                    />
+
+                    <div className="flex flex-col items-start min-w-0">
+                      <h3 className="text-[15px] font-semibold text-[#0E172A] truncate">
+                        {church.name}
+                      </h3>
+
+                      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                        {church.is_home_church && <Badge label="Home Church" size="sm" />}
+                        {isActive && (
+                          <Badge
+                            label="Active"
+                            variant="success"
+                            size="sm"
+                            dotVisible={false}
+                          />
+                        )}
+                        {isPending && (
+                          <Badge
+                            label="Pending Application"
+                            variant="warning"
+                            size="sm"
+                            dotVisible={false}
+                          />
+                        )}
+                      </div>
+
+                      <span className="text-[13px] text-[#62718A] font-normal mt-1 truncate">
+                        {church.active_groups_count} Active Groups
+                        {church.city ? ` · ${church.city}` : ""}
+                      </span>
+                    </div>
+                  </div>
+
+                  <ChevronRight
+                    className="w-5 h-5 shrink-0 text-[#62718A]"
+                    aria-hidden="true"
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* ── 2. All Churches Section ────────────────────────────── */}
+      {otherChurches.length > 0 && (
+        <section aria-labelledby="all-churches-heading" className="space-y-3">
+          <div className="flex items-center justify-between px-1">
+            <h2
+              id="all-churches-heading"
+              className="text-xs font-bold text-[#62718A] tracking-wider uppercase"
+            >
+              All Churches
+            </h2>
+            <span className="text-xs font-medium text-[#62718A]">
+              {availableCount} available
+            </span>
+          </div>
+
+          <div className="space-y-3">
+            {otherChurches.map((church) => {
+              const isPending = pendingChurchIds.includes(church.church_id);
+              const isActive = activeChurchIds.includes(church.church_id);
+              return (
+                <button
+                  key={church.church_id}
+                  type="button"
+                  onClick={() => handleCardClick(church)}
+                  className="w-full p-4 bg-white rounded-2xl border border-slate-100 shadow-sm flex items-center justify-between gap-4 text-left transition-all duration-200 select-none hover:border-slate-200 hover:shadow-md cursor-pointer"
+                >
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    <div
+                      className="w-14 h-14 rounded-2xl bg-[#E2E8F0] shrink-0"
+                      aria-hidden="true"
+                    />
+
+                    <div className="flex flex-col items-start min-w-0">
+                      <h3 className="text-[15px] font-semibold text-[#0E172A] truncate">
+                        {church.name}
+                      </h3>
+
+                      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                        {isActive && (
+                          <Badge
+                            label="Active"
+                            variant="success"
+                            size="sm"
+                            dotVisible={false}
+                          />
+                        )}
+                        {isPending && (
+                          <Badge
+                            label="Pending Application"
+                            variant="warning"
+                            size="sm"
+                            dotVisible={false}
+                          />
+                        )}
+                      </div>
+
+                      <span className="text-[13px] text-[#62718A] font-normal mt-1 truncate">
+                        {church.active_groups_count} Active Groups
+                        {church.city ? ` · ${church.city}` : ""}
+                      </span>
+                    </div>
+                  </div>
+
+                  <ChevronRight
+                    className="w-5 h-5 shrink-0 text-[#62718A]"
+                    aria-hidden="true"
+                  />
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+    </div>
+  );
+}
+
+export default DiscipleshipProcessChurchList;
+

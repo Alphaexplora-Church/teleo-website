@@ -3,7 +3,7 @@ import type {
   SharedButtonProps,
   ComponentIcon,
 } from "../../../../shared/models/types/components.types";
-import type { DiscipleshipProgramDetail } from "../mocks/discipleshipProgramIntro.mocks";
+import type { DiscipleshipProgramDetail } from "./discipleshipProgramIntro.types";
 
 export type DiscipleshipProcessIntroIcons = Record<string, LucideIcon>;
 

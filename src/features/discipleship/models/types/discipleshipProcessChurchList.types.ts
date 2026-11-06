@@ -38,7 +38,7 @@ export interface DiscipleshipProcessChurchListViewProps {
   config?: Partial<DiscipleshipProcessChurchListConfig>;
   churches?: DiscipleshipChurchItem[];
   pendingChurchIds?: number[];
-  activeChurchIds?: number[];
+  activeChurchIds?: (number | string)[];
   onSelectChurch?: (church: DiscipleshipChurchItem) => void;
   onBack?: () => void;
   className?: string;

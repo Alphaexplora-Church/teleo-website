@@ -1,11 +1,10 @@
 import { useState, useMemo } from "react";
 import { MoreVertical, ChevronDown, ChevronUp, User } from "lucide-react";
 import { Badge } from "../../../../shared/components/Badge/Badge";
-import {
-    mockLeadChurchGroups,
-    type GroupMemberItem,
-    type MemberStatus,
-} from "../../models/mocks/discipleshipLead.mocks";
+import type {
+    GroupMemberItem,
+    MemberStatus,
+} from "../../models/types/discipleshipLead.types";
 
 export type { GroupMemberItem, MemberStatus };
 
@@ -36,7 +35,7 @@ export interface GroupRosterListProps {
     className?: string;
 }
 
-const DEFAULT_MEMBERS = mockLeadChurchGroups[0]?.groups[0]?.members ?? [];
+const DEFAULT_MEMBERS: GroupMemberItem[] = [];
 
 interface MemberAvatarProps {
     name: string;
