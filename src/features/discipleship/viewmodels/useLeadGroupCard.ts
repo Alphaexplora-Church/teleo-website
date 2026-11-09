@@ -6,8 +6,18 @@ import type {
   CurrentStudyData,
   JourneyStudyModule,
 } from "../models/types/discipleshipLead.types";
-import { fetchDiscipleshipMembers } from "../models/api/discipleship.api";
-import { mapMemberDTOToGroupMemberItem } from "../models/utils/discipleship.mappers";
+import {
+  fetchDiscipleshipMembers,
+  createDiscipleshipMeeting,
+  updateDiscipleshipMeeting,
+  assignDiscipleshipJourney,
+  updateDiscipleshipGroup,
+  updateDiscipleshipMembershipStatus,
+} from "../models/api/discipleship.api";
+import {
+  mapMemberDTOToGroupMemberItem,
+  mapScheduleFormDataToCreateMeetingDTO,
+} from "../models/utils/discipleship.mappers";
 import type {
   GatheringScheduleFormData,
   MeetingFormat,
@@ -75,6 +85,7 @@ export interface UseLeadGroupCardOptions {
   onScheduleSaved?: (data: GatheringScheduleFormData, newGathering: NextGatheringData) => void;
   onScheduleRemoved?: () => void;
   onMemberAction?: (member: GroupMemberItem) => void;
+  onRemoveMember?: (member: GroupMemberItem) => void;
   onStudyUpdated?: (module: JourneyStudyModule) => void;
 }
 
@@ -89,6 +100,7 @@ export function useLeadGroupCard({
   onScheduleSaved,
   onScheduleRemoved,
   onMemberAction,
+  onRemoveMember,
   onStudyUpdated,
 }: UseLeadGroupCardOptions = {}) {
   const fallbackEmptyGroup: LeadGroupItem = useMemo(() => ({
@@ -181,13 +193,26 @@ export function useLeadGroupCard({
       : undefined;
   }, [scheduleModalMode, activeGathering]);
 
-  const handleUpdateStatus = useCallback((statusId: string) => {
-    const newStatus: "Active" | "Paused" =
-      statusId === "paused" ? "Paused" : "Active";
-    setGroupStatus(newStatus);
-    setIsChangeStatusModalOpen(false);
-    onStatusChange?.(newStatus);
-  }, [onStatusChange]);
+  const handleUpdateStatus = useCallback(
+    async (statusId: string) => {
+      const newStatus: "Active" | "Paused" =
+        statusId === "paused" ? "Paused" : "Active";
+      setGroupStatus(newStatus);
+      setIsChangeStatusModalOpen(false);
+      onStatusChange?.(newStatus);
+
+      if (groupId) {
+        try {
+          await updateDiscipleshipGroup(groupId, {
+            status: newStatus.toLowerCase(),
+          });
+        } catch (err) {
+          console.error("Failed to update discipleship group status:", err);
+        }
+      }
+    },
+    [groupId, onStatusChange]
+  );
 
   const handleOpenSetSchedule = useCallback(() => {
     setScheduleModalMode("create");
@@ -205,39 +230,100 @@ export function useLeadGroupCard({
     setIsScheduleModalOpen(false);
   }, []);
 
-  const handleRemoveSchedule = useCallback(() => {
+  const handleRemoveSchedule = useCallback(async () => {
+    const meetingId = scheduledGathering?.meeting_id || scheduledGathering?.id;
     setScheduledGathering(null);
     setIsScheduleModalOpen(false);
     onRemoveSchedule?.();
     onScheduleRemoved?.();
-  }, [onRemoveSchedule, onScheduleRemoved]);
 
-  const handleSaveSchedule = useCallback((data: GatheringScheduleFormData) => {
-    const gatheringType =
-      data.format === "physical"
-        ? "IN-PERSON"
-        : data.format === "virtual"
-        ? "VIRTUAL"
-        : "HYBRID";
+    if (meetingId) {
+      try {
+        await updateDiscipleshipMeeting(meetingId, { status: "cancelled" });
+      } catch (err) {
+        console.error("Failed to cancel discipleship meeting:", err);
+      }
+    }
+  }, [scheduledGathering, onRemoveSchedule, onScheduleRemoved]);
 
-    const newGathering: NextGatheringData = {
-      timing: `${data.dayOfWeek}s at ${data.startTime}`,
-      subtitle: `Repeats ${data.recurrence.toLowerCase()} · 90 minutes`,
-      location: data.location,
-      virtual_link: data.virtualLink,
-      gathering_type: gatheringType,
-    };
+  const handleSaveSchedule = useCallback(
+    async (data: GatheringScheduleFormData) => {
+      const gatheringType =
+        data.format === "physical"
+          ? "IN-PERSON"
+          : data.format === "virtual"
+          ? "VIRTUAL"
+          : "HYBRID";
 
-    setScheduledGathering(newGathering);
-    setIsScheduleModalOpen(false);
-    onScheduleSaved?.(data, newGathering);
-  }, [onScheduleSaved]);
+      const existingMeetingId = scheduledGathering?.meeting_id || scheduledGathering?.id;
+
+      const newGathering: NextGatheringData = {
+        id: existingMeetingId,
+        meeting_id: existingMeetingId,
+        timing: `${data.dayOfWeek}s at ${data.startTime}`,
+        subtitle: `Repeats ${data.recurrence.toLowerCase()} · 90 minutes`,
+        location: data.location,
+        virtual_link: data.virtualLink,
+        gathering_type: gatheringType,
+      };
+
+      setScheduledGathering(newGathering);
+      setIsScheduleModalOpen(false);
+      onScheduleSaved?.(data, newGathering);
+
+      if (groupId) {
+        try {
+          const payload = mapScheduleFormDataToCreateMeetingDTO(groupId, data);
+          if (existingMeetingId) {
+            await updateDiscipleshipMeeting(existingMeetingId, {
+              meeting_type: payload.meeting_type,
+              location_address: payload.location_address,
+              meeting_link: payload.meeting_link,
+              recurrence_type: payload.recurrence_type,
+              day_of_week: payload.day_of_week,
+              meeting_time: payload.meeting_time,
+              start_date: payload.start_date,
+              status: "active",
+            });
+          } else {
+            const res = await createDiscipleshipMeeting(payload);
+            if (res?.meeting_id) {
+              setScheduledGathering((prev) =>
+                prev ? { ...prev, id: res.meeting_id, meeting_id: res.meeting_id } : prev
+              );
+            }
+          }
+        } catch (err) {
+          console.error("Failed to persist gathering schedule:", err);
+        }
+      }
+    },
+    [groupId, scheduledGathering, onScheduleSaved]
+  );
 
   const handleMemberAction = useCallback((member: GroupMemberItem) => {
     setSelectedMember(member);
     setIsMemberActionSheetOpen(true);
     onMemberAction?.(member);
   }, [onMemberAction]);
+
+  const handleRemoveMember = useCallback(
+    async (member: GroupMemberItem) => {
+      setLiveMembers((prev) => prev?.filter((m) => m.id !== member.id) ?? []);
+      setIsMemberActionSheetOpen(false);
+      onRemoveMember?.(member);
+
+      const membershipId = member.id;
+      if (membershipId) {
+        try {
+          await updateDiscipleshipMembershipStatus(membershipId, "removed");
+        } catch (err) {
+          console.error("Failed to remove member:", err);
+        }
+      }
+    },
+    [onRemoveMember]
+  );
 
   const handleCloseMemberActionSheet = useCallback(() => {
     setIsMemberActionSheetOpen(false);
@@ -259,15 +345,29 @@ export function useLeadGroupCard({
     setIsChangeStudyModalOpen(false);
   }, []);
 
-  const handleUpdateStudy = useCallback((module: JourneyStudyModule) => {
-    const updated: CurrentStudyData = {
-      module_badge: module.module_badge,
-      title: module.title,
-    };
-    setActiveStudy(updated);
-    setIsChangeStudyModalOpen(false);
-    onStudyUpdated?.(module);
-  }, [onStudyUpdated]);
+  const handleUpdateStudy = useCallback(
+    async (module: JourneyStudyModule) => {
+      const updated: CurrentStudyData = {
+        module_badge: module.module_badge,
+        title: module.title,
+      };
+      setActiveStudy(updated);
+      setIsChangeStudyModalOpen(false);
+      onStudyUpdated?.(module);
+
+      if (groupId && module.id) {
+        try {
+          await assignDiscipleshipJourney({
+            discipleship_id: groupId,
+            journey_id: module.id,
+          });
+        } catch (err) {
+          console.error("Failed to assign discipleship journey:", err);
+        }
+      }
+    },
+    [groupId, onStudyUpdated]
+  );
 
   return {
     activeGroup,
@@ -292,6 +392,7 @@ export function useLeadGroupCard({
     handleRemoveSchedule,
     handleSaveSchedule,
     handleMemberAction,
+    handleRemoveMember,
     handleCloseMemberActionSheet,
     handleOpenChangeStatusModal,
     handleCloseChangeStatusModal,

@@ -50,6 +50,7 @@ export function MyDiscipleshipGroupsLeadCardView({
     handleRemoveSchedule,
     handleSaveSchedule,
     handleMemberAction,
+    handleRemoveMember,
     handleCloseMemberActionSheet,
     handleOpenChangeStatusModal,
     handleCloseChangeStatusModal,
@@ -67,6 +68,7 @@ export function MyDiscipleshipGroupsLeadCardView({
     onScheduleSaved,
     onScheduleRemoved,
     onMemberAction,
+    onRemoveMember,
     onStudyUpdated: onOpenJourneyReading ? (mod) => onOpenJourneyReading(mod.title) : undefined,
   });
 
@@ -189,7 +191,7 @@ export function MyDiscipleshipGroupsLeadCardView({
         }
         onClose={handleCloseMemberActionSheet}
         onViewDetails={onViewMemberDetails}
-        onRemoveMember={onRemoveMember}
+        onRemoveMember={handleRemoveMember}
       />
 
       {/* ── Change Group Status Modal ───────────────────────────────── */}

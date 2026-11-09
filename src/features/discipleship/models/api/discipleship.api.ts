@@ -4,6 +4,7 @@
 // Includes silent/graceful fallback handling to prevent unhandled connection/CORS errors when offline.
 
 import type {
+  ChurchDiscipleshipProgramDTO,
   ChurchDiscipleshipProgramsResponseDTO,
   ChurchDiscipleshipProgramResponseDTO,
   IntakeFormTemplateResponseDTO,
@@ -49,13 +50,17 @@ async function safeApiFetch<T>(
       ...options,
     });
 
-    // Graceful handling for non-ok status codes:
-    // - 404 Not Found: endpoint route not yet deployed on backend
-    // - 400 Bad Request: backend route order validation error (e.g. :churchId matching)
-    // - 401/403: unauthorized / unauthenticated session
-    // - 500: server error
-    // Return clean typed fallback data so UI presents proper empty state without crashing.
+    // For state-mutating requests (POST, PATCH, DELETE), propagate server errors
+    // so caller ViewModels can surface authentic messages (e.g. 409 Conflict)
     if (!response.ok) {
+      if (options.method && options.method !== 'GET') {
+        const errJson = await response.json().catch(() => null);
+        const message =
+          errJson?.message ||
+          errJson?.error ||
+          `Request failed with status ${response.status}`;
+        throw new Error(message);
+      }
       return fallback;
     }
 
@@ -65,8 +70,11 @@ async function safeApiFetch<T>(
 
     const data = await response.json().catch(() => null);
     return (data as T) ?? fallback;
-  } catch {
-    // Silent catch on network error, offline mode, or connection refused
+  } catch (err) {
+    if (options.method && options.method !== 'GET') {
+      throw err;
+    }
+    // Silent catch on network error, offline mode, or connection refused for GET
     return fallback;
   }
 }
@@ -77,17 +85,88 @@ async function safeApiFetch<T>(
  * GET /api/churches/discipleship-programs
  * Browse churches offering Discipleship (home church prioritized).
  * Supports optional church_id query parameter.
- * Returns { churches: [] } fallback on 400 (validation clash) or 404 (not yet deployed).
+ * Gracefully falls back to /api/churches/ if backend route order clashes on :churchId.
  */
 export async function fetchDiscipleshipPrograms(
   params?: { church_id?: number }
 ): Promise<ChurchDiscipleshipProgramsResponseDTO> {
   const query = params?.church_id ? `?church_id=${params.church_id}` : '';
-  return safeApiFetch<ChurchDiscipleshipProgramsResponseDTO>(
+  const result = await safeApiFetch<ChurchDiscipleshipProgramsResponseDTO>(
     `/api/churches/discipleship-programs${query}`,
     {},
     { churches: [] }
   );
+
+  // If backend returned empty (e.g. 400 Bad Request due to Express route order bug :churchId),
+  // fallback to /api/churches/?limit=20 and prioritize the user's home church from profile.
+  if (!result || !result.churches || result.churches.length === 0) {
+    try {
+      const [fallbackChurches, profileRes] = await Promise.allSettled([
+        safeApiFetch<{
+          data?: Array<{ church_id?: number; id?: number; name?: string; church_name?: string; city?: string; address?: string }>;
+          churches?: Array<{ church_id?: number; id?: number; name?: string; church_name?: string; city?: string; address?: string }>;
+        }>('/api/churches/?limit=20', {}, { data: [] }),
+        safeApiFetch<{
+          data?: { home_church_id?: number | null; home_church_name?: string | null };
+          home_church_id?: number | null;
+          home_church_name?: string | null;
+        }>('/api/profile-settings/view', {}, {}),
+      ]);
+
+      const churchesList =
+        fallbackChurches.status === 'fulfilled'
+          ? fallbackChurches.value.data || fallbackChurches.value.churches || []
+          : [];
+
+      const profileData =
+        profileRes.status === 'fulfilled'
+          ? profileRes.value.data || profileRes.value
+          : undefined;
+
+      const homeChurchName = profileData?.home_church_name;
+      const homeChurchId = profileData?.home_church_id;
+
+      const mappedChurches: ChurchDiscipleshipProgramDTO[] = churchesList.map((c) => {
+        const cId = c.church_id || c.id || 1;
+        const cName = c.name || c.church_name || 'Church';
+        const isHome =
+          Boolean((homeChurchId && cId === homeChurchId) ||
+          (homeChurchName && cName.toLowerCase() === homeChurchName.toLowerCase()));
+        return {
+          church_id: cId,
+          church_name: cName,
+          discipleship_enabled: true,
+          is_home_church: isHome,
+          city: c.city || c.address || '',
+        };
+      });
+
+      // If user has a registered home church (e.g. "Words of Life Christian Ministries")
+      // but it's not yet in the /api/churches/ list on Render, include it prioritized as home church!
+      if (
+        homeChurchName &&
+        !mappedChurches.some(
+          (mc) => mc.church_name.toLowerCase() === homeChurchName.toLowerCase()
+        )
+      ) {
+        mappedChurches.unshift({
+          church_id: homeChurchId || 1,
+          church_name: homeChurchName,
+          discipleship_enabled: true,
+          is_home_church: true,
+          city: 'Home Church',
+        });
+      }
+
+      if (mappedChurches.length > 0) {
+        return { churches: mappedChurches };
+      }
+    } catch {
+      // Ignore fallback catch
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -339,3 +418,22 @@ export async function fetchDiscipleshipJourneyProgress(
     }
   );
 }
+
+/**
+ * PATCH /api/discipleships/:id
+ * Edit discipleship group status (e.g. active, paused, inactive, archived).
+ */
+export async function updateDiscipleshipGroup(
+  groupId: string,
+  payload: { name?: string; capacity_limit?: number; status?: string }
+): Promise<{ discipleship?: { id: string; status: string } }> {
+  return safeApiFetch<{ discipleship?: { id: string; status: string } }>(
+    `/api/discipleships/${groupId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    },
+    { discipleship: { id: groupId, status: payload.status || 'active' } }
+  );
+}
+
