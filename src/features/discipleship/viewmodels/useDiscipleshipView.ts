@@ -392,20 +392,14 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
           ...prev,
           applications: [newApp, ...prev.applications],
         }));
+
+        setViewMode("dashboard");
+        scrollToTop();
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Failed to submit discipleship application";
         setError(msg);
-        console.warn("Discipleship application API unavailable (404/Network). Using optimistic fallback:", err);
-        // Fallback optimistically so user can preview and test application flow even when backend route is not yet deployed (404)
-        const newApp = createPendingApplication(churchId, answers);
-        setDashboardData((prev) => ({
-          ...prev,
-          applications: [newApp, ...prev.applications],
-        }));
       } finally {
         setIsSubmitting(false);
-        setViewMode("dashboard");
-        scrollToTop();
       }
     },
     [selectedChurchId, scrollToTop]

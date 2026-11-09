@@ -106,6 +106,10 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
   }, []);
 
   useEffect(() => {
+    // Only fetch home church profile when viewing services or church profile tabs
+    if (activeTab !== 'services' && activeTab !== 'church-profile') {
+      return;
+    }
     const loadHomeChurch = async () => {
       try {
         const profile = await fetchProfileSettingsView();
@@ -118,7 +122,7 @@ export const useShellViewModel = (): DashboardViewModelReturn => {
       }
     };
     loadHomeChurch();
-  }, []);
+  }, [activeTab]);
 
   const navigateToProfile = useCallback(() => {
     setActiveTabState('profile');
