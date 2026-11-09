@@ -3,11 +3,16 @@
 
 import type { ProfileSettingsView } from './profileTypes';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+const getAuthHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 /**
  * Fetches the profile settings view data for the authenticated user.
- * Auth is carried by the httpOnly session cookie.
+ * Auth is carried by the httpOnly session cookie and/or Authorization header.
  *
  * GET /api/profile-settings/view
  */
@@ -17,6 +22,7 @@ export const fetchProfileSettingsView = async (): Promise<ProfileSettingsView> =
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
+      ...getAuthHeaders(),
     },
   });
 

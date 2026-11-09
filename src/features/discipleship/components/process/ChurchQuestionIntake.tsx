@@ -1,8 +1,14 @@
 import { useState, type ChangeEvent } from "react";
-import {
-  mockDiscipleshipIntakeQuestions,
-  type DiscipleshipIntakeQuestion,
-} from "../../models/mocks/discipleshipIntakeQuestion.mocks";
+import type { DiscipleshipIntakeQuestion } from "../../models/types/discipleshipIntakeQuestion.types";
+
+const DEFAULT_QUESTION: DiscipleshipIntakeQuestion = {
+  id: "q1",
+  label: "Where are you in your walk with God?",
+  placeholder: "Write your response here...",
+  field_type: "textarea",
+  required: true,
+  max_length: 500,
+};
 
 export interface ChurchQuestionIntakeProps {
   question?: DiscipleshipIntakeQuestion;
@@ -15,18 +21,8 @@ export interface ChurchQuestionIntakeProps {
   placeholder?: string;
 }
 
-const DEFAULT_MOCK_QUESTION: DiscipleshipIntakeQuestion =
-  mockDiscipleshipIntakeQuestions[101]?.questions[0] ?? {
-    id: "q1",
-    label: "Where are you in your walk with God?",
-    placeholder: "Write your response here...",
-    field_type: "textarea",
-    required: true,
-    max_length: 500,
-  };
-
 export function ChurchQuestionIntake({
-  question = DEFAULT_MOCK_QUESTION,
+  question = DEFAULT_QUESTION,
   value,
   defaultValue = "",
   onChange,
@@ -35,7 +31,7 @@ export function ChurchQuestionIntake({
   className = "",
   placeholder,
 }: ChurchQuestionIntakeProps = {}) {
-  const activeQuestion = question ?? DEFAULT_MOCK_QUESTION;
+  const activeQuestion = question ?? DEFAULT_QUESTION;
   const maxLen = maxLength ?? activeQuestion.max_length ?? 500;
   const placeholderText =
     placeholder ??

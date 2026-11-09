@@ -1,9 +1,6 @@
+import { ChevronRight } from "lucide-react";
 import { Badge } from "../../../../shared/components/Badge/Badge";
-import {
-  myDiscipleshipEmptyStateListConst,
-  MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS,
-} from "../../models/constants/myDiscipleshipEmptyStateView.constant";
-import type { DiscipleshipChurch } from "../../models/types/myDiscipleshipEmptyStateView.types";
+import type { DiscipleshipChurch } from "../../models/types/discipleship.types";
 
 export interface ChurchCardItemProps {
   church: DiscipleshipChurch;
@@ -19,15 +16,14 @@ export interface ChurchCardItemProps {
 
 export function ChurchCardItem({
   church,
-  homeChurchBadgeLabel = myDiscipleshipEmptyStateListConst.homeChurchBadgeLabel,
-  activeGroupsLabel = myDiscipleshipEmptyStateListConst.activeGroupsLabel,
+  homeChurchBadgeLabel = "Home Church",
+  activeGroupsLabel = "Active Groups",
   isPending = false,
   pendingBadgeLabel = "Pending Application",
   showChevron = false,
   onClick,
   className = "",
 }: ChurchCardItemProps) {
-
   return (
     <button
       type="button"
@@ -78,16 +74,13 @@ export function ChurchCardItem({
       </div>
 
       {/* Right chevron navigation */}
-      {showChevron && (() => {
-        const ChevronRightIcon = MY_DISCIPLESHIP_EMPTY_STATE_VIEW_ICONS.moreChevron;
-        return (
-          <ChevronRightIcon
-            className={`w-5 h-5 shrink-0 ${
-              isPending ? "text-slate-300" : "text-slate-500"
-            }`}
-          />
-        );
-      })()}
+      {showChevron && (
+        <ChevronRight
+          className={`w-5 h-5 shrink-0 ${
+            isPending ? "text-slate-300" : "text-slate-500"
+          }`}
+        />
+      )}
     </button>
   );
 }

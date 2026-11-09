@@ -10,7 +10,12 @@ import type {
 import { toSeriesSummary, type ApiJourney } from './journeyMapper';
 import { getCachedUserId, refreshCurrentUser } from '../../../shared/models/authService';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+const getAuthHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 export interface GetContentCatalogParams {
   church_id: number;
@@ -55,7 +60,7 @@ export interface RecordProgressRequest {
 export async function searchJourneys(query: string): Promise<ContentSeriesSummary[]> {
   const response = await fetch(
     `${API_BASE_URL}/api/journeys/search?q=${encodeURIComponent(query)}&limit=50`,
-    { credentials: 'include' }
+    { credentials: 'include', headers: getAuthHeaders() }
   );
 
   if (!response.ok) {
@@ -67,7 +72,10 @@ export async function searchJourneys(query: string): Promise<ContentSeriesSummar
 }
 
 async function getJourneys(path: string, fallback: string): Promise<ContentSeriesSummary[]> {
-  const response = await fetch(`${API_BASE_URL}${path}`, { credentials: 'include' });
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    credentials: 'include',
+    headers: getAuthHeaders(),
+  });
 
   if (!response.ok) {
     throw new Error(`${fallback} (${response.status})`);
@@ -92,7 +100,10 @@ export function fetchSimilarJourneys(seriesId: string): Promise<ContentSeriesSum
 }
 
 export async function fetchCategories(): Promise<ContentCategory[]> {
-  const response = await fetch(`${API_BASE_URL}/api/journeys/categories`, { credentials: 'include' });
+  const response = await fetch(`${API_BASE_URL}/api/journeys/categories`, {
+    credentials: 'include',
+    headers: getAuthHeaders(),
+  });
 
   if (!response.ok) {
     throw new Error(`Failed to load categories (${response.status})`);
@@ -125,6 +136,7 @@ export async function fetchMemberJourneys(
   const query = status ? `?status=${status}` : '';
   const response = await fetch(`${API_BASE_URL}/api/members/${userId}/journeys${query}`, {
     credentials: 'include',
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -177,6 +189,7 @@ const toContentPart = (row: ApiPart, seriesId: string): ContentPart => ({
 export async function fetchSeriesDetail(seriesId: string): Promise<ContentSeriesDetail> {
   const response = await fetch(`${API_BASE_URL}/api/journeys/${seriesId}`, {
     credentials: 'include',
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -207,6 +220,7 @@ export interface JourneyProgress {
 export async function fetchJourneyProgress(seriesId: string): Promise<JourneyProgress> {
   const response = await fetch(`${API_BASE_URL}/api/journeys/${seriesId}/progress`, {
     credentials: 'include',
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -233,6 +247,7 @@ export async function recordJourneyView(seriesId: string): Promise<void> {
   await fetch(`${API_BASE_URL}/api/journeys/${seriesId}/view`, {
     method: 'POST',
     credentials: 'include',
+    headers: getAuthHeaders(),
   }).catch(() => undefined);
 }
 
@@ -241,6 +256,7 @@ export async function startPart(seriesId: string, partId: string): Promise<void>
   const response = await fetch(`${API_BASE_URL}/api/journeys/${seriesId}/parts/${partId}/start`, {
     method: 'POST',
     credentials: 'include',
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {
@@ -262,7 +278,7 @@ export async function completePart(
   const response = await fetch(`${API_BASE_URL}/api/journeys/${seriesId}/parts/${partId}/complete`, {
     method: 'PATCH',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify({ completed }),
   });
 

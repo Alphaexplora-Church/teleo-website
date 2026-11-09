@@ -18,8 +18,13 @@ import { STATIC_USER_PROFILE } from './accountInformationTypes';
 
 // ── API endpoint constants ─────────────────────────────────────────────────────
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 // Preserved for future use — no fetch calls are made in static mode.
+
+const getAuthHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 export const ACCOUNT_INFO_ENDPOINTS = {
   /** GET — fetches account information from vw_user_profile_full */
@@ -34,13 +39,18 @@ export const ACCOUNT_INFO_ENDPOINTS = {
 
 /**
  * Fetches the authenticated user's account information from the live backend.
- * Auth is handled via httpOnly session cookie (credentials: 'include').
+ * Auth is handled via httpOnly session cookie and Authorization Bearer token.
  * Endpoint: GET /api/profile-settings/account-information
  */
 export async function fetchAccountInformation(): Promise<AccountInformationData> {
   const response = await fetch(
     `${API_BASE_URL}${ACCOUNT_INFO_ENDPOINTS.GET_ACCOUNT_INFORMATION}`,
-    { credentials: 'include' },
+    {
+      credentials: 'include',
+      headers: {
+        ...getAuthHeaders(),
+      },
+    },
   );
 
   if (!response.ok) {

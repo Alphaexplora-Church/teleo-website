@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import type { DiscipleshipGroupMock } from "../mocks/discipleshipDashboard.mocks";
+import type { DiscipleshipGroup } from "./discipleshipDashboard.types";
 
 export type MyDiscipleshipGroupsActivePauseViewIcons = Record<string, LucideIcon>;
 
@@ -85,7 +85,7 @@ export interface MyDiscipleshipGroupsActivePauseViewConfig {
 
 export interface MyDiscipleshipGroupsActivePauseViewProps {
   groupId?: string;
-  group?: ActiveGroupData | DiscipleshipGroupMock;
+  group?: ActiveGroupData | DiscipleshipGroup;
   config?: MyDiscipleshipGroupsActivePauseViewConfig;
   onBack?: () => void;
   onOpenJourneyReading?: (studyTitle: string) => void;
