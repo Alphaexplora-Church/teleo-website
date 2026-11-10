@@ -403,5 +403,3 @@ export function mapScheduleFormDataToCreateMeetingDTO(
     start_date: startDate,
   };
 }
-
-

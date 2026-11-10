@@ -346,7 +346,6 @@ export async function fetchDiscipleshipJourneyProgress(
     }
   );
 }
-
 /**
  * PATCH /api/discipleships/:id
  * Edit discipleship group status (e.g. active, paused, inactive, archived).
@@ -364,4 +363,3 @@ export async function updateDiscipleshipGroup(
     { discipleship: { id: groupId, status: payload.status || 'active' } }
   );
 }
-
