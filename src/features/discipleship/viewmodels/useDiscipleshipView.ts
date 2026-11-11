@@ -159,17 +159,27 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
       setDashboardData((prev) => {
         let loadedGroups = prev.groups;
         if (groupsRes.status === "fulfilled" && groupsRes.value) {
-          const rawGroups = groupsRes.value.discipleships || groupsRes.value.groups || [];
+          const val = groupsRes.value as unknown as Record<string, unknown>;
+          const rawGroups = Array.isArray(val)
+            ? val
+            : (val.discipleships as unknown[]) || (val.groups as unknown[]) || [];
           if (Array.isArray(rawGroups)) {
-            loadedGroups = rawGroups.map(mapMemberDiscipleshipItemToGroupMock);
+            loadedGroups = (rawGroups as Parameters<typeof mapMemberDiscipleshipItemToGroupMock>[0][]).map(
+              mapMemberDiscipleshipItemToGroupMock
+            );
           }
         }
 
         let loadedApplications = prev.applications;
         if (appsRes.status === "fulfilled" && appsRes.value) {
-          const rawApps = appsRes.value.applications;
+          const val = appsRes.value as unknown as Record<string, unknown>;
+          const rawApps = Array.isArray(val)
+            ? val
+            : (val.applications as unknown[]) || [];
           if (Array.isArray(rawApps)) {
-            loadedApplications = mapApplicationsDTOToMocks(rawApps);
+            loadedApplications = mapApplicationsDTOToMocks(
+              rawApps as Parameters<typeof mapApplicationsDTOToMocks>[0]
+            );
           }
         }
 
@@ -180,9 +190,16 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
       });
 
       if (ledRes.status === "fulfilled" && ledRes.value) {
-        const rawLed = ledRes.value.groups;
+        const val = ledRes.value as unknown as Record<string, unknown>;
+        const rawLed = Array.isArray(val)
+          ? val
+          : (val.groups as unknown[]) || [];
         if (Array.isArray(rawLed)) {
-          setLedChurchGroups(mapLedDiscipleshipDTOsToLeadChurchGroups(rawLed));
+          setLedChurchGroups(
+            mapLedDiscipleshipDTOsToLeadChurchGroups(
+              rawLed as Parameters<typeof mapLedDiscipleshipDTOsToLeadChurchGroups>[0]
+            )
+          );
         }
       }
     } catch (err: unknown) {
@@ -375,17 +392,14 @@ export function useDiscipleshipView(options?: UseDiscipleshipViewOptions) {
           ...prev,
           applications: [newApp, ...prev.applications],
         }));
-      } catch {
-        // Fallback gracefully so UI remains responsive
-        const newApp = createPendingApplication(churchId, answers);
-        setDashboardData((prev) => ({
-          ...prev,
-          applications: [newApp, ...prev.applications],
-        }));
-      } finally {
-        setIsSubmitting(false);
+
         setViewMode("dashboard");
         scrollToTop();
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to submit discipleship application";
+        setError(msg);
+      } finally {
+        setIsSubmitting(false);
       }
     },
     [selectedChurchId, scrollToTop]

@@ -26,6 +26,8 @@ export interface DiscipleshipApplication {
 }
 
 export interface DiscipleshipGroupGathering {
+  id?: string;
+  meeting_id?: string;
   timing: string;
   subtitle?: string;
   location: string;
@@ -134,6 +136,8 @@ export interface GroupMemberItem {
 }
 
 export interface NextGatheringData {
+  id?: string;
+  meeting_id?: string;
   timing?: string;
   subtitle?: string;
   location?: string;

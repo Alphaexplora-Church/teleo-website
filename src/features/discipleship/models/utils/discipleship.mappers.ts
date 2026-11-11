@@ -11,7 +11,9 @@ import type {
   LedDiscipleshipGroupDTO,
   IntakeFormFieldDTO,
   DiscipleshipMemberDTO,
+  CreateMeetingRequestDTO,
 } from '../types/discipleship.dto';
+import type { GatheringScheduleFormData } from '../types/myDiscipleshipGroupsLeadCardView.types';
 
 import type { DiscipleshipChurch } from '../types/myDiscipleshipEmptyStateView.types';
 import type {
@@ -178,6 +180,8 @@ export function mapGroupDetailDTOToGroupMock(
     const subtitle = `${recurrence.charAt(0).toUpperCase() + recurrence.slice(1)} fellowship & study`;
 
     nextGathering = {
+      id: nextMeeting.id,
+      meeting_id: nextMeeting.id,
       timing: formatMeetingTiming(nextMeeting),
       subtitle,
       location: nextMeeting.location_address || 'Church Campus',
@@ -274,6 +278,8 @@ export function mapLedDiscipleshipDTOsToLeadChurchGroups(
       status: g.status === 'paused' ? 'Paused' : 'Active',
       next_gathering: g.next_meeting
         ? {
+            id: g.next_meeting.id,
+            meeting_id: g.next_meeting.id,
             timing: meetingPreview,
             subtitle: `${g.next_meeting.recurrence_type || 'Weekly'} fellowship`,
             location: g.next_meeting.location_address || '',
@@ -322,3 +328,78 @@ export function mapIntakeFormFieldToQuestion(
   };
 }
 
+/**
+ * Converts weekday name to 0 (Sun) - 6 (Sat) for POST /api/discipleship-meetings
+ */
+export function convertDayNameToNumber(dayName?: string): number {
+  if (!dayName) return 3; // Wednesday fallback
+  const days: Record<string, number> = {
+    sunday: 0,
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thursday: 4,
+    friday: 5,
+    saturday: 6,
+  };
+  return days[dayName.trim().toLowerCase()] ?? 3;
+}
+
+/**
+ * Converts 12-hour AM/PM string (e.g. "7:00 PM") to 24-hour "HH:MM:SS" for backend
+ */
+export function convert12HrTo24Hr(time12Hr?: string): string {
+  if (!time12Hr) return '19:00:00';
+  const trimmed = time12Hr.trim();
+  if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(trimmed)) {
+    const parts = trimmed.split(':');
+    return `${parts[0].padStart(2, '0')}:${parts[1]}:00`;
+  }
+  const match = trimmed.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+  if (!match) return '19:00:00';
+  let hour = parseInt(match[1], 10);
+  const minute = match[2];
+  const ampm = (match[3] || '').toUpperCase();
+  if (ampm === 'PM' && hour < 12) hour += 12;
+  if (ampm === 'AM' && hour === 12) hour = 0;
+  return `${String(hour).padStart(2, '0')}:${minute}:00`;
+}
+
+/**
+ * Calculates next occurrence date YYYY-MM-DD for starting a recurring schedule
+ */
+export function getNextOccurrenceDate(dayOfWeekNum: number): string {
+  const now = new Date();
+  const currentDay = now.getDay();
+  let diff = (dayOfWeekNum - currentDay + 7) % 7;
+  if (diff === 0) diff = 7;
+  const nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
+  return nextDate.toISOString().split('T')[0];
+}
+
+/**
+ * Maps GatheringScheduleFormData into CreateMeetingRequestDTO matching backend contract
+ */
+export function mapScheduleFormDataToCreateMeetingDTO(
+  groupId: string,
+  data: GatheringScheduleFormData
+): CreateMeetingRequestDTO {
+  const dayNum = convertDayNameToNumber(data.dayOfWeek);
+  const time24 = convert12HrTo24Hr(data.startTime);
+  const startDate = getNextOccurrenceDate(dayNum);
+
+  let recurrenceType: 'weekly' | 'biweekly' | 'monthly' | 'one_time' = 'weekly';
+  if (/bi-?weekly/i.test(data.recurrence)) recurrenceType = 'biweekly';
+  else if (/monthly/i.test(data.recurrence)) recurrenceType = 'monthly';
+
+  return {
+    discipleship_id: groupId,
+    meeting_type: data.format,
+    location_address: data.location || (data.format === 'virtual' ? undefined : 'Church Campus'),
+    meeting_link: data.virtualLink || (data.format === 'physical' ? undefined : 'https://teleo.church/meet'),
+    recurrence_type: recurrenceType,
+    day_of_week: dayNum,
+    meeting_time: time24,
+    start_date: startDate,
+  };
+}

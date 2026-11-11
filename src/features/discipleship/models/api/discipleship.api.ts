@@ -49,13 +49,17 @@ async function safeApiFetch<T>(
       ...options,
     });
 
-    // Graceful handling for non-ok status codes:
-    // - 404 Not Found: endpoint route not yet deployed on backend
-    // - 400 Bad Request: backend route order validation error (e.g. :churchId matching)
-    // - 401/403: unauthorized / unauthenticated session
-    // - 500: server error
-    // Return clean typed fallback data so UI presents proper empty state without crashing.
+    // For state-mutating requests (POST, PATCH, DELETE), propagate server errors
+    // so caller ViewModels can surface authentic messages (e.g. 409 Conflict)
     if (!response.ok) {
+      if (options.method && options.method !== 'GET') {
+        const errJson = await response.json().catch(() => null);
+        const message =
+          errJson?.message ||
+          errJson?.error ||
+          `Request failed with status ${response.status}`;
+        throw new Error(message);
+      }
       return fallback;
     }
 
@@ -65,8 +69,11 @@ async function safeApiFetch<T>(
 
     const data = await response.json().catch(() => null);
     return (data as T) ?? fallback;
-  } catch {
-    // Silent catch on network error, offline mode, or connection refused
+  } catch (err) {
+    if (options.method && options.method !== 'GET') {
+      throw err;
+    }
+    // Silent catch on network error, offline mode, or connection refused for GET
     return fallback;
   }
 }
@@ -77,7 +84,7 @@ async function safeApiFetch<T>(
  * GET /api/churches/discipleship-programs
  * Browse churches offering Discipleship (home church prioritized).
  * Supports optional church_id query parameter.
- * Returns { churches: [] } fallback on 400 (validation clash) or 404 (not yet deployed).
+ * Aligned with Section 12 of DISCIPLESHIP_API.md.
  */
 export async function fetchDiscipleshipPrograms(
   params?: { church_id?: number }
@@ -337,5 +344,22 @@ export async function fetchDiscipleshipJourneyProgress(
       avg_completion_percentage: 0,
       members_enrolled_count: 0,
     }
+  );
+}
+/**
+ * PATCH /api/discipleships/:id
+ * Edit discipleship group status (e.g. active, paused, inactive, archived).
+ */
+export async function updateDiscipleshipGroup(
+  groupId: string,
+  payload: { name?: string; capacity_limit?: number; status?: string }
+): Promise<{ discipleship?: { id: string; status: string } }> {
+  return safeApiFetch<{ discipleship?: { id: string; status: string } }>(
+    `/api/discipleships/${groupId}`,
+    {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    },
+    { discipleship: { id: groupId, status: payload.status || 'active' } }
   );
 }
